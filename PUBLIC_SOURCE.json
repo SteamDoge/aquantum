@@ -1,7 +1,7 @@
 {
   "project": "AQuantum Reader",
   "version": "rc.0.0.15",
-  "development_source_commit": "1a656e233b270463eea86059b1bb0af7e61013ba",
+  "development_source_commit": "3f328a7458edcff0bb8dba3418dd4b94fdf8e069",
   "source_lockfile_sha256": {
     "Cargo.lock": "d22c7c6e89c6fd4ee88b2102efc714d5a2cb62191abc92d30b8f4f816d4943a1",
     "apps/flutter_reader/pubspec.lock": "ebf6d1222be42eab6354aab8f96ec240d2e088e327710c08861c7623274a8695"

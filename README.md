@@ -1,21 +1,57 @@
+<div align="center">
+
+<img src="design-system/app-icon.png" alt="AQuantum Reader" width="96">
+
 # AQuantum Reader
 
-手机优先、免登录、可离线使用的阅读器。Flutter 提供界面，Rust 提供共享核心；优先支持 **Windows x64 与 Android（API 24+，ARM64/x86_64）**。当前版本见根目录 `VERSION`；Linux、macOS、iOS 没有随本仓库交付可用平台工程。
+**一本书，一处阅读。**
 
-支持导入和阅读文本、图片/漫画、PDF、Markdown、EPUB/MOBI/AZW3/FB2 等内容，保存阅读位置、书签和笔记，管理本地资料库与备份。导入时先复制外部文件，再读取受管副本，不改原件。并非所有格式具有同样的排版能力。可选的书目信息检索及第三方插件可能联网。
+面向 Android 与 Windows 的本地阅读器 · Flutter 界面 · Rust 核心
 
-## 结构
+[![Release](https://img.shields.io/github/v/release/SteamDoge/aquantum?include_prereleases&style=flat-square&label=release)](https://github.com/SteamDoge/aquantum/releases)
+[![Downloads](https://img.shields.io/github/downloads/SteamDoge/aquantum/total?style=flat-square&logo=github)](https://github.com/SteamDoge/aquantum/releases)
+[![License](https://img.shields.io/badge/license-AGPL--3.0--only-00AEEF?style=flat-square)](LICENSE)
 
-| 路径 | 职责 |
-| --- | --- |
-| `apps/flutter_reader` | Flutter UI、状态、平台工程、WebView 文档引擎及资源 |
-| `crates/domain` | 纯核心规则 |
-| `crates/application` | 操作层及存储端口 |
-| `crates/local` | SQLite、受管资源与文件系统实现 |
-| `crates/bridge` | Flutter 使用的 JSON C ABI、QuickJS 插件运行时 |
-| `apps/cli` | 可单独构建的核心命令行入口 |
-| `plugin-sdk` | javascript-v1 运行时、类型声明、打包脚本及最小源码示例 |
-| `scripts` | 手动构建、工程锁与版本检查 |
+[下载](#下载) · [功能](#功能) · [使用](#使用) · [源码构建](#源码构建) · [问题反馈](https://github.com/SteamDoge/aquantum/issues)
+
+</div>
+
+## 功能
+
+- **本地阅读**：免登录，可离线使用；导入时复制文件，保留外部原件。
+- **多种内容**：文本、图片／漫画、PDF、Markdown、EPUB、MOBI、AZW3、FB2 等；各格式按自身能力排版。
+- **持续阅读**：保存阅读位置、书签与笔记，管理资料库和本地备份。
+- **统一体验**：连续滚动与横向分页，四套配色及浅深主题，适配手机和桌面布局。
+- **独立扩展**：通过 `javascript-v1` 插件接口安装 JavaScript 模块，可选 HTML 页面；联网能力由模块及用户授权决定。
+- **开放源码**：原创代码采用 AGPL-3.0-only，第三方许可与版权声明完整保留。
+
+OCR、AI、云同步等扩展方向不代表主程序已经实现的功能。可选书目信息检索及联网插件需要网络。
+
+## 下载
+
+当前预发布：[**RC015 · rc.0.0.15**](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.15)。在 [所有版本](https://github.com/SteamDoge/aquantum/releases) 查看更新与安装包。
+
+| 平台 | 下载 | 选择说明 |
+| --- | --- | --- |
+| Android 7.0+（API 24+） | [![APK ARM64](https://img.shields.io/badge/APK-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-android-arm64.apk) | 大多数手机选择此版本 |
+| Android x86_64 | [![APK x64](https://img.shields.io/badge/APK-x64-168039?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-android-x64.apk) | x86_64 设备／模拟器 |
+| Windows 10／11 x64 | [![Portable x64](https://img.shields.io/badge/Portable-x64-00AEEF)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-windows-x64.zip) | 解压完整目录，运行 `AQuantumReader.exe` |
+| 插件开发 | [SDK 源码与示例](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-plugin-sdk.zip) | 开发工具，不是已安装的功能模块 |
+
+Windows 阅读 EPUB 等文档需安装 Microsoft Edge WebView2 Runtime。当前没有 Linux、macOS、iOS 或 Windows ARM64 安装包。RC 为预发布版本；ARM64 实体机及完整 GUI／设备／格式矩阵仍有验证缺口。
+
+## 使用
+
+1. Android 安装对应 APK；Windows 解压便携包并保留 DLL、`data` 和插件资源，不能只复制 EXE。
+2. 在应用中选择文件、目录或压缩包，预览后导入资料库。
+3. 打开内容阅读，在设置中调整配色和阅读偏好；升级或手动操作资料库前先备份。
+
+Android 覆盖升级需要兼容签名。自行构建的签名与发布包不同时，先导出备份，再处理安装；不要通过卸载来代替备份。
+
+## 源码构建
+
+<details>
+<summary>展开环境要求、构建命令与测试步骤</summary>
 
 ## 构建环境
 
@@ -84,7 +120,26 @@ Pop-Location
 
 应用内选择文件、目录或压缩包，预览后导入，在资料库打开阅读；设置、阅读记录与插件权限在客户端管理。Windows 可用 `AQ_READER_DATA` 指定独立绝对数据目录。卸载或手动操作资料库前先备份。第三方模块以独立 `javascript-v1` ZIP 安装，HTML 页面可选；类型接口见 `plugin-sdk/index.d.ts`，打包用 `python plugin-sdk/build.py --help`，源码示例在 `plugin-sdk/examples`。示例源码不代表已安装功能；OCR、AI、同步等能力不因存在扩展接口而宣称实现。
 
-本仓库是独立源码快照。公开提交、Git Tag 和 GitHub Release 分开管理；安装包仅通过 Releases 附件提供。当前源码来源、许可证范围及第三方声明见 [第三方声明](THIRD_PARTY_NOTICES.md)。ARM64 实体机和完整设备/格式矩阵仍有验证缺口。
+当前源码来源与第三方声明见 [第三方声明](THIRD_PARTY_NOTICES.md) 和 [PUBLIC_SOURCE.json](PUBLIC_SOURCE.json)。ARM64 实体机和完整设备/格式矩阵仍有验证缺口。
+
+</details>
+
+## 工程结构
+
+| 路径 | 职责 |
+| --- | --- |
+| `apps/flutter_reader` | Flutter UI、平台工程与文档引擎资源 |
+| `crates/domain` | 核心规则 |
+| `crates/application` | 操作层与存储端口 |
+| `crates/local` | SQLite、受管资源及文件系统 |
+| `crates/bridge` | JSON C ABI 与 QuickJS 插件运行时 |
+| `apps/cli` | 核心命令行入口 |
+| `plugin-sdk` | 运行时、类型声明、打包脚本及最小示例 |
+| `scripts` | 手动构建、工程锁与版本检查 |
+
+## 反馈与贡献
+
+请通过 [GitHub Issues](https://github.com/SteamDoge/aquantum/issues) 提交问题或建议，注明版本、系统、复现步骤与预期结果；日志及样例请先移除个人资料。欢迎提交聚焦问题的 Pull Request。
 
 ## 许可证
 

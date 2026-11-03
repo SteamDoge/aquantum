@@ -1,0 +1,23 @@
+[workspace]
+members = ["crates/domain", "crates/application", "crates/local", "crates/bridge", "apps/cli"]
+resolver = "2"
+
+[workspace.package]
+version = "0.0.15-rc.0"
+edition = "2024"
+publish = false
+license = "AGPL-3.0-only"
+
+[workspace.dependencies]
+aq-domain = { path = "crates/domain" }
+aq-application = { path = "crates/application" }
+aq-local = { path = "crates/local" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+thiserror = "2"
+rusqlite = { version = "0.40", features = ["bundled"] }
+sha2 = "0.10"
+encoding_rs = "0.8"
+clap = { version = "4", features = ["derive"] }
+tempfile = "3"

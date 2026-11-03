@@ -1,0 +1,1845 @@
+{
+  "lockfiles": {
+    "Cargo.lock": "d22c7c6e89c6fd4ee88b2102efc714d5a2cb62191abc92d30b8f4f816d4943a1",
+    "apps/flutter_reader/pubspec.lock": "ebf6d1222be42eab6354aab8f96ec240d2e088e327710c08861c7623274a8695"
+  },
+  "scope": "All resolved Cargo and Dart packages, including build/dev and unsupported-target dependencies; registry source is fetched, not vendored.",
+  "cargo_review": "Reviewed permissive OR branches (MIT/Apache where applicable); AND BSD/Unicode obligations remain. Metadata review is not a source provenance guarantee.",
+  "dart_review": "MIT/BSD/Apache and dbus MPL-2.0; no secondary-license restriction in dbus Dart source. Android/Windows are the exported UI platforms.",
+  "packages": [
+    {
+      "ecosystem": "cargo",
+      "name": "adler2",
+      "version": "2.0.1",
+      "license": "0BSD OR MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "aho-corasick",
+      "version": "1.1.5",
+      "license": "Unlicense OR MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "allocator-api2",
+      "version": "0.2.21",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "anstream",
+      "version": "1.0.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "anstyle",
+      "version": "1.0.14",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "anstyle-parse",
+      "version": "1.0.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "anstyle-query",
+      "version": "1.1.5",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "anstyle-wincon",
+      "version": "3.0.11",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "arbitrary",
+      "version": "1.5.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "base64",
+      "version": "0.22.1",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "bindgen",
+      "version": "0.72.1",
+      "license": "BSD-3-Clause",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "bitflags",
+      "version": "2.13.2",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "block-buffer",
+      "version": "0.10.4",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "bumpalo",
+      "version": "3.20.3",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "cc",
+      "version": "1.8.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "cexpr",
+      "version": "0.6.0",
+      "license": "Apache-2.0/MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "cfg-if",
+      "version": "1.0.5",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "clang-sys",
+      "version": "1.9.1",
+      "license": "Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "clap",
+      "version": "4.6.7",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "clap_builder",
+      "version": "4.6.7",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "clap_derive",
+      "version": "4.6.7",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "clap_lex",
+      "version": "1.1.1",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "colorchoice",
+      "version": "1.0.5",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "convert_case",
+      "version": "0.12.0",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "core_detect",
+      "version": "1.0.0",
+      "license": "MIT/Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "cpufeatures",
+      "version": "0.2.17",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "crc32fast",
+      "version": "1.5.2",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "crossbeam-utils",
+      "version": "0.8.23",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "crypto-common",
+      "version": "0.1.7",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "derive_arbitrary",
+      "version": "1.5.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "digest",
+      "version": "0.10.7",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "either",
+      "version": "1.19.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "encoding_rs",
+      "version": "0.8.42",
+      "license": "(Apache-2.0 OR MIT) AND BSD-3-Clause",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "equivalent",
+      "version": "1.0.3",
+      "license": "Apache-2.0 OR MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "errno",
+      "version": "0.3.14",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "fallible-iterator",
+      "version": "0.3.0",
+      "license": "MIT/Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "fallible-streaming-iterator",
+      "version": "0.1.9",
+      "license": "MIT/Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "fastrand",
+      "version": "2.5.0",
+      "license": "Apache-2.0 OR MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "find-msvc-tools",
+      "version": "0.1.14",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "flate2",
+      "version": "1.1.10",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "foldhash",
+      "version": "0.2.0",
+      "license": "Zlib",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "fs2",
+      "version": "0.4.3",
+      "license": "MIT/Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "futures-core",
+      "version": "0.3.34",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "futures-task",
+      "version": "0.3.34",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "futures-util",
+      "version": "0.3.34",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "generic-array",
+      "version": "0.14.7",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "getrandom",
+      "version": "0.4.3",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "glob",
+      "version": "0.3.4",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "hashbrown",
+      "version": "0.16.1",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "hashbrown",
+      "version": "0.17.1",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "hashlink",
+      "version": "0.12.2",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "heck",
+      "version": "0.5.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "indexmap",
+      "version": "2.14.2",
+      "license": "Apache-2.0 OR MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "is_terminal_polyfill",
+      "version": "1.70.2",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "itertools",
+      "version": "0.13.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "itoa",
+      "version": "1.0.18",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "js-sys",
+      "version": "0.3.106",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "libc",
+      "version": "0.2.191",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "libloading",
+      "version": "0.8.9",
+      "license": "ISC",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "libsqlite3-sys",
+      "version": "0.38.2",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "linux-raw-sys",
+      "version": "0.12.1",
+      "license": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "log",
+      "version": "0.4.34",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "memchr",
+      "version": "2.8.3",
+      "license": "Unlicense OR MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "minimal-lexical",
+      "version": "0.2.1",
+      "license": "MIT/Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "miniz_oxide",
+      "version": "0.9.1",
+      "license": "MIT OR Zlib OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "multiversion_no_op",
+      "version": "1.0.0",
+      "license": "Apache-2.0 OR MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "nom",
+      "version": "7.1.3",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "once_cell",
+      "version": "1.21.4",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "once_cell_polyfill",
+      "version": "1.70.2",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "percent-encoding",
+      "version": "2.3.2",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "pin-project-lite",
+      "version": "0.2.17",
+      "license": "Apache-2.0 OR MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "pkg-config",
+      "version": "0.3.34",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "prettyplease",
+      "version": "0.2.37",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "proc-macro-crate",
+      "version": "3.5.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "proc-macro2",
+      "version": "1.0.107",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "pulldown-cmark",
+      "version": "0.13.4",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "quote",
+      "version": "1.0.47",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "r-efi",
+      "version": "6.0.0",
+      "license": "MIT OR Apache-2.0 OR LGPL-2.1-or-later",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "regex",
+      "version": "1.13.1",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "regex-automata",
+      "version": "0.4.18",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "regex-syntax",
+      "version": "0.8.11",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "relative-path",
+      "version": "2.0.3",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "rquickjs",
+      "version": "0.14.0",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "rquickjs-core",
+      "version": "0.14.0",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "rquickjs-macro",
+      "version": "0.14.0",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "rquickjs-sys",
+      "version": "0.14.0",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "rsqlite-vfs",
+      "version": "0.1.1",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "rusqlite",
+      "version": "0.40.2",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "rustc-hash",
+      "version": "2.1.3",
+      "license": "Apache-2.0 OR MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "rustix",
+      "version": "1.1.5",
+      "license": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "rustversion",
+      "version": "1.0.23",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "scopeguard",
+      "version": "1.2.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "serde",
+      "version": "1.0.229",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "serde_core",
+      "version": "1.0.229",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "serde_derive",
+      "version": "1.0.229",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "serde_json",
+      "version": "1.0.154",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "sha2",
+      "version": "0.10.9",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "shlex",
+      "version": "1.3.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "shlex",
+      "version": "2.0.1",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "simd-adler32",
+      "version": "0.3.10",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "simdutf8",
+      "version": "0.1.5",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "slab",
+      "version": "0.4.12",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "smallvec",
+      "version": "1.16.3",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "sqlite-wasm-rs",
+      "version": "0.5.5",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "strsim",
+      "version": "0.11.1",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "syn",
+      "version": "2.0.119",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "syn",
+      "version": "3.0.9",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "tempfile",
+      "version": "3.27.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "thiserror",
+      "version": "2.0.21",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "thiserror-impl",
+      "version": "2.0.21",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "toml_datetime",
+      "version": "1.1.2+spec-1.1.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "toml_edit",
+      "version": "0.25.17+spec-1.1.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "toml_parser",
+      "version": "1.1.5+spec-1.1.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "typenum",
+      "version": "1.20.1",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "unicase",
+      "version": "2.10.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "unicode-ident",
+      "version": "1.0.27",
+      "license": "(MIT OR Apache-2.0) AND Unicode-3.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "unicode-segmentation",
+      "version": "1.13.3",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "utf8parse",
+      "version": "0.2.2",
+      "license": "Apache-2.0 OR MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "uuid",
+      "version": "1.28.0",
+      "license": "Apache-2.0 OR MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "vcpkg",
+      "version": "0.2.15",
+      "license": "MIT/Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "version_check",
+      "version": "0.9.5",
+      "license": "MIT/Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "wasm-bindgen",
+      "version": "0.2.129",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "wasm-bindgen-macro",
+      "version": "0.2.129",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "wasm-bindgen-macro-support",
+      "version": "0.2.129",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "wasm-bindgen-shared",
+      "version": "0.2.129",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "winapi",
+      "version": "0.3.9",
+      "license": "MIT/Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "winapi-i686-pc-windows-gnu",
+      "version": "0.4.0",
+      "license": "MIT/Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "winapi-x86_64-pc-windows-gnu",
+      "version": "0.4.0",
+      "license": "MIT/Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "windows-link",
+      "version": "0.2.1",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "windows-sys",
+      "version": "0.61.2",
+      "license": "MIT OR Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "winnow",
+      "version": "1.0.4",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "zip",
+      "version": "2.6.1",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "zmij",
+      "version": "1.0.23",
+      "license": "MIT",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "zopfli",
+      "version": "0.8.4",
+      "license": "Apache-2.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "archive",
+      "version": "4.5.2",
+      "license": "MIT",
+      "license_text_sha256": "32f97d332eae7453ec4079858e6f1d74be85beeb6d3881068b47d02a379cccea",
+      "source": "https://pub.dev/packages/archive"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "args",
+      "version": "2.7.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "dfb09c74e29386cd3e2719f32d4995d59526179753931d31840757c77fbf2791",
+      "source": "https://pub.dev/packages/args"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "async",
+      "version": "2.13.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "ff15faa32a2e638107b7789592b14426162a75ba620044ee2340a20ec6ce5e73",
+      "source": "https://pub.dev/packages/async"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "boolean_selector",
+      "version": "2.1.2",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "b71519245009a3b8f126196a5408ec031e216e8e0d985085958c6543f82a8a2a",
+      "source": "https://pub.dev/packages/boolean_selector"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "characters",
+      "version": "1.4.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "0371d1da6a57fb791db29d29b95333429205f51f3cb2eb3a0c12d91838a38744",
+      "source": "https://pub.dev/packages/characters"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "clock",
+      "version": "1.1.3",
+      "license": "Apache-2.0",
+      "license_text_sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
+      "source": "https://pub.dev/packages/clock"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "code_assets",
+      "version": "1.2.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "21ae23b0b9ff67a2dc75ab085d1e8db8ac548c5faf370af17f28dd2ef3b52b7b",
+      "source": "https://pub.dev/packages/code_assets"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "collection",
+      "version": "1.19.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "ff15faa32a2e638107b7789592b14426162a75ba620044ee2340a20ec6ce5e73",
+      "source": "https://pub.dev/packages/collection"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "cross_file",
+      "version": "0.3.5+5",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/cross_file"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "crypto",
+      "version": "3.0.7",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "ad6a71997da90924b2cfb1fb47ec46537f70faf469efe016168794ae45ed6888",
+      "source": "https://pub.dev/packages/crypto"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "cupertino_ui",
+      "version": "1.1.3",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/cupertino_ui"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "dbus",
+      "version": "0.7.15",
+      "license": "MPL-2.0",
+      "license_text_sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5",
+      "source": "https://pub.dev/packages/dbus"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "fake_async",
+      "version": "1.3.3",
+      "license": "Apache-2.0",
+      "license_text_sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
+      "source": "https://pub.dev/packages/fake_async"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "ffi",
+      "version": "2.2.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "0371d1da6a57fb791db29d29b95333429205f51f3cb2eb3a0c12d91838a38744",
+      "source": "https://pub.dev/packages/ffi"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "file",
+      "version": "7.0.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "f6df86b1412172537273e8e80ee2fb8a66aa7307ce0b39ea5ddab47ca41b8c49",
+      "source": "https://pub.dev/packages/file"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "file_picker",
+      "version": "10.3.10",
+      "license": "MIT",
+      "license_text_sha256": "6278994817bd65fa32404e53c3a62a09d824d3f9a71f7fadcaca3e4f02641d66",
+      "source": "https://pub.dev/packages/file_picker"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "flutter",
+      "version": "Flutter-3.47.7",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "a3a9fd82f800a47377f7d3f60c60a5c91cae0495be8f329031e1448ce0f5dab9",
+      "source": "Flutter SDK"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "flutter_driver",
+      "version": "Flutter-3.47.7",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "a3a9fd82f800a47377f7d3f60c60a5c91cae0495be8f329031e1448ce0f5dab9",
+      "source": "Flutter SDK"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "flutter_lints",
+      "version": "6.0.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "89519eca6f7b9529b35bdddd623a58c3af06a88c458dbd6531ddb4675acf75a9",
+      "source": "https://pub.dev/packages/flutter_lints"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "flutter_localizations",
+      "version": "Flutter-3.47.7",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "a3a9fd82f800a47377f7d3f60c60a5c91cae0495be8f329031e1448ce0f5dab9",
+      "source": "Flutter SDK"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "flutter_markdown_plus",
+      "version": "1.0.12",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "89519eca6f7b9529b35bdddd623a58c3af06a88c458dbd6531ddb4675acf75a9",
+      "source": "https://pub.dev/packages/flutter_markdown_plus"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "flutter_plugin_android_lifecycle",
+      "version": "2.0.35",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/flutter_plugin_android_lifecycle"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "flutter_secure_storage",
+      "version": "10.3.4",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "55dafb084270616f95b9bea53654adda8bdcad95c022a83c4cf8769073f829fa",
+      "source": "https://pub.dev/packages/flutter_secure_storage"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "flutter_secure_storage_darwin",
+      "version": "0.3.2",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "3754c516086c62307896512b68024837bee5d2bea42a55cfd03f7448b92b06c8",
+      "source": "https://pub.dev/packages/flutter_secure_storage_darwin"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "flutter_secure_storage_linux",
+      "version": "3.0.3",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "55dafb084270616f95b9bea53654adda8bdcad95c022a83c4cf8769073f829fa",
+      "source": "https://pub.dev/packages/flutter_secure_storage_linux"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "flutter_secure_storage_platform_interface",
+      "version": "2.1.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "55dafb084270616f95b9bea53654adda8bdcad95c022a83c4cf8769073f829fa",
+      "source": "https://pub.dev/packages/flutter_secure_storage_platform_interface"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "flutter_secure_storage_web",
+      "version": "2.1.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "55dafb084270616f95b9bea53654adda8bdcad95c022a83c4cf8769073f829fa",
+      "source": "https://pub.dev/packages/flutter_secure_storage_web"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "flutter_secure_storage_windows",
+      "version": "4.1.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "55dafb084270616f95b9bea53654adda8bdcad95c022a83c4cf8769073f829fa",
+      "source": "https://pub.dev/packages/flutter_secure_storage_windows"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "flutter_test",
+      "version": "Flutter-3.47.7",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "a3a9fd82f800a47377f7d3f60c60a5c91cae0495be8f329031e1448ce0f5dab9",
+      "source": "Flutter SDK"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "flutter_web_plugins",
+      "version": "Flutter-3.47.7",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "a3a9fd82f800a47377f7d3f60c60a5c91cae0495be8f329031e1448ce0f5dab9",
+      "source": "Flutter SDK"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "fuchsia_remote_debug_protocol",
+      "version": "Flutter-3.47.7",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "a3a9fd82f800a47377f7d3f60c60a5c91cae0495be8f329031e1448ce0f5dab9",
+      "source": "Flutter SDK"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "hooks",
+      "version": "2.0.2",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "21ae23b0b9ff67a2dc75ab085d1e8db8ac548c5faf370af17f28dd2ef3b52b7b",
+      "source": "https://pub.dev/packages/hooks"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "http",
+      "version": "1.6.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "3c32b53167c7dae9190c38dab5dd9fe1789c53623ebc7d1babcb29914c5b3f16",
+      "source": "https://pub.dev/packages/http"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "http_parser",
+      "version": "4.1.2",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "3c32b53167c7dae9190c38dab5dd9fe1789c53623ebc7d1babcb29914c5b3f16",
+      "source": "https://pub.dev/packages/http_parser"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "image",
+      "version": "4.12.0",
+      "license": "MIT",
+      "license_text_sha256": "f3c17da84e0780e1c334325c73098257c32221d62498ed55ef3c1361904925aa",
+      "source": "https://pub.dev/packages/image"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "integration_test",
+      "version": "Flutter-3.47.7",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "a3a9fd82f800a47377f7d3f60c60a5c91cae0495be8f329031e1448ce0f5dab9",
+      "source": "Flutter SDK"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "intl",
+      "version": "0.20.3",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "7e124af6a556f045cb3a20cafbdaa31602ac2c82cbcb3c3b15faaaf514b06028",
+      "source": "https://pub.dev/packages/intl"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "jni",
+      "version": "1.1.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "08a004aa8956c3cf3b24f7f69c966247233953e18e6afaa61191ea47b7eb70f6",
+      "source": "https://pub.dev/packages/jni"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "jni_flutter",
+      "version": "1.0.4+1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "b1fcb475d67817411f335ac92872507011e574c4cb29cfdaaf7707b75641932c",
+      "source": "https://pub.dev/packages/jni_flutter"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "jni_util",
+      "version": "1.0.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "b1fcb475d67817411f335ac92872507011e574c4cb29cfdaaf7707b75641932c",
+      "source": "https://pub.dev/packages/jni_util"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "leak_tracker",
+      "version": "11.0.2",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "08a004aa8956c3cf3b24f7f69c966247233953e18e6afaa61191ea47b7eb70f6",
+      "source": "https://pub.dev/packages/leak_tracker"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "leak_tracker_flutter_testing",
+      "version": "3.0.10",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "08a004aa8956c3cf3b24f7f69c966247233953e18e6afaa61191ea47b7eb70f6",
+      "source": "https://pub.dev/packages/leak_tracker_flutter_testing"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "leak_tracker_testing",
+      "version": "3.0.2",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "08a004aa8956c3cf3b24f7f69c966247233953e18e6afaa61191ea47b7eb70f6",
+      "source": "https://pub.dev/packages/leak_tracker_testing"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "lints",
+      "version": "6.1.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "421fe78c3b5df297f8b4ab2c74f2450a274ee6d245a113091f6b9f90570af193",
+      "source": "https://pub.dev/packages/lints"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "logging",
+      "version": "1.3.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "dfb09c74e29386cd3e2719f32d4995d59526179753931d31840757c77fbf2791",
+      "source": "https://pub.dev/packages/logging"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "markdown",
+      "version": "7.3.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "0aa335b5e036b9efbb35ad7a35835cd32e4eb656c08bfe040550a9f6fa84fcc7",
+      "source": "https://pub.dev/packages/markdown"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "matcher",
+      "version": "0.12.20",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "3c32b53167c7dae9190c38dab5dd9fe1789c53623ebc7d1babcb29914c5b3f16",
+      "source": "https://pub.dev/packages/matcher"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "material_color_utilities",
+      "version": "0.13.0",
+      "license": "Apache-2.0",
+      "license_text_sha256": "d103f246ef4c18dab8af0c1dcf6a8af884e5cff554da7261a48ac43c17d98f2e",
+      "source": "https://pub.dev/packages/material_color_utilities"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "material_ui",
+      "version": "1.7.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/material_ui"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "meta",
+      "version": "1.18.3",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "b71519245009a3b8f126196a5408ec031e216e8e0d985085958c6543f82a8a2a",
+      "source": "https://pub.dev/packages/meta"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "objective_c",
+      "version": "9.5.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "1cda25a8de6880c5338de0b4a06ee89e8537c213eb1379c16a4c035bfd198b5c",
+      "source": "https://pub.dev/packages/objective_c"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "package_config",
+      "version": "3.0.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "0371d1da6a57fb791db29d29b95333429205f51f3cb2eb3a0c12d91838a38744",
+      "source": "https://pub.dev/packages/package_config"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "path",
+      "version": "1.9.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "3c32b53167c7dae9190c38dab5dd9fe1789c53623ebc7d1babcb29914c5b3f16",
+      "source": "https://pub.dev/packages/path"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "path_provider",
+      "version": "2.1.6",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/path_provider"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "path_provider_android",
+      "version": "2.3.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/path_provider_android"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "path_provider_foundation",
+      "version": "2.6.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/path_provider_foundation"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "path_provider_linux",
+      "version": "2.2.2",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/path_provider_linux"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "path_provider_platform_interface",
+      "version": "2.1.3",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/path_provider_platform_interface"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "path_provider_windows",
+      "version": "2.3.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "89519eca6f7b9529b35bdddd623a58c3af06a88c458dbd6531ddb4675acf75a9",
+      "source": "https://pub.dev/packages/path_provider_windows"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "pdfium_dart",
+      "version": "0.3.1",
+      "license": "MIT",
+      "license_text_sha256": "567f9f1ce8a40a384765361ac0d204efdc355be53caed412cf8a0e6158d470bf",
+      "source": "https://pub.dev/packages/pdfium_dart"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "pdfium_flutter",
+      "version": "0.3.1",
+      "license": "MIT",
+      "license_text_sha256": "567f9f1ce8a40a384765361ac0d204efdc355be53caed412cf8a0e6158d470bf",
+      "source": "https://pub.dev/packages/pdfium_flutter"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "pdfrx",
+      "version": "2.6.5",
+      "license": "MIT",
+      "license_text_sha256": "050ccfd8256df03e5ccaec222c0f87a4e5e2069c69515f027b534a63fb00fe23",
+      "source": "https://pub.dev/packages/pdfrx"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "pdfrx_engine",
+      "version": "0.6.1",
+      "license": "MIT",
+      "license_text_sha256": "050ccfd8256df03e5ccaec222c0f87a4e5e2069c69515f027b534a63fb00fe23",
+      "source": "https://pub.dev/packages/pdfrx_engine"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "petitparser",
+      "version": "7.0.2",
+      "license": "MIT",
+      "license_text_sha256": "d2e8ffdbe89acbc10d5d1f2b03e7dbddf0a9f1742e809176682b62ef3d573b3e",
+      "source": "https://pub.dev/packages/petitparser"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "platform",
+      "version": "3.2.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "143839f62c9b7f88143ea9f688361c27050888acde7696b34e04414bd254fafc",
+      "source": "https://pub.dev/packages/platform"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "plugin_platform_interface",
+      "version": "2.1.8",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "89519eca6f7b9529b35bdddd623a58c3af06a88c458dbd6531ddb4675acf75a9",
+      "source": "https://pub.dev/packages/plugin_platform_interface"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "posix",
+      "version": "6.5.2",
+      "license": "MIT",
+      "license_text_sha256": "aaf6271abd048deb3125828613f1797b7556472de6c7acd7103bd43e9cb6a84b",
+      "source": "https://pub.dev/packages/posix"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "process",
+      "version": "5.0.6",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "5f018bbc25a55406d7a4e1d3229135439e315210b0050ca56dbb367a4934e85d",
+      "source": "https://pub.dev/packages/process"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "pub_semver",
+      "version": "2.2.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "3c32b53167c7dae9190c38dab5dd9fe1789c53623ebc7d1babcb29914c5b3f16",
+      "source": "https://pub.dev/packages/pub_semver"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "record_use",
+      "version": "0.6.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "1cda25a8de6880c5338de0b4a06ee89e8537c213eb1379c16a4c035bfd198b5c",
+      "source": "https://pub.dev/packages/record_use"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "rxdart",
+      "version": "0.28.0",
+      "license": "Apache-2.0",
+      "license_text_sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "source": "https://pub.dev/packages/rxdart"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "scrollable_positioned_list",
+      "version": "0.3.8",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "d347790d98693ff63129eafe676bac5cb5247c972f1a36f631bfa0e4dbb17293",
+      "source": "https://pub.dev/packages/scrollable_positioned_list"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "shared_preferences",
+      "version": "2.5.6",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/shared_preferences"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "shared_preferences_android",
+      "version": "2.5.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/shared_preferences_android"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "shared_preferences_foundation",
+      "version": "2.5.7",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/shared_preferences_foundation"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "shared_preferences_linux",
+      "version": "2.4.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "89519eca6f7b9529b35bdddd623a58c3af06a88c458dbd6531ddb4675acf75a9",
+      "source": "https://pub.dev/packages/shared_preferences_linux"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "shared_preferences_platform_interface",
+      "version": "2.4.2",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/shared_preferences_platform_interface"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "shared_preferences_web",
+      "version": "2.4.3",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "89519eca6f7b9529b35bdddd623a58c3af06a88c458dbd6531ddb4675acf75a9",
+      "source": "https://pub.dev/packages/shared_preferences_web"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "shared_preferences_windows",
+      "version": "2.4.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "89519eca6f7b9529b35bdddd623a58c3af06a88c458dbd6531ddb4675acf75a9",
+      "source": "https://pub.dev/packages/shared_preferences_windows"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "sky_engine",
+      "version": "Flutter-3.47.7",
+      "license": "MIT",
+      "license_text_sha256": "3c0040023a5789bf56d6bf41fd44f08b21758523d41f128fb7dd6beb398d1191",
+      "source": "Flutter SDK"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "source_span",
+      "version": "1.10.2",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "3c32b53167c7dae9190c38dab5dd9fe1789c53623ebc7d1babcb29914c5b3f16",
+      "source": "https://pub.dev/packages/source_span"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "stack_trace",
+      "version": "1.12.2",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "ff0b91d4f3c32b25cb6ec84985e8da89b0ba2a2b2f7eef353cda5e5423a20390",
+      "source": "https://pub.dev/packages/stack_trace"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "stream_channel",
+      "version": "2.1.4",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "ff15faa32a2e638107b7789592b14426162a75ba620044ee2340a20ec6ce5e73",
+      "source": "https://pub.dev/packages/stream_channel"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "string_scanner",
+      "version": "1.4.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "3c32b53167c7dae9190c38dab5dd9fe1789c53623ebc7d1babcb29914c5b3f16",
+      "source": "https://pub.dev/packages/string_scanner"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "sync_http",
+      "version": "0.3.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "b9b748d4dd6f725387bf69e96df4e4ebff167ae83547954242a731504d037644",
+      "source": "https://pub.dev/packages/sync_http"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "synchronized",
+      "version": "3.5.0",
+      "license": "MIT",
+      "license_text_sha256": "6d07c6bb60afb906049d507e19fcc4c6b59e35c0dd0f8a7302e87b3fb0576900",
+      "source": "https://pub.dev/packages/synchronized"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "term_glyph",
+      "version": "1.2.2",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "ea97a7558a7bd7cee4e2355f7529e3cbebb0dcbb546ddb9a90f10c9eb6b08da5",
+      "source": "https://pub.dev/packages/term_glyph"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "test_api",
+      "version": "0.7.12",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "ff1b9f0df9036c04be424b1e3ce12789bea880ad5ffc3a48e069ae2d40a087a4",
+      "source": "https://pub.dev/packages/test_api"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "typed_data",
+      "version": "1.4.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "ff15faa32a2e638107b7789592b14426162a75ba620044ee2340a20ec6ce5e73",
+      "source": "https://pub.dev/packages/typed_data"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "url_launcher",
+      "version": "6.3.3",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/url_launcher"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "url_launcher_android",
+      "version": "6.3.33",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/url_launcher_android"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "url_launcher_ios",
+      "version": "6.4.2",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/url_launcher_ios"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "url_launcher_linux",
+      "version": "3.2.3",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/url_launcher_linux"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "url_launcher_macos",
+      "version": "3.2.6",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/url_launcher_macos"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "url_launcher_platform_interface",
+      "version": "2.3.2",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "89519eca6f7b9529b35bdddd623a58c3af06a88c458dbd6531ddb4675acf75a9",
+      "source": "https://pub.dev/packages/url_launcher_platform_interface"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "url_launcher_web",
+      "version": "2.4.3",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/url_launcher_web"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "url_launcher_windows",
+      "version": "3.1.6",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/url_launcher_windows"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "vector_math",
+      "version": "2.4.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/vector_math"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "vm_service",
+      "version": "15.4.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "ad6a71997da90924b2cfb1fb47ec46537f70faf469efe016168794ae45ed6888",
+      "source": "https://pub.dev/packages/vm_service"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "web",
+      "version": "1.1.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "aa913ff50d7542eb8cc35b9f48a80928ac6819ba9057f85d424655e3e8dc271c",
+      "source": "https://pub.dev/packages/web"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "webdriver",
+      "version": "3.2.0",
+      "license": "Apache-2.0",
+      "license_text_sha256": "74cb46b123c9fa918ea8e0a0f5be736a1cd661edf145ccc723dc7ce30324ebab",
+      "source": "https://pub.dev/packages/webdriver"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "webview_all_linux",
+      "version": "1.4.6",
+      "license": "MIT",
+      "license_text_sha256": "6901aa2e1d048a4693f4ff625fc1dd5f84b181e983b1c3396d1e97952ff85e88",
+      "source": "https://pub.dev/packages/webview_all_linux"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "webview_flutter",
+      "version": "4.14.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/webview_flutter"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "webview_flutter_android",
+      "version": "4.14.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "7fcefafd580b82a90920d32c2365b4c59dfad934f0e1cf9a804def70443877ae",
+      "source": "https://pub.dev/packages/webview_flutter_android"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "webview_flutter_platform_interface",
+      "version": "2.15.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/webview_flutter_platform_interface"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "webview_flutter_wkwebview",
+      "version": "3.27.1",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/webview_flutter_wkwebview"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "webview_platform_interface",
+      "version": "1.4.6",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "420f7739f169097f0aad1242045169cd643c8f1d94e62866fad265ae4c369b7d",
+      "source": "https://pub.dev/packages/webview_platform_interface"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "webview_windows",
+      "version": "0.4.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "f685c554db15a47775afbe20ebc18bec039b7ae8a48e0011badf8a3ac3dc1798",
+      "source": "https://pub.dev/packages/webview_windows"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "win32",
+      "version": "5.15.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "87ef8bccdd619f2345ba5b9026cf1d6cccb305e36ab83849a8a3af9293abde7e",
+      "source": "https://pub.dev/packages/win32"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "xdg_directories",
+      "version": "1.1.0",
+      "license": "BSD-3-Clause",
+      "license_text_sha256": "89519eca6f7b9529b35bdddd623a58c3af06a88c458dbd6531ddb4675acf75a9",
+      "source": "https://pub.dev/packages/xdg_directories"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "xml",
+      "version": "7.0.1",
+      "license": "MIT",
+      "license_text_sha256": "0be767174b97278f17da4923a74169e8645631f03ea3d8482ec3523c9b1a0dd3",
+      "source": "https://pub.dev/packages/xml"
+    },
+    {
+      "ecosystem": "pub",
+      "name": "yaml",
+      "version": "3.1.4",
+      "license": "MIT",
+      "license_text_sha256": "d47b93335401b052d79a2f5a3710e4cf7b5aed782faedf84d40fbdd6eb934ec7",
+      "source": "https://pub.dev/packages/yaml"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>插件文件工具</title><style>body{font:18px/1.6 system-ui;padding:24px;color-scheme:light dark}button{font:inherit;padding:12px;margin:8px}pre{white-space:pre-wrap}</style><h1>插件文件工具</h1><button id="write">保存示例文件</button><button id="read">直接阅读</button><pre id="status" role="status"></pre><script>
+const status=document.getElementById('status');
+async function run(fn){try{status.textContent=JSON.stringify(await fn(),null,2);}catch(e){status.textContent=e.message;}}
+document.getElementById('write').onclick=()=>run(()=>aq.call('storage.write',{name:'reading.txt',data:aq.encode('JavaScript 插件文件示例\n\n文件保存在独立插件目录。')}));
+document.getElementById('read').onclick=()=>run(()=>aq.call('files.open',{name:'reading.txt'}));
+run(async()=>{const theme=await aq.call('ui.theme');document.documentElement.style.colorScheme=theme.brightness==='dark'?'dark':'light';return aq.call('storage.list');});
+</script></html>

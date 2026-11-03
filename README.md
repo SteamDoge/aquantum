@@ -29,7 +29,7 @@ OCR、AI、云同步等扩展方向不代表主程序已经实现的功能。可
 
 ## 下载
 
-当前预发布：[**RC015 · rc.0.0.15**](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.15)。在 [所有版本](https://github.com/SteamDoge/aquantum/releases) 查看更新与安装包。
+当前版本：[**RC015 · rc.0.0.15**](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.15)。在 [所有版本](https://github.com/SteamDoge/aquantum/releases) 查看更新与安装包。
 
 | 平台 | 下载 | 选择说明 |
 | --- | --- | --- |
@@ -38,7 +38,7 @@ OCR、AI、云同步等扩展方向不代表主程序已经实现的功能。可
 | Windows 10／11 x64 | [![Portable x64](https://img.shields.io/badge/Portable-x64-00AEEF)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-windows-x64.zip) | 解压完整目录，运行 `AQuantumReader.exe` |
 | 插件开发 | [SDK 源码与示例](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-plugin-sdk.zip) | 开发工具，不是已安装的功能模块 |
 
-Windows 阅读 EPUB 等文档需安装 Microsoft Edge WebView2 Runtime。当前没有 Linux、macOS、iOS 或 Windows ARM64 安装包。RC 为预发布版本；ARM64 实体机及完整 GUI／设备／格式矩阵仍有验证缺口。
+Windows 阅读 EPUB 等文档需安装 Microsoft Edge WebView2 Runtime。当前没有 Linux、macOS、iOS 或 Windows ARM64 安装包。ARM64 实体机及完整 GUI／设备／格式矩阵仍有验证缺口。
 
 ## 使用
 

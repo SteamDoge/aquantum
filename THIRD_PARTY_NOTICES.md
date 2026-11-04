@@ -25,4 +25,4 @@ PDFium 原生库由锁定的 `pdfium_dart` 构建钩子获取，当前来源为 
 
 `plugin-sdk` 是宿主公开的 javascript-v1 消息/类型接口与打包工具。独立插件自行声明许可证，通过权限端口调用宿主，HTML 页面可选；不要求所有第三方插件统一采用 AGPL。复制宿主受许可代码、组合衍生作品等具体行为仍需按实际情况判断许可义务。示例只包含本仓库自有的最小插件源码，不附带其他独立项目、账号或访问凭据。
 
-源码版本与本次纯许可/文档差异见根目录 `PUBLIC_SOURCE.json`。公开仓库使用独立 Git 历史；开发仓库的历史提交不随导出复制。
+依赖或锁文件变化并提交后，先执行 `cargo fetch --locked` 与 `flutter pub get --enforce-lockfile`，再运行 `python scripts/license-audit.py` 刷新上述清单；遇到新的许可证类型时脚本会拒绝并要求人工审查。

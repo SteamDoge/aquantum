@@ -40,6 +40,7 @@
 /.aq-data/
 /outputs/
 /output/
+/artifacts/
 /releases/
 *.db
 *.db-shm

@@ -1,0 +1,6 @@
+* text=auto eol=lf
+# Third-party license texts keep their original bytes.
+LICENSES/** -text
+*.png -text
+*.jpg -text
+*.ico -text

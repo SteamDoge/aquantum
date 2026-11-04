@@ -106,6 +106,14 @@ python plugin-sdk/build.py plugin-sdk/examples/native
 python plugin-sdk/build.py plugin-sdk/examples/html
 ```
 
+一键完整检查（版本一致性、Rust 格式/测试/静态检查、Flutter 分析/格式/测试）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/check.ps1
+```
+
+也可以分步执行：
+
 ```powershell
 node scripts/check-version.mjs
 cargo test --workspace --locked
@@ -120,7 +128,7 @@ Pop-Location
 
 应用内选择文件、目录或压缩包，预览后导入，在资料库打开阅读；设置、阅读记录与插件权限在客户端管理。Windows 可用 `AQ_READER_DATA` 指定独立绝对数据目录。卸载或手动操作资料库前先备份。第三方模块以独立 `javascript-v1` ZIP 安装，HTML 页面可选；类型接口见 `plugin-sdk/index.d.ts`，打包用 `python plugin-sdk/build.py --help`，源码示例在 `plugin-sdk/examples`。示例源码不代表已安装功能；OCR、AI、同步等能力不因存在扩展接口而宣称实现。
 
-当前源码来源与第三方声明见 [第三方声明](THIRD_PARTY_NOTICES.md) 和 [PUBLIC_SOURCE.json](PUBLIC_SOURCE.json)。ARM64 实体机和完整设备/格式矩阵仍有验证缺口。
+原生集成测试位于 `apps/flutter_reader/integration_test`，可用 `scripts/test-native.ps1` 在 Windows 或指定 Android 设备上运行；它会创建独立的 QA 资料库，不使用个人资料。第三方声明见 [第三方声明](THIRD_PARTY_NOTICES.md)。ARM64 实体机和完整设备/格式矩阵仍有验证缺口。
 
 </details>
 
@@ -135,11 +143,11 @@ Pop-Location
 | `crates/bridge` | JSON C ABI 与 QuickJS 插件运行时 |
 | `apps/cli` | 核心命令行入口 |
 | `plugin-sdk` | 运行时、类型声明、打包脚本及最小示例 |
-| `scripts` | 手动构建、工程锁与版本检查 |
+| `scripts` | 构建、完整检查、原生测试、测试样本生成与许可清单 |
 
 ## 反馈与贡献
 
-请通过 [GitHub Issues](https://github.com/SteamDoge/aquantum/issues) 提交问题或建议，注明版本、系统、复现步骤与预期结果；日志及样例请先移除个人资料。欢迎提交聚焦问题的 Pull Request。
+请通过 [GitHub Issues](https://github.com/SteamDoge/aquantum/issues) 提交问题或建议，注明版本、系统、复现步骤与预期结果；日志及样例请先移除个人资料。欢迎提交聚焦问题的 Pull Request；新增的原创源文件请在开头保留 `SPDX-License-Identifier: AGPL-3.0-only` 与版权注释，提交前运行 `scripts/check.ps1`。
 
 ## 许可证
 

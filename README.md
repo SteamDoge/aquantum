@@ -4,62 +4,78 @@
 
 # AQuantum Reader
 
-**一本书，一处阅读。**
+**Every book, one place to read.**
 
-面向 Android 与 Windows 的本地阅读器 · Flutter 界面 · Rust 核心
+A local reader for Android and Windows · Flutter UI · Rust core
 
-[![Release](https://img.shields.io/github/v/release/SteamDoge/aquantum?include_prereleases&style=flat-square&label=release)](https://github.com/SteamDoge/aquantum/releases)
-[![Downloads](https://img.shields.io/github/downloads/SteamDoge/aquantum/total?style=flat-square&logo=github)](https://github.com/SteamDoge/aquantum/releases)
-[![License](https://img.shields.io/badge/license-AGPL--3.0--only-00AEEF?style=flat-square)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/SteamDoge/aquantum?include_prereleases&style=flat-square&label=release)](https://github.com/SteamDoge/aquantum/releases) [![Downloads](https://img.shields.io/github/downloads/SteamDoge/aquantum/total?style=flat-square&logo=github)](https://github.com/SteamDoge/aquantum/releases) [![License](https://img.shields.io/badge/license-AGPL--3.0--only-00AEEF?style=flat-square)](LICENSE)<br>
+![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white) ![Windows](https://img.shields.io/badge/Windows-0078D4?logo=windows&logoColor=white)
 
-[下载](#下载) · [功能](#功能) · [使用](#使用) · [源码构建](#源码构建) · [问题反馈](https://github.com/SteamDoge/aquantum/issues)
+**[Download](#download)** &nbsp;·&nbsp; **[Features](#features)** &nbsp;·&nbsp; **[Getting started](#getting-started)** &nbsp;·&nbsp; **[Build from source](#build-from-source)** &nbsp;·&nbsp; **[Issues](https://github.com/SteamDoge/aquantum/issues)**
+
+**English** · [简体中文](README.zh-CN.md)
 
 </div>
 
-## 功能
+## Is AQuantum Reader for you?
 
-- **本地阅读**：免登录，可离线使用；导入时复制文件，保留外部原件。
-- **多种内容**：文本、图片／漫画、PDF、Markdown、EPUB、MOBI、AZW3、FB2 等；各格式按自身能力排版。
-- **持续阅读**：保存阅读位置、书签与笔记，管理资料库和本地备份。
-- **统一体验**：连续滚动与横向分页，四套配色及浅深主题，适配手机和桌面布局。
-- **独立扩展**：通过 `javascript-v1` 插件接口安装 JavaScript 模块，可选 HTML 页面；联网能力由模块及用户授权决定。
-- **开放源码**：原创代码采用 AGPL-3.0-only，第三方许可与版权声明完整保留。
+Books tend to end up in different apps: novels in one, comics in another, PDFs and EPUBs somewhere else, each with its own progress and settings. AQuantum Reader keeps them in one local library on your phone or PC:
 
-OCR、AI、云同步等扩展方向不代表主程序已经实现的功能。可选书目信息检索及联网插件需要网络。
+- **Read many formats in one app**: text, Markdown, images and comics, PDF, EPUB, MOBI, AZW3 and FB2.
+- **Keep your files as they are**: importing copies a file into the library; the original is never changed.
+- **No account, works offline**: your library, progress and notes stay on your device.
+- **Add what you need**: install JavaScript plugins for extra pages and tools.
 
-## 下载
+It's for you if you read local files in several formats and want them in one place. If you depend on a store's cloud library or need sync between devices, it doesn't do that yet. Runs on Android 7.0+ and Windows 10/11 x64.
 
-当前版本：[**RC015 · rc.0.0.15**](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.15)。在 [所有版本](https://github.com/SteamDoge/aquantum/releases) 查看更新与安装包。
+## Features
 
-| 平台 | 下载 | 选择说明 |
+- **Local reading**: no sign-in, works offline; importing copies the file and leaves the original untouched.
+- **Many formats**: text, images/comics, PDF, Markdown, EPUB, MOBI, AZW3, FB2 and more, each laid out according to what the format supports.
+- **Pick up where you left off**: reading position, bookmarks and notes are saved; manage the library and local backups.
+- **One reading experience**: continuous scrolling or page-by-page, four color schemes with light and dark themes, layouts for phones and desktops.
+- **Plugins**: install JavaScript modules through the `javascript-v1` plugin interface, with optional HTML pages; network access depends on the plugin and the permissions it declares.
+- **Open source**: original code under **AGPL-3.0-only**; third-party licenses and notices are kept intact.
+
+Having a plugin interface does not mean OCR, AI or cloud sync are built in; they are not. Book metadata search and networked plugins need an internet connection.
+
+## Download
+
+Current version: [**RC015 · rc.0.0.15**](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.15). See [all releases](https://github.com/SteamDoge/aquantum/releases) for changes and packages.
+
+| Platform | Download | Which one |
 | --- | --- | --- |
-| Android 7.0+（API 24+） | [![APK ARM64](https://img.shields.io/badge/APK-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-android-arm64.apk) | 大多数手机选择此版本 |
-| Android x86_64 | [![APK x64](https://img.shields.io/badge/APK-x64-168039?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-android-x64.apk) | x86_64 设备／模拟器 |
-| Windows 10／11 x64 | [![Portable x64](https://img.shields.io/badge/Portable-x64-00AEEF)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-windows-x64.zip) | 解压完整目录，运行 `AQuantumReader.exe` |
-| 插件开发 | [SDK 源码与示例](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-plugin-sdk.zip) | 开发工具，不是已安装的功能模块 |
+| Android 7.0+ (API 24+) | [![APK ARM64](https://img.shields.io/badge/APK-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-android-arm64.apk) | Most phones |
+| Android x86_64 | [![APK x64](https://img.shields.io/badge/APK-x64-168039?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-android-x64.apk) | x86_64 devices and emulators |
+| Windows 10/11 x64 | [![Portable x64](https://img.shields.io/badge/Portable-x64-00AEEF)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-windows-x64.zip) | Extract the whole folder and run `AQuantumReader.exe` |
+| Plugin development | [SDK source and examples](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-plugin-sdk.zip) | A developer tool, not an installed feature module |
 
-Windows 阅读 EPUB 等文档需安装 Microsoft Edge WebView2 Runtime。当前没有 Linux、macOS、iOS 或 Windows ARM64 安装包。ARM64 实体机及完整 GUI／设备／格式矩阵仍有验证缺口。
+<sub>Reading EPUB and similar documents on Windows requires the Microsoft Edge WebView2 Runtime. There are no Linux, macOS, iOS or Windows ARM64 packages yet. ARM64 physical devices and the full GUI, device and format matrix have not been fully verified.</sub>
 
-## 使用
+## Getting started
 
-1. Android 安装对应 APK；Windows 解压便携包并保留 DLL、`data` 和插件资源，不能只复制 EXE。
-2. 在应用中选择文件、目录或压缩包，预览后导入资料库。
-3. 打开内容阅读，在设置中调整配色和阅读偏好；升级或手动操作资料库前先备份。
+**1 · Install.** On Android, install the APK for your device. On Windows, extract the portable ZIP and keep the DLLs, `data` and plugin resources next to the EXE; copying only the EXE won't work.
 
-Android 覆盖升级需要兼容签名。自行构建的签名与发布包不同时，先导出备份，再处理安装；不要通过卸载来代替备份。
+**2 · Import.** Choose files, a folder or an archive, preview them, then import them into the library.
 
-## 源码构建
+**3 · Read.** Open a book, then adjust the color scheme and reading preferences in settings.
+
+Back up the library before upgrading or changing it by hand. Upgrading an existing Android install needs a matching signature; if your own build is signed differently, export a backup first. Don't uninstall in place of making a backup.
+
+## Build from source
 
 <details>
-<summary>展开环境要求、构建命令与测试步骤</summary>
+<summary>Show requirements, build commands and tests</summary>
 
-## 构建环境
+### Requirements
 
-本版本使用 Rust **1.98.1**、Flutter **3.47.7 stable / Dart 3.13.5** 验证。依赖版本分别锁定在 `Cargo.lock` 和 `apps/flutter_reader/pubspec.lock`；请先安装 SDK，再恢复依赖。构建首次需要联网获取依赖及 PDFium 原生资源。
+This version was verified with Rust **1.98.1** and Flutter **3.47.7 stable / Dart 3.13.5**. Dependency versions are locked in `Cargo.lock` and `apps/flutter_reader/pubspec.lock`; install the SDKs first, then restore dependencies. The first build needs network access to fetch dependencies and the PDFium native library.
 
-- Windows：Windows 10/11 x64、Visual Studio 的 Desktop development with C++ 工作负载、CMake、NuGet CLI 和 PowerShell。运行 EPUB 等文档需要 Microsoft Edge WebView2 Runtime。
-- Android：JDK 21、Android SDK 36、NDK **28.2.13676358**、CMake 3.22.1；工程固定 AGP 9.1.0 / Gradle 9.3.1。安装相应 Android Rust target，并提供可供 bindgen 使用的 `libclang`。
-- Flutter/Android SDK 路径避免空格。环境变量 `JAVA_HOME`、`ANDROID_HOME`、`LIBCLANG_PATH` 指向各自安装目录；NuGet CLI 应在 PATH 中。无需本项目开发者的私有工具路径、原签名或 SDK 副本。
+- Windows: Windows 10/11 x64, Visual Studio with the Desktop development with C++ workload, CMake, NuGet CLI and PowerShell. Reading EPUB and similar documents needs the Microsoft Edge WebView2 Runtime.
+- Android: JDK 21, Android SDK 36, NDK **28.2.13676358**, CMake 3.22.1; the project pins AGP 9.1.0 / Gradle 9.3.1. Install the Android Rust targets and provide a `libclang` that bindgen can use.
+- Avoid spaces in the Flutter and Android SDK paths. Point `JAVA_HOME`, `ANDROID_HOME` and `LIBCLANG_PATH` at their install directories and put the NuGet CLI on `PATH`. No private tool paths, original signing keys or SDK copies from the maintainers are needed.
+
+### Build
 
 ```powershell
 git clone git@github.com:SteamDoge/aquantum.git
@@ -69,16 +85,18 @@ Push-Location apps/flutter_reader
 flutter pub get --enforce-lockfile
 Pop-Location
 
-# Windows：先构建 Rust 桥接，再构建 Flutter；脚本负责此顺序
+# Windows: the script builds the Rust bridge first, then Flutter
 powershell -ExecutionPolicy Bypass -File scripts/build-client.ps1 -Platform windows
 
-# 或仅使用核心命令行（亦可在 Rust 支持的平台构建）
+# Or only the core command line (builds on any platform Rust supports)
 cargo run --locked -p aq-cli -- --help
 ```
 
-Windows 完整输出位于 `apps/flutter_reader/build/windows/x64/runner/Release/`。运行 `AQuantumReader.exe` 时保留同目录 DLL、data 和插件资源；不能只复制 EXE。开发运行也应先 `cargo build --locked -p aq-bridge --release`，再在 Flutter 目录执行 `flutter run -d windows`。
+The complete Windows output is in `apps/flutter_reader/build/windows/x64/runner/Release/`. Keep the DLLs, `data` and plugin resources next to `AQuantumReader.exe`; copying only the EXE won't work. For development runs, also build `cargo build --locked -p aq-bridge --release` first, then run `flutter run -d windows` in the Flutter directory.
 
-Android Release 构建前请自行生成并安全保管签名密钥，创建被忽略的 `apps/flutter_reader/android/key.properties`：
+### Android signing
+
+Before an Android release build, create and safely store your own signing key, then add the git-ignored `apps/flutter_reader/android/key.properties`:
 
 ```properties
 storeFile=C:/private/your-release-key.jks
@@ -87,18 +105,18 @@ keyAlias=YOUR_KEY_ALIAS
 keyPassword=YOUR_LOCAL_KEY_PASSWORD
 ```
 
-这些占位符不是可用凭据。不要提交此文件或密钥。自行签名的安装包与其他签名的已安装版本不能直接覆盖升级；需要保留数据时先通过应用备份。
+These placeholders are not real credentials. Never commit this file or the key. A package signed with your key can't be installed over a version signed with a different key; back up through the app first if you want to keep your data.
 
 ```powershell
 rustup target add aarch64-linux-android x86_64-linux-android
 powershell -ExecutionPolicy Bypass -File scripts/build-client.ps1 -Platform android -AndroidX64
 ```
 
-APK 位于 `apps/flutter_reader/build/app/outputs/flutter-apk/`。省略 `-AndroidX64` 时仅构建 ARM64。脚本生成 JNI 库并检查 R8 的 JNI 保留规则；正式包仍需安装验证。所有客户端构建和测试串行执行。Release 不使用 `--no-pub`，以确保正确重生成插件注册文件。Flutter 会补齐被 Git 忽略的 Gradle wrapper 启动文件和本地 SDK 路径文件。
+APKs are written to `apps/flutter_reader/build/app/outputs/flutter-apk/`. Without `-AndroidX64` only ARM64 is built. The script builds the JNI libraries and checks the R8 keep rules for JNI; a release package still needs an install test. Run all client builds and tests one at a time. Release builds don't use `--no-pub`, so the plugin registrant is regenerated correctly. Flutter recreates the git-ignored Gradle wrapper scripts and local SDK path file.
 
-## 验证与使用
+### Tests
 
-首次运行测试前，从示例源码生成测试使用的 SDK 包（已经生成的示例无需重复执行；打包器拒绝覆盖既有 ZIP）。Python 3.11+ 只用于此打包步骤，不是应用运行依赖；生成的 dist/ZIP 被忽略：
+Before the first test run, build the SDK example packages the tests use (skip examples that are already built; the packager refuses to overwrite an existing ZIP). Python 3.11+ is only needed for this packaging step, not to run the app; the generated `dist/` ZIPs are git-ignored:
 
 ```powershell
 python plugin-sdk/build.py plugin-sdk/examples/headless
@@ -106,13 +124,13 @@ python plugin-sdk/build.py plugin-sdk/examples/native
 python plugin-sdk/build.py plugin-sdk/examples/html
 ```
 
-一键完整检查（版本一致性、Rust 格式/测试/静态检查、Flutter 分析/格式/测试）：
+Full check (version consistency, Rust format/tests/lints, Flutter analysis/format/tests):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/check.ps1
 ```
 
-也可以分步执行：
+Or step by step:
 
 ```powershell
 node scripts/check-version.mjs
@@ -126,31 +144,43 @@ flutter test
 Pop-Location
 ```
 
-应用内选择文件、目录或压缩包，预览后导入，在资料库打开阅读；设置、阅读记录与插件权限在客户端管理。Windows 可用 `AQ_READER_DATA` 指定独立绝对数据目录。卸载或手动操作资料库前先备份。第三方模块以独立 `javascript-v1` ZIP 安装，HTML 页面可选；类型接口见 `plugin-sdk/index.d.ts`，打包用 `python plugin-sdk/build.py --help`，源码示例在 `plugin-sdk/examples`。示例源码不代表已安装功能；OCR、AI、同步等能力不因存在扩展接口而宣称实现。
+Native integration tests live in `apps/flutter_reader/integration_test`. Run them with `scripts/test-native.ps1` on Windows or a chosen Android device; they create a separate QA library and never touch personal data. On Windows, `AQ_READER_DATA` can point the app at a separate absolute data directory.
 
-原生集成测试位于 `apps/flutter_reader/integration_test`，可用 `scripts/test-native.ps1` 在 Windows 或指定 Android 设备上运行；它会创建独立的 QA 资料库，不使用个人资料。第三方声明见 [第三方声明](THIRD_PARTY_NOTICES.md)。ARM64 实体机和完整设备/格式矩阵仍有验证缺口。
+Third-party plugins are installed as standalone `javascript-v1` ZIPs, with optional HTML pages. The type definitions are in `plugin-sdk/index.d.ts`, packaging help is at `python plugin-sdk/build.py --help`, and source examples are in `plugin-sdk/examples`. The examples are not installed features.
 
 </details>
 
-## 工程结构
+## Project structure
 
-| 路径 | 职责 |
+| Path | Responsibility |
 | --- | --- |
-| `apps/flutter_reader` | Flutter UI、平台工程与文档引擎资源 |
-| `crates/domain` | 核心规则 |
-| `crates/application` | 操作层与存储端口 |
-| `crates/local` | SQLite、受管资源及文件系统 |
-| `crates/bridge` | JSON C ABI 与 QuickJS 插件运行时 |
-| `apps/cli` | 核心命令行入口 |
-| `plugin-sdk` | 运行时、类型声明、打包脚本及最小示例 |
-| `scripts` | 构建、完整检查、原生测试、测试样本生成与许可清单 |
+| `apps/flutter_reader` | Flutter UI, platform projects and document engine resources |
+| `crates/domain` | Core rules |
+| `crates/application` | Operations layer and storage ports |
+| `crates/local` | SQLite, managed resources and the file system |
+| `crates/bridge` | JSON C ABI and the QuickJS plugin runtime |
+| `apps/cli` | Core command-line entry point |
+| `plugin-sdk` | Runtime, type definitions, packaging script and minimal examples |
+| `scripts` | Build, full check, native tests, test fixture generation and license inventory |
 
-## 反馈与贡献
+## Privacy
 
-请通过 [GitHub Issues](https://github.com/SteamDoge/aquantum/issues) 提交问题或建议，注明版本、系统、复现步骤与预期结果；日志及样例请先移除个人资料。欢迎提交聚焦问题的 Pull Request；新增的原创源文件请在开头保留 `SPDX-License-Identifier: AGPL-3.0-only` 与版权注释，提交前运行 `scripts/check.ps1`。
+AQuantum Reader needs no account and collects no usage statistics or crash reports. Your library, reading progress, notes and settings stay on your device. The app only goes online when you use one of these features:
 
-## 许可证
+| | |
+| :-- | :-- |
+| **Book metadata search** | Only when you search on a book's info page. The title, author or ISBN you typed is sent to [Open Library](https://openlibrary.org); cover images come from Open Library's servers. |
+| **Installing a plugin from a link** | Downloads from the GitHub repository, release page or HTTPS ZIP you entered; GitHub releases are looked up through `api.github.com`. If your DNS returns VPN fake-IP addresses, the host name is resolved through Google Public DNS (`dns.google`). |
+| **Plugins** | A plugin can make HTTPS requests only if it declares the network permission. What it sends is up to the plugin, so check its permissions and source before installing it. |
 
-本项目原创代码采用 **AGPL-3.0-only**，完整 GNU 官方原文见 [LICENSE](LICENSE)。没有额外的非商用或禁止修改限制。分发修改版以及通过网络向用户提供修改版服务时，应遵守许可证适用的源码提供义务。
+## Feedback and contributing
 
-第三方代码、依赖及 Flutter 工程模板保留各自原有许可和版权声明。本项目的许可证不改变它们的许可。独立 HTML/JavaScript 插件通过公开的消息接口和权限端口交互；插件作者需为自己的代码、依赖和素材选择适用许可证，不能仅凭使用接口就推定所有第三方插件必须采用 AGPL。实际复制宿主代码或形成衍生作品时，应另行评估相应许可义务。
+Report problems or ideas in [GitHub Issues](https://github.com/SteamDoge/aquantum/issues). Include the version, system, steps to reproduce and what you expected; remove personal data from logs and samples first. Focused pull requests are welcome: start new original source files with `SPDX-License-Identifier: AGPL-3.0-only` and the copyright line, and run `scripts/check.ps1` before submitting.
+
+If AQuantum Reader is useful to you, a ⭐ helps others find it.
+
+## License
+
+The original code of this project is licensed under **AGPL-3.0-only**; the full official GNU text is in [LICENSE](LICENSE). There are no extra non-commercial or no-modification restrictions. If you distribute a modified version, or offer one to users over a network, follow the license's source-code obligations.
+
+Third-party code, dependencies and Flutter project templates keep their own licenses and copyright notices (see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)); this project's license does not change them. Standalone HTML/JavaScript plugins interact through the public message interface and permission ports. Plugin authors choose the licenses for their own code, dependencies and assets; using the interface alone does not mean every third-party plugin must use the AGPL. Copying host code or creating a derivative work needs its own license assessment.

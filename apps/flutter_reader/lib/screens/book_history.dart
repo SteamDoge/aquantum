@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../data/reader_api.dart';
+import '../design/widgets.dart';
 
 class BookHistoryScreen extends StatefulWidget {
   final ReaderApi api;
@@ -84,9 +85,13 @@ class _BookHistoryScreenState extends State<BookHistoryScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text('${widget.title} · 修改记录')),
+    appBar: AppBar(),
     body: Column(
       children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+          child: AqPageHeading('修改记录', subtitle: widget.title),
+        ),
         if (busy) const LinearProgressIndicator(),
         if (error != null)
           Padding(

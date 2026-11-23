@@ -5,6 +5,7 @@ import '../plugins/plugin_api.dart';
 import '../plugins/plugin_manager.dart';
 import '../reader/reader_toolbar.dart';
 import '../reader/toolbar_preferences.dart';
+import '../design/widgets.dart';
 
 class ToolbarItem {
   final String id, name, source;
@@ -111,8 +112,10 @@ class _ToolbarEditorState extends State<ToolbarEditor> {
           ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
             children: [
+              const AqPageHeading('编辑工具栏'),
+              const SizedBox(height: 20),
               const Text(
                 '当前工具栏',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
@@ -217,7 +220,7 @@ class _ToolbarEditorState extends State<ToolbarEditor> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('编辑工具栏')),
+    appBar: AppBar(),
     body: widget.plugins == null
         ? content()
         : ListenableBuilder(

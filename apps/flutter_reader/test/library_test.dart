@@ -353,6 +353,60 @@ void main() {
       tester.getRect(find.byTooltip('文件操作').last).bottom,
       lessThanOrEqualTo(dock.top),
     );
+    // The round add button rests above the dock without covering that row.
+    final add = tester.getRect(find.byTooltip('添加内容'));
+    expect(add.bottom, lessThanOrEqualTo(dock.top));
+    expect(add.overlaps(tester.getRect(find.byTooltip('文件操作').last)), isFalse);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('long press and the add button open the shared context menu', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final api = TestApi();
+    api.books.add({
+      'id': 'book-menu',
+      'project': 'inbox',
+      'title': '长按书籍',
+      'format': 'Txt',
+      'revision': 1,
+      'pages': [
+        {
+          'id': 'page-menu',
+          'resource': {'bytes': 20},
+        },
+      ],
+    });
+    await tester.pumpWidget(ReaderApp(api: api));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('nav-core.projects')));
+    await tester.pumpAndSettle();
+    // The drawn cover repeats the title; the caption is the last one.
+    final titles = find.text('长按书籍').evaluate().length;
+    final tile = tester.getCenter(find.text('长按书籍').last);
+    await tester.longPressAt(tile);
+    await tester.pumpAndSettle();
+    // A panel beside the press, titled with the file name; not a sheet.
+    expect(find.byType(BottomSheet), findsNothing);
+    expect(find.text('长按书籍'), findsNWidgets(titles + 1));
+    final rename = tester.getRect(find.text('重命名'));
+    expect((rename.center - tile).distance, lessThan(200));
+    expect(
+      tester.getRect(find.text('移出书架')).top,
+      greaterThan(tester.getRect(find.text('详情')).top),
+    );
+    await tester.tapAt(const Offset(4, 4));
+    await tester.pumpAndSettle();
+    expect(find.text('重命名'), findsNothing);
+    await tester.tap(find.byTooltip('添加内容'));
+    await tester.pumpAndSettle();
+    expect(find.byType(BottomSheet), findsNothing);
+    expect(find.text('导入文件'), findsOneWidget);
+    expect(find.text('新建项目'), findsOneWidget);
+    await tester.tapAt(const Offset(4, 4));
+    await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
   testWidgets(
@@ -459,7 +513,7 @@ void main() {
       );
       await tester.tap(find.byTooltip('展开导航'));
       await tester.pumpAndSettle();
-      expect(find.text('AQuantum\nReader'), findsOneWidget);
+      expect(find.text('AQuantum Reader'), findsOneWidget);
       await tester.tap(find.text('我的'));
       await tester.pumpAndSettle();
       await reveal(tester, find.text('深色'));

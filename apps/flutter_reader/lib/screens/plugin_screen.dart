@@ -75,39 +75,40 @@ class PluginScreen extends StatelessWidget {
               b.manifest.id.startsWith('builtin.') ? 1 : 0,
             ),
           );
+        final ready = manager.ready && !manager.busy;
         return ListView(
           key: const PageStorageKey('plugins-scroll'),
           padding: EdgeInsets.fromLTRB(
-            24,
-            24,
-            24,
+            20,
+            28,
+            20,
             24 + MediaQuery.paddingOf(context).bottom,
           ),
           children: [
-            const SizedBox(height: 16),
-            const AqPageHeading('插件', subtitle: '按需扩展，保持阅读轻盈。'),
-            const SizedBox(height: 16),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: FilledButton.icon(
-                onPressed: manager.ready && !manager.busy ? onImport : null,
-                icon: const Icon(Icons.folder_zip_outlined),
-                label: const Text('ZIP 导入插件'),
-              ),
-            ),
-            const SizedBox(height: 24),
-            if (onLink != null)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  onPressed: manager.ready && !manager.busy ? onLink : null,
-                  icon: const Icon(Icons.link),
-                  label: const Text('从链接安装插件'),
+            AqPageHeading(
+              '插件',
+              actions: [
+                if (onLink != null)
+                  IconButton(
+                    tooltip: '从链接安装插件',
+                    onPressed: ready ? onLink : null,
+                    icon: const Icon(Icons.link),
+                  ),
+                IconButton(
+                  tooltip: 'ZIP 导入插件',
+                  onPressed: ready ? onImport : null,
+                  icon: const Icon(Icons.add),
                 ),
-              ),
+              ],
+            ),
+            const SizedBox(height: 20),
             if (manager.packageCount > 0 || manager.incompleteBytes > 0)
-              Text(
-                '包副本 ${manager.packageCount} 个 · ${sizeLabel(manager.packageBytes)}\n未完成导入 ${sizeLabel(manager.incompleteBytes)}；副本和残留均保留。',
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                child: Text(
+                  '包副本 ${manager.packageCount} 个 · ${sizeLabel(manager.packageBytes)}\n未完成导入 ${sizeLabel(manager.incompleteBytes)}；副本和残留均保留。',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ),
             if (!manager.ready || manager.busy) const LinearProgressIndicator(),
             if (manager.loadError != null)
@@ -121,169 +122,180 @@ class PluginScreen extends StatelessWidget {
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             if (manager.records.isEmpty) ...[
-              const Icon(Icons.extension_outlined, size: 48),
-              const SizedBox(height: 16),
-              const Text(
+              const SizedBox(height: 40),
+              Icon(
+                Icons.extension_outlined,
+                size: 44,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurfaceVariant.withValues(alpha: .6),
+              ),
+              const SizedBox(height: 14),
+              Text(
                 '尚未导入插件',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 22),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
-              const SizedBox(height: 12),
-              const Text(
+              const SizedBox(height: 6),
+              Text(
                 '安装独立 JavaScript 插件 ZIP，按需启用阅读工具、原生页面或自定义页面。',
                 textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
             for (final record in records)
               Card(
+                margin: const EdgeInsets.only(bottom: 16),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        record.manifest.name,
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                      Text(
-                        '${record.manifest.version} · API ${record.manifest.apiVersion} · ${statusLabel(record.status)}',
-                      ),
-                      const SizedBox(height: 8),
-                      Text(record.manifest.description),
-                      SelectableText('来源：${record.source}'),
-                      TextButton(
-                        onPressed: manager.busy
-                            ? null
-                            : () => perform(
-                                context,
-                                () =>
-                                    showPluginDetails(context, manager, record),
-                              ),
-                        child: const Text('设置、存储与日志'),
-                      ),
-                      if (onUpdate != null &&
-                          record.source.startsWith('https://'))
+                  padding: const EdgeInsets.all(18),
+                  child: DefaultTextStyle.merge(
+                    style: Theme.of(context).textTheme.bodySmall,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          record.manifest.name,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        Text(
+                          '${record.manifest.version} · API ${record.manifest.apiVersion} · ${statusLabel(record.status)}',
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          record.manifest.description,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 4),
+                        SelectableText('来源：${record.source}'),
                         TextButton(
                           onPressed: manager.busy
                               ? null
-                              : () => onUpdate!(record),
-                          child: const Text('检查更新'),
+                              : () => perform(
+                                  context,
+                                  () => showPluginDetails(
+                                    context,
+                                    manager,
+                                    record,
+                                  ),
+                                ),
+                          child: const Text('设置、存储与日志'),
                         ),
-                      for (final action in record.actions)
-                        Text(
-                          '${action.name} · ${action.point.name} · ${action.id}',
-                        ),
-                      Text(
-                        '权限：${record.manifest.permissions.isEmpty ? '无需额外权限' : record.manifest.permissions.map(permissionLabel).join('、')}',
-                      ),
-                      Text(
-                        '已注册页面 ${manager.features.all.where((p) => p.source == record.manifest.id).length} · 阅读处理器 ${record.formats.length} · 上下文能力 ${record.actions.length} · 组件 ${manager.dashboards?.all.where((d) => d.source == record.manifest.id).length ?? 0}',
-                      ),
-                      if (record.error != null)
-                        Text(
-                          record.error!,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
+                        if (onUpdate != null &&
+                            record.source.startsWith('https://'))
+                          TextButton(
+                            onPressed: manager.busy
+                                ? null
+                                : () => onUpdate!(record),
+                            child: const Text('检查更新'),
                           ),
+                        for (final action in record.actions)
+                          Text(
+                            '${action.name} · ${action.point.name} · ${action.id}',
+                          ),
+                        Text(
+                          '权限：${record.manifest.permissions.isEmpty ? '无需额外权限' : record.manifest.permissions.map(permissionLabel).join('、')}',
                         ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          if (record.status == PluginStatus.available)
-                            FilledButton(
-                              onPressed: manager.busy
-                                  ? null
-                                  : () => perform(
-                                      context,
-                                      () => manager.install(record.manifest.id),
-                                    ),
-                              child: const Text('重新安装'),
-                            )
-                          else ...[
-                            FilledButton(
-                              onPressed: manager.busy
-                                  ? null
-                                  : () => record.status == PluginStatus.enabled
-                                        ? perform(
-                                            context,
-                                            () => manager.disable(
-                                              record.manifest.id,
-                                            ),
-                                          )
-                                        : enable(context, record),
-                              child: Text(
-                                record.status == PluginStatus.enabled
-                                    ? '停用'
-                                    : '启用',
-                              ),
+                        Text(
+                          '已注册页面 ${manager.features.all.where((p) => p.source == record.manifest.id).length} · 阅读处理器 ${record.formats.length} · 上下文能力 ${record.actions.length} · 组件 ${manager.dashboards?.all.where((d) => d.source == record.manifest.id).length ?? 0}',
+                        ),
+                        if (record.error != null)
+                          Text(
+                            record.error!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
                             ),
-                            OutlinedButton(
-                              onPressed: manager.busy
-                                  ? null
-                                  : () async {
-                                      final approved = await showDialog<bool>(
-                                        context: context,
-                                        builder: (context) => AlertDialog(
-                                          title: Text(
-                                            '卸载${record.manifest.name}？',
-                                          ),
-                                          content: const Text(
-                                            '卸载后保留插件数据，可重新安装恢复。若需删除数据，请先在设置、存储与日志中导出备份并选择删除。',
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(context, false),
-                                              child: const Text('取消'),
+                          ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            if (record.status == PluginStatus.available)
+                              FilledButton(
+                                onPressed: manager.busy
+                                    ? null
+                                    : () => perform(
+                                        context,
+                                        () =>
+                                            manager.install(record.manifest.id),
+                                      ),
+                                child: const Text('重新安装'),
+                              )
+                            else ...[
+                              FilledButton(
+                                onPressed: manager.busy
+                                    ? null
+                                    : () =>
+                                          record.status == PluginStatus.enabled
+                                          ? perform(
+                                              context,
+                                              () => manager.disable(
+                                                record.manifest.id,
+                                              ),
+                                            )
+                                          : enable(context, record),
+                                child: Text(
+                                  record.status == PluginStatus.enabled
+                                      ? '停用'
+                                      : '启用',
+                                ),
+                              ),
+                              OutlinedButton(
+                                onPressed: manager.busy
+                                    ? null
+                                    : () async {
+                                        final approved = await showDialog<bool>(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            title: Text(
+                                              '卸载${record.manifest.name}？',
                                             ),
-                                            FilledButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(context, true),
-                                              child: const Text('卸载'),
+                                            content: const Text(
+                                              '卸载后保留插件数据，可重新安装恢复。若需删除数据，请先在设置、存储与日志中导出备份并选择删除。',
                                             ),
-                                          ],
-                                        ),
-                                      );
-                                      if (approved == true && context.mounted) {
-                                        await perform(
-                                          context,
-                                          () => manager.uninstall(
-                                            record.manifest.id,
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(
+                                                  context,
+                                                  false,
+                                                ),
+                                                child: const Text('取消'),
+                                              ),
+                                              FilledButton(
+                                                onPressed: () => Navigator.pop(
+                                                  context,
+                                                  true,
+                                                ),
+                                                child: const Text('卸载'),
+                                              ),
+                                            ],
                                           ),
                                         );
-                                      }
-                                    },
-                              child: const Text('卸载'),
-                            ),
+                                        if (approved == true &&
+                                            context.mounted) {
+                                          await perform(
+                                            context,
+                                            () => manager.uninstall(
+                                              record.manifest.id,
+                                            ),
+                                          );
+                                        }
+                                      },
+                                child: const Text('卸载'),
+                              ),
+                            ],
                           ],
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            const SizedBox(height: 32),
-            const Text(
-              '后续能力',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-            ),
-            const ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.document_scanner_outlined),
-              title: Text('文字识别与增强搜索'),
-              subtitle: Text('待实现 · OCR 数据与基础索引分开管理'),
-            ),
-            const ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.translate_outlined),
-              title: Text('翻译'),
-              subtitle: Text('待实现 · 选中文字翻译、生成独立译本'),
-            ),
             const SizedBox(height: 16),
-            const Text(
-              '支持 ZIP 与 GitHub / HTTPS 安装 JavaScript 插件。安装后停用，更新需重新确认；业务插件需单独安装授权。',
+            Text(
+              '支持 ZIP 与 GitHub / HTTPS 安装 JavaScript 插件。安装后默认停用，更新需重新确认。',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
         );

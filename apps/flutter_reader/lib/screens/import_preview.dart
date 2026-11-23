@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../data/models.dart';
 import '../data/reader_api.dart';
+import '../design/widgets.dart';
 
 class ImportPreviewScreen extends StatefulWidget {
   final ReaderApi api;
@@ -133,14 +134,16 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
       if (!didPop) leave();
     },
     child: Scaffold(
-      appBar: AppBar(title: Text(widget.append == null ? '导入预览' : '追加 / 插入图片')),
+      appBar: AppBar(),
       body: Column(
         children: [
           if (busy) const LinearProgressIndicator(),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
               children: [
+                AqPageHeading(widget.append == null ? '导入预览' : '追加 / 插入图片'),
+                const SizedBox(height: 16),
                 const Text('修改的是导入副本。取消后可从“继续导入任务”重新打开预览。'),
                 if (error != null)
                   Padding(
@@ -336,7 +339,6 @@ class _ImportPagesScreenState extends State<ImportPagesScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text('选择导入页与顺序'),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(
@@ -348,6 +350,10 @@ class _ImportPagesScreenState extends State<ImportPagesScreen> {
       ],
     ),
     body: ReorderableListView.builder(
+      header: const Padding(
+        padding: EdgeInsets.fromLTRB(16, 4, 16, 12),
+        child: AqPageHeading('选择导入页与顺序'),
+      ),
       itemCount: resources.length,
       buildDefaultDragHandles: false,
       onReorderItem: (oldIndex, newIndex) => setState(() {

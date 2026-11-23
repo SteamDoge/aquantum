@@ -3,11 +3,13 @@
 import 'package:flutter/material.dart';
 import '../data/models.dart';
 import '../data/reader_api.dart';
+import '../design/widgets.dart';
 import '../plugins/plugin_api.dart';
 import '../plugins/plugin_manager.dart';
 import 'page_manager.dart';
 import 'book_history.dart';
 import 'book_details.dart';
+import 'library_content.dart' show projectColors;
 
 class LibraryActions {
   final BuildContext context;
@@ -76,42 +78,36 @@ class LibraryActions {
       ],
     ),
   );
+
+  /// A context menu beside the press: the subject's name as a gray header
+  /// over groups of actions, as in ASpan. Only irreversible deletion is drawn
+  /// as destructive, in the last group.
   Future<String?> menu(
     String title,
-    List<(String, IconData, String)> entries,
-  ) => showModalBottomSheet<String>(
-    context: context,
-    showDragHandle: true,
-    isScrollControlled: true,
-    builder: (c) => SafeArea(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(c).height * .8,
-        ),
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            for (final e in entries)
-              ListTile(
-                leading: Icon(e.$2),
-                title: Text(e.$3),
-                onTap: () => Navigator.pop(c, e.$1),
+    List<List<(String, IconData, String)>> sections, {
+    List<Color>? iconColors,
+  }) {
+    var i = 0;
+    return showAqContextMenu<String>(
+      context,
+      menuPosition(context),
+      title: title,
+      sections: [
+        for (final s in sections)
+          [
+            for (final e in s)
+              AqMenuAction(
+                e.$1,
+                e.$3,
+                e.$2,
+                iconColor: iconColors?[i++ % iconColors.length],
+                destructive: e.$1 == 'delete',
               ),
           ],
-        ),
-      ),
-    ),
-  );
+      ],
+    );
+  }
+
   Future<void> details(String title, String body) => showDialog<void>(
     context: context,
     builder: (c) => AlertDialog(
@@ -126,13 +122,17 @@ class LibraryActions {
     final scope = ExtensionContext(projectId: p.id);
     final ext = plugins.actions(ExtensionPoint.projectMenu, scope);
     final action = await menu(p.name, [
-      ('rename', Icons.drive_file_rename_outline, '重命名'),
-      ('color', Icons.palette_outlined, '文件夹颜色'),
-      if (p.id != library.inbox)
-        ('move', Icons.drive_file_move_outlined, '移动项目'),
-      ('details', Icons.info_outline, '详情'),
-      for (final e in ext) (e.id, e.icon, e.name),
-      if (p.id != library.inbox) ('delete', Icons.delete_outline, '删除空项目'),
+      [
+        ('rename', Icons.drive_file_rename_outline, '重命名'),
+        ('color', Icons.palette_outlined, '文件夹颜色'),
+        if (p.id != library.inbox)
+          ('move', Icons.drive_file_move_outlined, '移动项目'),
+      ],
+      [
+        ('details', Icons.info_outline, '详情'),
+        for (final e in ext) (e.id, e.icon, e.name),
+      ],
+      [if (p.id != library.inbox) ('delete', Icons.delete_outline, '删除空项目')],
     ]);
     if (!context.mounted || action == null) return;
     if (ext.any((e) => e.id == action)) {
@@ -152,9 +152,11 @@ class LibraryActions {
         }
       case 'color':
         final v = await menu('文件夹颜色', [
-          for (final (i, n) in ['蓝色', '粉色', '橙色', '绿色', '紫色', '灰色'].indexed)
-            ('$i', Icons.folder, n),
-        ]);
+          [
+            for (final (i, n) in ['蓝色', '粉色', '橙色', '绿色', '紫色', '灰色'].indexed)
+              ('$i', Icons.folder, n),
+          ],
+        ], iconColors: projectColors);
         if (v != null) {
           await perform(() async {
             await api.call('color_project', {
@@ -196,21 +198,27 @@ class LibraryActions {
     final action =
         selectedAction ??
         await menu(b.title, [
-          ('history', Icons.history, '修改记录与恢复'),
-          if (b.isComic && !b.archived)
-            ('pages', Icons.photo_library_outlined, '页面管理、追加与导出'),
-          ('rename', Icons.drive_file_rename_outline, '重命名'),
-          ('copy', Icons.copy_outlined, '复制到项目'),
-          ('move', Icons.drive_file_move_outlined, '移动到项目'),
-          if (b.project != library.inbox)
-            ('remove', Icons.folder_off_outlined, '从项目移除（移回资料库）'),
-          ('details', Icons.info_outline, '详情'),
-          for (final e in ext) (e.id, e.icon, e.name),
-          (
-            b.archived ? 'restore' : 'archive',
-            b.archived ? Icons.restore : Icons.remove_circle_outline,
-            b.archived ? '恢复到书架' : '移出书架（保留副本与记录）',
-          ),
+          [
+            ('rename', Icons.drive_file_rename_outline, '重命名'),
+            ('copy', Icons.copy_outlined, '复制到项目'),
+            ('move', Icons.drive_file_move_outlined, '移动到项目'),
+            if (b.project != library.inbox)
+              ('remove', Icons.folder_off_outlined, '从项目移除'),
+          ],
+          [
+            ('details', Icons.info_outline, '详情'),
+            ('history', Icons.history, '修改记录与恢复'),
+            if (b.isComic && !b.archived)
+              ('pages', Icons.photo_library_outlined, '页面管理'),
+            for (final e in ext) (e.id, e.icon, e.name),
+          ],
+          [
+            (
+              b.archived ? 'restore' : 'archive',
+              b.archived ? Icons.restore : Icons.remove_circle_outline,
+              b.archived ? '恢复到书架' : '移出书架',
+            ),
+          ],
         ]);
     if (!context.mounted || action == null) return;
     String? newName, destination;

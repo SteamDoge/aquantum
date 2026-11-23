@@ -201,8 +201,10 @@ class _DesktopRail extends StatelessWidget {
       duration: ReaderMotion.duration(context, ReaderMotion.navigation),
       curve: ReaderMotion.curve,
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
-        border: Border(right: BorderSide(color: scheme.outlineVariant)),
+        color: scheme.surface,
+        border: Border(
+          right: BorderSide(color: scheme.outlineVariant, width: .5),
+        ),
       ),
       // Expanded contents use their final width while the outer pane animates.
       // Project-tree ListTiles must never be laid out at a compact rail width.
@@ -213,32 +215,36 @@ class _DesktopRail extends StatelessWidget {
           maxWidth: expanded ? 219 : 67,
           child: Column(
             children: [
-              const SizedBox(height: 16),
-              IconButton(
-                tooltip: expanded ? '收起导航' : '展开导航',
-                onPressed: onToggleExpanded,
-                icon: const Icon(Icons.menu_open),
-              ),
-              if (expanded)
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 12, 16, 16),
-                  child: Text(
-                    'AQuantum\nReader',
-                    style: TextStyle(
-                      fontSize: 18,
-                      height: 1.1,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                )
-              else
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Icon(
-                    Icons.auto_stories_outlined,
-                    color: scheme.primary,
-                  ),
+              Padding(
+                // Compact panes are 67px wide: keep the 48px button inside.
+                padding: EdgeInsets.symmetric(
+                  horizontal: expanded ? 10 : 9,
+                  vertical: 14,
                 ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      tooltip: expanded ? '收起导航' : '展开导航',
+                      onPressed: onToggleExpanded,
+                      color: scheme.onSurfaceVariant,
+                      icon: Icon(
+                        expanded ? Icons.menu_open : Icons.menu,
+                        size: 22,
+                      ),
+                    ),
+                    if (expanded)
+                      Expanded(
+                        child: Text(
+                          'AQuantum Reader',
+                          maxLines: 1,
+                          overflow: TextOverflow.fade,
+                          softWrap: false,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -247,7 +253,7 @@ class _DesktopRail extends StatelessWidget {
                       (f) => f.id != FeatureRegistry.me,
                     ))
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.only(bottom: 2),
                         child: _Destination(
                           feature: feature,
                           selected: selected == feature.id,
@@ -323,21 +329,14 @@ class _Destination extends StatelessWidget {
           duration: ReaderMotion.duration(context, ReaderMotion.navigation),
           curve: ReaderMotion.curve,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
-            color: selected
-                ? scheme.primaryContainer.withValues(alpha: .65)
-                : Colors.transparent,
-            border: Border.all(
-              color: selected
-                  ? scheme.primary.withValues(alpha: .24)
-                  : Colors.transparent,
-            ),
+            borderRadius: BorderRadius.circular(10),
+            color: selected ? scheme.primaryContainer : Colors.transparent,
           ),
           child: Material(
             type: MaterialType.transparency,
             child: InkWell(
               key: ValueKey('nav-${feature.id}'),
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: BorderRadius.circular(10),
               onTap: onTap,
               excludeFromSemantics: true,
               child: Padding(

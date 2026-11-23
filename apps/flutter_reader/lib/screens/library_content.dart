@@ -1,11 +1,24 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 AQuantum Reader contributors.
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import '../data/models.dart';
 import '../data/reader_api.dart';
 import '../dashboard/dashboard_data.dart';
+import '../design/theme.dart';
 import '../widgets/book_cover.dart';
 import '../design/widgets.dart';
+
+/// Folder colors chosen in the project menu, tuned for both brightnesses.
+const projectColors = [
+  Color(0xFF3B82D6),
+  Color(0xFFC6427F),
+  Color(0xFFC07A12),
+  Color(0xFF3A9160),
+  Color(0xFF8059BF),
+  Color(0xFF7A8794),
+];
 
 class LibraryContent extends StatefulWidget {
   final LibrarySnapshot library;
@@ -46,29 +59,22 @@ class LibraryContent extends StatefulWidget {
 }
 
 class _LibraryContentState extends State<LibraryContent> {
+  /// The add button's menu, drawn like every other context menu.
   Future<void> addContent() async {
-    final action = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (c) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.create_new_folder_outlined),
-              title: Text(
-                widget.projectId == widget.library.inbox ? '新建项目' : '新建文件夹',
-              ),
-              onTap: () => Navigator.pop(c, 'project'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.file_upload_outlined),
-              title: const Text('导入文件'),
-              onTap: () => Navigator.pop(c, 'import'),
-            ),
-          ],
-        ),
-      ),
+    final action = await showAqContextMenu<String>(
+      context,
+      menuPosition(context),
+      title: '导入时复制一份副本，原文件保持不变',
+      sections: [
+        [
+          const AqMenuAction('import', '导入文件', Icons.file_upload_outlined),
+          AqMenuAction(
+            'project',
+            widget.projectId == widget.library.inbox ? '新建项目' : '新建文件夹',
+            Icons.create_new_folder_outlined,
+          ),
+        ],
+      ],
     );
     if (!mounted) return;
     if (action == 'project') widget.onCreateProject();
@@ -97,11 +103,27 @@ class _LibraryContentState extends State<LibraryContent> {
     }
   }
 
+  void viewOption(String value) {
+    switch (value) {
+      case 'grid' || 'list':
+        widget.onView(value == 'grid', widget.sort);
+      case 'select':
+        setState(() {
+          selecting = true;
+          selected.clear();
+        });
+      default:
+        widget.onView(widget.grid, value);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = widget.library,
         current = widget.library.project(widget.projectId);
     final data = DashboardData(c);
+    final theme = Theme.of(context);
+    final colors = AqColors.of(context);
     final query = widget.query.trim().toLowerCase();
     final books = query.isEmpty
         ? c.booksIn(current.id)
@@ -123,354 +145,406 @@ class _LibraryContentState extends State<LibraryContent> {
       },
     );
     children.sort((a, b) => a.name.compareTo(b.name));
-    final inset = widget.wide ? 32.0 : 22.0;
+    final inset = widget.wide ? 32.0 : 20.0;
     // Pages run beneath the floating mobile dock; ends rest above it.
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     final grid = widget.grid && MediaQuery.textScalerOf(context).scale(14) < 23;
-    Widget file(Book b, bool isGrid) {
-      final info = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            b.title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            '${b.label} · ${data.progress(b)}',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          if (!isGrid)
-            Text(
-              data.lastRead(b),
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-        ],
-      );
-      final action = selecting
-          ? Checkbox(
-              value: selected.contains(b.id),
-              onChanged: (_) => choose(b),
-            )
-          : IconButton(
-              tooltip: '文件操作',
-              onPressed: widget.busy ? null : () => widget.onBookMenu(b),
-              icon: Icon(isGrid ? Icons.more_horiz : Icons.more_vert),
-            );
-      return GestureDetector(
-        onSecondaryTap: widget.busy ? null : () => widget.onBookMenu(b),
-        child: InkWell(
-          onTap: widget.busy ? null : () => choose(b),
-          onLongPress: widget.busy ? null : () => widget.onBookMenu(b),
-          borderRadius: BorderRadius.circular(8),
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: isGrid
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        child: Center(
-                          child: AspectRatio(
-                            aspectRatio: 1 / 1.4,
-                            child: BookCover(api: widget.api, book: b),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      info,
-                      Align(alignment: Alignment.centerRight, child: action),
-                    ],
+    final parent = current.parent == null ? null : c.project(current.parent!);
+
+    Widget bookAction(Book b, {bool compact = false}) => selecting
+        ? Checkbox(
+            value: selected.contains(b.id),
+            onChanged: (_) => choose(b),
+            shape: const CircleBorder(),
+          )
+        : IconButton(
+            tooltip: '文件操作',
+            onPressed: widget.busy ? null : () => widget.onBookMenu(b),
+            color: colors.muted,
+            iconSize: compact ? 20 : 22,
+            // Under a cover the whole tile also opens this menu (long press
+            // or secondary click), so the caption keeps most of the width.
+            style: compact
+                ? IconButton.styleFrom(
+                    minimumSize: const Size(36, 44),
+                    padding: EdgeInsets.zero,
                   )
-                : Row(
-                    children: [
-                      SizedBox(
-                        width: 48,
-                        height: 64,
-                        child: BookCover(api: widget.api, book: b),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(child: info),
-                      action,
-                    ],
-                  ),
-          ),
-        ),
-      );
+                : null,
+            icon: const Icon(Icons.more_horiz),
+          );
+
+    Widget gesture(Book b, Widget child) => GestureDetector(
+      onSecondaryTap: widget.busy ? null : () => widget.onBookMenu(b),
+      child: InkWell(
+        onTap: widget.busy ? null : () => choose(b),
+        onLongPress: widget.busy ? null : () => widget.onBookMenu(b),
+        borderRadius: BorderRadius.circular(12),
+        child: child,
+      ),
+    );
+
+    // A shelf caption: format and a short progress mark.
+    String shortProgress(Book b) {
+      final visit = data.latest[b.id];
+      if (visit == null) return '未读';
+      final f = data.fraction(b);
+      if (f != null) return '${(f * 100).round()}%';
+      final day = data.lastRead(b);
+      final parts = day.split('-');
+      return parts.length == 3
+          ? '${int.parse(parts[1])}/${int.parse(parts[2])}'
+          : day;
     }
 
-    Widget folder(Project p) {
-      final colors = [
-        const Color(0xFF4077C8),
-        const Color(0xFFC13883),
-        const Color(0xFFB26A16),
-        const Color(0xFF39835C),
-        const Color(0xFF7C56AC),
-        const Color(0xFF687482),
-      ];
-      return GestureDetector(
-        onSecondaryTap: widget.busy ? null : () => widget.onProjectMenu(p),
-        child: Card(
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          child: InkWell(
-            onTap: widget.busy ? null : () => widget.onProject(p.id),
-            onLongPress: widget.busy ? null : () => widget.onProjectMenu(p),
-            borderRadius: BorderRadius.circular(23),
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.folder_outlined,
-                    size: 36,
-                    color: colors[p.color.clamp(0, 5)],
+    Widget gridTile(Book b) => gesture(
+      b,
+      Padding(
+        padding: const EdgeInsets.all(4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Equal covers keep the shelf rows aligned whatever the titles.
+            AspectRatio(
+              aspectRatio: 1 / 1.4,
+              child: AnimatedOpacity(
+                opacity: selecting && !selected.contains(b.id) ? .55 : 1,
+                duration: const Duration(milliseconds: 140),
+                child: BookCover(api: widget.api, book: b),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              b.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.titleSmall,
+            ),
+            const Spacer(),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    b.metadata['cover'] == null && !b.isComic
+                        ? shortProgress(b) // The drawn cover names the format.
+                        : '${b.label} · ${shortProgress(b)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall,
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          p.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        Text(
-                          '${c.children(p.id).length} 个子项目 · ${c.booksIn(p.id).length} 份文件',
-                          maxLines: 2,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
+                ),
+                bookAction(b, compact: true),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    Widget listRow(Book b) => gesture(
+      b,
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 4, 8),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 38,
+              height: 53,
+              child: BookCover(api: widget.api, book: b),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    b.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  IconButton(
-                    tooltip: '项目操作',
-                    onPressed: widget.busy
-                        ? null
-                        : () => widget.onProjectMenu(p),
-                    icon: const Icon(Icons.more_vert),
+                  const SizedBox(height: 2),
+                  Text(
+                    data.latest.containsKey(b.id)
+                        ? '${b.label} · ${data.progress(b)} · ${data.lastRead(b)}'
+                        : '${b.label} · 未读',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall,
                   ),
                 ],
               ),
             ),
+            bookAction(b),
+          ],
+        ),
+      ),
+    );
+
+    Widget folder(Project p) {
+      final count = c.booksIn(p.id).length + c.children(p.id).length;
+      return Semantics(
+        customSemanticsActions: {
+          const CustomSemanticsAction(label: '项目操作'): () =>
+              widget.onProjectMenu(p),
+        },
+        child: GestureDetector(
+          onSecondaryTap: widget.busy ? null : () => widget.onProjectMenu(p),
+          child: AqRow(
+            icon: Icons.folder_outlined,
+            iconColor:
+                projectColors[p.color.clamp(0, projectColors.length - 1)],
+            title: p.name,
+            value: '$count',
+            onTap: widget.busy ? null : () => widget.onProject(p.id),
+            onLongPress: widget.busy ? null : () => widget.onProjectMenu(p),
+            chevron: true,
           ),
         ),
       );
     }
 
-    return Stack(
+    final header = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        CustomScrollView(
-          key: PageStorageKey('project-${widget.projectId}'),
-          slivers: [
-            SliverPadding(
-              padding: EdgeInsets.fromLTRB(inset, 8, inset, 0),
-              sliver: SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 14, bottom: 24),
-                      child: Row(
-                        children: [
-                          const Expanded(child: AqBrand()),
-                          IconButton.filledTonal(
-                            tooltip: '添加内容',
-                            onPressed: widget.busy ? null : addContent,
-                            icon: const Icon(Icons.add),
-                          ),
-                        ],
+        AqPageHeading(
+          current.id == c.inbox ? '资料库' : current.name,
+          subtitle: query.isEmpty
+              ? '${books.length} 份文件'
+              : '找到 ${books.length} 份文件',
+          leading: parent == null
+              ? null
+              : Align(
+                  alignment: Alignment.centerLeft,
+                  child: Tooltip(
+                    message: '上级项目',
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.only(left: 2, right: 10),
+                      ),
+                      onPressed: () => widget.onProject(parent.id),
+                      icon: const Icon(Icons.chevron_left, size: 24),
+                      label: Text(
+                        parent.id == c.inbox ? '资料库' : parent.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    Text(
-                      '本机内容 · ${books.length} 份文件',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        if (current.parent != null)
-                          IconButton(
-                            tooltip: '上级项目',
-                            onPressed: () => widget.onProject(current.parent!),
-                            icon: const Icon(Icons.arrow_back),
-                          ),
-                        Expanded(
-                          child: Text(
-                            current.id == c.inbox ? '资料库' : current.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                  ),
+                ),
+          actions: [
+            PopupMenuButton<String>(
+              tooltip: '显示选项',
+              onSelected: viewOption,
+              icon: const Icon(Icons.more_horiz),
+              itemBuilder: (_) => [
+                CheckedPopupMenuItem(
+                  value: 'grid',
+                  checked: widget.grid,
+                  child: const Text('网格'),
+                ),
+                CheckedPopupMenuItem(
+                  value: 'list',
+                  checked: !widget.grid,
+                  child: const Text('列表'),
+                ),
+                const PopupMenuDivider(),
+                for (final e in [
+                  ('name', '按名称'),
+                  ('recent', '按最近阅读'),
+                  ('format', '按文件类型'),
+                ])
+                  CheckedPopupMenuItem(
+                    value: e.$1,
+                    checked: widget.sort == e.$1,
+                    child: Text(e.$2),
+                  ),
+                const PopupMenuDivider(),
+                const PopupMenuItem(value: 'select', child: Text('选择文件')),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        AqSearchField(
+          controller: widget.searchController,
+          hint: '搜索项目或文件',
+          onChanged: widget.onSearch,
+        ),
+        if (selecting)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '已选择 ${selected.length} 份',
+                    style: theme.textTheme.titleSmall,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => setState(() {
+                    selected
+                      ..clear()
+                      ..addAll(books.map((b) => b.id));
+                  }),
+                  child: const Text('全选'),
+                ),
+                TextButton(
+                  onPressed: selected.isEmpty || widget.busy
+                      ? null
+                      : () => widget.onBatch(
+                          books.where((b) => selected.contains(b.id)).toList(),
                         ),
-                        PopupMenuButton<String>(
-                          tooltip: '排序方式',
-                          initialValue: widget.sort,
-                          onSelected: (v) => widget.onView(widget.grid, v),
-                          icon: const Icon(Icons.sort),
-                          itemBuilder: (_) => [
-                            for (final e in [
-                              ('name', '名称'),
-                              ('recent', '最近阅读'),
-                              ('format', '文件类型'),
-                            ])
-                              CheckedPopupMenuItem(
-                                value: e.$1,
-                                checked: widget.sort == e.$1,
-                                child: Text(e.$2),
-                              ),
-                          ],
-                        ),
-                        IconButton(
-                          tooltip: widget.grid ? '切换列表' : '切换网格',
-                          onPressed: () =>
-                              widget.onView(!widget.grid, widget.sort),
-                          icon: Icon(
-                            widget.grid
-                                ? Icons.view_list_outlined
-                                : Icons.grid_view_outlined,
-                          ),
-                        ),
-                        IconButton(
-                          tooltip: '多选文件',
-                          isSelected: selecting,
-                          onPressed: () => setState(() {
-                            selecting = !selecting;
-                            selected.clear();
-                          }),
-                          icon: const Icon(Icons.checklist),
-                        ),
-                      ],
-                    ),
-                    if (current.parent != null)
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            for (final p in c.ancestors(current.id))
-                              TextButton(
-                                onPressed: () => widget.onProject(p.id),
-                                child: Text(p.id == c.inbox ? '资料库' : p.name),
-                              ),
-                          ],
-                        ),
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: TextField(
-                        controller: widget.searchController,
-                        decoration: const InputDecoration(
-                          hintText: '搜索项目或文件名称',
-                          prefixIcon: Icon(Icons.search),
-                          isDense: true,
-                        ),
-                        onChanged: widget.onSearch,
-                      ),
-                    ),
-                    if (selecting)
-                      Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Text('已选择 ${selected.length} 份'),
-                          TextButton(
-                            onPressed: () => setState(() {
-                              selected.clear();
-                              selected.addAll(books.map((b) => b.id));
-                            }),
-                            child: const Text('全选'),
-                          ),
-                          TextButton(
-                            onPressed: selected.isEmpty || widget.busy
-                                ? null
-                                : () => widget.onBatch(
-                                    books
-                                        .where((b) => selected.contains(b.id))
-                                        .toList(),
-                                  ),
-                            child: const Text('批量移动'),
-                          ),
-                        ],
-                      ),
-                  ],
+                  child: const Text('批量移动'),
+                ),
+                TextButton(
+                  onPressed: () => setState(() {
+                    selecting = false;
+                    selected.clear();
+                  }),
+                  child: const Text('完成'),
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(height: 24),
+      ],
+    );
+
+    final media = MediaQuery.of(context);
+    final list = CustomScrollView(
+      key: PageStorageKey('project-${widget.projectId}'),
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(inset, 28, inset, 0),
+          sliver: SliverToBoxAdapter(child: header),
+        ),
+        if (children.isNotEmpty)
+          SliverPadding(
+            padding: EdgeInsets.symmetric(horizontal: inset),
+            sliver: SliverToBoxAdapter(
+              child: AqSection(
+                header: '文件夹',
+                children: [for (final p in children) folder(p)],
+              ),
+            ),
+          ),
+        if (books.isNotEmpty && children.isNotEmpty)
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(inset + 16, 0, inset, 7),
+            sliver: SliverToBoxAdapter(
+              child: Text(
+                '文件',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
-            if (children.isNotEmpty)
-              SliverPadding(
-                padding: EdgeInsets.symmetric(horizontal: inset),
-                sliver: grid
-                    ? SliverGrid.builder(
-                        itemCount: children.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 440,
-                              mainAxisExtent: 108,
-                            ),
-                        itemBuilder: (_, i) => folder(children[i]),
-                      )
-                    : SliverList.builder(
-                        itemCount: children.length,
-                        itemBuilder: (_, i) => folder(children[i]),
-                      ),
-              ),
-            if (books.isNotEmpty)
-              SliverPadding(
-                padding: EdgeInsets.fromLTRB(
-                  inset - 4,
-                  8,
-                  inset - 4,
-                  84 + bottomInset,
-                ),
-                sliver: grid
-                    ? SliverGrid.builder(
+          ),
+        if (books.isNotEmpty)
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(
+              grid ? inset - 4 : inset,
+              0,
+              grid ? inset - 4 : inset,
+              84 + bottomInset,
+            ),
+            sliver: grid
+                ? SliverLayoutBuilder(
+                    builder: (context, constraints) {
+                      final width = constraints.crossAxisExtent;
+                      // Three book-sized columns on a phone, more on wide
+                      // windows; covers never grow past a shelf size.
+                      const gap = 12.0;
+                      final columns = math.max(
+                        2,
+                        ((width + gap) / ((widget.wide ? 150 : 108) + gap))
+                            .floor(),
+                      );
+                      final tile = (width - gap * (columns - 1)) / columns;
+                      final text = MediaQuery.textScalerOf(context).scale(14);
+                      return SliverGrid.builder(
                         itemCount: books.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 220,
-                              mainAxisExtent: 340,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 16,
-                            ),
-                        itemBuilder: (_, i) => file(books[i], true),
-                      )
-                    : SliverList.builder(
-                        itemCount: books.length,
-                        itemBuilder: (_, i) => file(books[i], false),
-                      ),
-              )
-            else
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(24, 32, 24, 100 + bottomInset),
-                  child: Column(
-                    children: [
-                      Text(
-                        query.isEmpty
-                            ? (current.id == c.inbox ? '资料库还没有文件' : '此项目还没有文件')
-                            : '没有匹配的文件',
-                      ),
-                      const SizedBox(height: 12),
-                      if (query.isEmpty)
-                        TextButton(
-                          onPressed: widget.busy ? null : widget.onSample,
-                          child: const Text('试读示例'),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: columns,
+                          crossAxisSpacing: gap,
+                          mainAxisSpacing: 14,
+                          // Cover, gap, two title lines and the caption row.
+                          mainAxisExtent: (tile - 8) * 1.4 + 70 + text * 2.9,
                         ),
-                    ],
+                        itemBuilder: (_, i) => gridTile(books[i]),
+                      );
+                    },
+                  )
+                : SliverToBoxAdapter(
+                    child: AqSection(
+                      dividerIndent: 68,
+                      children: [for (final b in books) listRow(b)],
+                    ),
                   ),
-                ),
+          )
+        else
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(32, 40, 32, 100 + bottomInset),
+              child: Column(
+                children: [
+                  Icon(
+                    query.isEmpty ? Icons.menu_book_outlined : Icons.search_off,
+                    size: 44,
+                    color: colors.muted.withValues(alpha: .6),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    query.isEmpty
+                        ? (current.id == c.inbox ? '资料库还没有文件' : '此项目还没有文件')
+                        : '没有匹配的文件',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  if (query.isEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      '导入时会复制一份副本，原文件保持不变。',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 20),
+                    FilledButton.icon(
+                      onPressed: widget.busy ? null : widget.onImport,
+                      icon: const Icon(Icons.file_upload_outlined),
+                      label: const Text('导入文件'),
+                    ),
+                    const SizedBox(height: 4),
+                    TextButton(
+                      onPressed: widget.busy ? null : widget.onSample,
+                      child: const Text('试读示例'),
+                    ),
+                  ],
+                ],
               ),
-          ],
-        ),
+            ),
+          ),
+      ],
+    );
+    // The round add button sits above the floating dock (reported as bottom
+    // padding), and gives way to the selection bar and the keyboard.
+    final showAdd = !selecting && media.viewInsets.bottom == 0;
+    return Stack(
+      children: [
+        Positioned.fill(child: list),
+        if (showAdd)
+          Positioned(
+            right: media.padding.right + 20,
+            bottom: bottomInset + 16,
+            child: AqAddButton(
+              key: const ValueKey('add-content'),
+              tooltip: '添加内容',
+              onPressed: widget.busy ? null : addContent,
+            ),
+          ),
       ],
     );
   }

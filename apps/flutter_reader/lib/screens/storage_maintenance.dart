@@ -10,6 +10,7 @@ import '../data/document_io.dart';
 import '../data/reader_api.dart';
 import 'import_preview.dart';
 import 'storage_cleanup.dart';
+import '../design/widgets.dart';
 
 String taskKindLabel(dynamic kind) =>
     const {
@@ -369,7 +370,6 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('存储维护与备份'),
           actions: [
             IconButton(
               tooltip: '刷新',
@@ -379,8 +379,10 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
           ],
         ),
         body: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
           children: [
+            const AqPageHeading('存储维护与备份'),
+            const SizedBox(height: 16),
             if (busy) const LinearProgressIndicator(),
             if (error != null)
               Padding(

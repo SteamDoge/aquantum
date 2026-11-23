@@ -155,18 +155,14 @@ class _BookMetadataScreenState extends State<BookMetadataScreen> {
   });
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('封面与信息')),
+    appBar: AppBar(),
     body: Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 900),
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            const AqPageHeading(
-              '让每本书完整',
-              brand: false,
-              subtitle: '信息匹配 / 确认后保存',
-            ),
+            const AqPageHeading('封面与信息', subtitle: '检索或手动填写，确认后才保存。'),
             const SizedBox(height: 22),
             AqPanel(
               child: Column(

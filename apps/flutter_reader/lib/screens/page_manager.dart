@@ -9,6 +9,7 @@ import '../data/reader_api.dart';
 import '../data/document_io.dart';
 import 'import_dialog.dart';
 import 'book_history.dart';
+import '../design/widgets.dart';
 
 class PageManagerScreen extends StatefulWidget {
   final ReaderApi api;
@@ -217,7 +218,6 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: Text('${book.title} · 页面管理'),
       actions: [
         IconButton(
           tooltip: '修改记录与恢复',
@@ -247,6 +247,10 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
     ),
     body: Column(
       children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+          child: AqPageHeading('页面管理', subtitle: book.title),
+        ),
         if (busy) const LinearProgressIndicator(),
         ConstrainedBox(
           constraints: BoxConstraints(

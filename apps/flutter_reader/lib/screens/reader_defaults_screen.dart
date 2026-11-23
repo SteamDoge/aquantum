@@ -7,6 +7,7 @@ import '../formats/document_engine_windows.dart';
 import '../formats/reader_provider.dart';
 import '../formats/reader_provider_preferences.dart';
 import '../plugins/plugin_manager.dart';
+import '../design/widgets.dart';
 
 /// Software settings for format-wide reader selection, independent of typography.
 class ReaderDefaultsScreen extends StatefulWidget {
@@ -104,14 +105,18 @@ class _ReaderDefaultsScreenState extends State<ReaderDefaultsScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('阅读器选择')),
+    appBar: AppBar(),
     body: error != null
         ? Center(child: Text(error!))
         : !ready
         ? const Center(child: CircularProgressIndicator())
         : ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
             children: [
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: AqPageHeading('阅读器选择'),
+              ),
               const Padding(
                 padding: EdgeInsets.all(8),
                 child: Text('按格式选择阅读器和默认翻页方式，下次打开生效。单文件已有设置优先保留。'),

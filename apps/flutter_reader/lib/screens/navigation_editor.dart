@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../features/feature_registry.dart';
 import '../navigation/navigation_controller.dart';
 import '../navigation/navigation_preferences.dart';
+import '../design/widgets.dart';
 
 class NavigationEditor extends StatefulWidget {
   final AppNavigation navigation;
@@ -58,7 +59,7 @@ class _NavigationEditorState extends State<NavigationEditor> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('导航栏自定义')),
+    appBar: AppBar(),
     body: AnimatedBuilder(
       animation: widget.navigation,
       builder: (context, _) {
@@ -68,8 +69,10 @@ class _NavigationEditorState extends State<NavigationEditor> {
           (f) => f.allowNavigation && !visible.any((v) => v.id == f.id),
         );
         return ListView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
           children: [
+            const AqPageHeading('导航栏自定义'),
+            const SizedBox(height: 20),
             Wrap(
               spacing: 8,
               children: [

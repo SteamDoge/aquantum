@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import '../data/models.dart';
 import '../data/reader_api.dart';
 import '../design/motion.dart';
+import '../design/widgets.dart';
 import '../features/feature_registry.dart';
 import '../plugins/plugin_manager.dart';
 import '../plugins/plugin_package.dart';
@@ -143,6 +144,7 @@ class _LibraryScreenState extends State<LibraryScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    trackMenuPresses();
     calendarRefresh = Timer.periodic(const Duration(minutes: 1), (_) {
       final current = library;
       if (current != null &&
@@ -172,17 +174,17 @@ class _LibraryScreenState extends State<LibraryScreen>
         allowNavigation: false,
         builder: (context) => ListView(
           padding: EdgeInsets.fromLTRB(
-            24,
-            24,
-            24,
+            20,
+            28,
+            20,
             24 + MediaQuery.paddingOf(context).bottom,
           ),
           children: const [
-            Text('统计读取接口 · API 1', style: TextStyle(fontSize: 26)),
-            SizedBox(height: 16),
+            AqPageHeading('统计接口', subtitle: '读取接口 · API 1'),
+            SizedBox(height: 20),
             SelectableText(
               '组件使用同一个只读 DashboardData 快照。\n\ntoday / daily：本地日期的前台阅读毫秒。\nweek：含今天的最近七天。\nstreak：截至今天或昨天的连续有阅读记录天数。\nyearTime / yearBooks：当年毫秒 / 唯一阅读文件数。\ncompletedBooks：到达末尾的唯一文件数，非人工确认读完。\nrecent / latest：有效书架文件的最近会话。\n\n组件定义：source.widget.id、名称、图标、适用页、样式、尺寸、依赖、renderer。实例配置：id/style/wide/limit，主页和统计分别保存。\n\n可信编译插件通过 PluginRegistrar.widget/provider 注册；每份快照复用 provider 结果。声明式 ZIP 只能使用预定只读指标，不执行代码。\n\n当前只统计本机，不回填旧版缺失的时长。跨设备同步、任意时间范围、OCR/翻译、代码沙箱和系统桌面组件待实现。完整示例见交付的插件规范与 PRODUCT_SPEC。',
-              style: TextStyle(fontSize: 16, height: 1.7),
+              style: TextStyle(fontSize: 15, height: 1.7),
             ),
           ],
         ),
@@ -234,31 +236,47 @@ class _LibraryScreenState extends State<LibraryScreen>
         icon: Icons.restore,
         builder: (context) => library == null
             ? _loading()
-            : ListView(
-                padding: EdgeInsets.fromLTRB(
-                  24,
-                  24,
-                  24,
-                  24 + MediaQuery.paddingOf(context).bottom,
-                ),
-                children: [
-                  const Text('已移除文件', style: TextStyle(fontSize: 26)),
-                  const Text('副本与记录均保留，点击恢复到原项目。'),
-                  for (final b in library!.allBooks.where((b) => b.archived))
-                    ListTile(
-                      title: Text(b.title),
-                      trailing: IconButton(
-                        tooltip: '恢复到书架',
-                        icon: const Icon(Icons.restore),
-                        onPressed: () => act(() async {
-                          await widget.api.call('manage_book', {
-                            'book': b.id,
-                            'action': 'restore',
-                          });
-                        }),
-                      ),
+            : Builder(
+                builder: (context) {
+                  final archived = library!.allBooks
+                      .where((b) => b.archived)
+                      .toList();
+                  return ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      20,
+                      28,
+                      20,
+                      24 + MediaQuery.paddingOf(context).bottom,
                     ),
-                ],
+                    children: [
+                      const AqPageHeading('已移除文件'),
+                      const SizedBox(height: 24),
+                      AqSection(
+                        footer: archived.isEmpty
+                            ? '没有移出书架的文件。'
+                            : '副本与记录均保留，恢复后回到原项目。',
+                        dividerIndent: 16,
+                        children: [
+                          for (final b in archived)
+                            AqRow(
+                              title: b.title,
+                              subtitle: b.label,
+                              trailing: IconButton(
+                                tooltip: '恢复到书架',
+                                icon: const Icon(Icons.restore),
+                                onPressed: () => act(() async {
+                                  await widget.api.call('manage_book', {
+                                    'book': b.id,
+                                    'action': 'restore',
+                                  });
+                                }),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
               ),
       ),
       AppFeature(
@@ -735,8 +753,16 @@ class _LibraryScreenState extends State<LibraryScreen>
               projectTree: library == null
                   ? null
                   : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Divider(),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(12, 18, 12, 6),
+                          child: Text(
+                            '项目',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                        ),
                         for (final project in library!.projects)
                           Padding(
                             padding: EdgeInsets.only(
@@ -748,12 +774,24 @@ class _LibraryScreenState extends State<LibraryScreen>
                             ),
                             child: ListTile(
                               dense: true,
+                              visualDensity: VisualDensity.compact,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                              selectedTileColor: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
                               selected:
                                   selected == FeatureRegistry.projects &&
                                   projectId == project.id,
-                              leading: const Icon(
+                              leading: Icon(
                                 Icons.folder_outlined,
                                 size: 18,
+                                color:
+                                    projectColors[project.color.clamp(
+                                      0,
+                                      projectColors.length - 1,
+                                    )],
                               ),
                               title: Text(
                                 project.name,

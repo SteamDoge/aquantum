@@ -65,10 +65,17 @@ List<DashboardDefinition> coreDashboardWidgets({
   required VoidCallback onStatistics,
 }) {
   Widget title(String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 16),
-    child: Text(
-      text,
-      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Semantics(
+      header: true,
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
+          letterSpacing: -.2,
+        ),
+      ),
     ),
   );
   Widget recent(
@@ -97,12 +104,12 @@ List<DashboardDefinition> coreDashboardWidgets({
             ),
           LayoutBuilder(
             builder: (context, constraints) {
-              final columns = constraints.maxWidth >= 660 ? 4 : 2;
+              final columns = (constraints.maxWidth / 96).floor().clamp(2, 8);
               final width =
-                  (constraints.maxWidth - 20 * (columns - 1)) / columns;
+                  (constraints.maxWidth - 14 * (columns - 1)) / columns;
               return Wrap(
-                spacing: 20,
-                runSpacing: 24,
+                spacing: 14,
+                runSpacing: 20,
                 children: [
                   for (final book in books)
                     SizedBox(
@@ -119,7 +126,7 @@ List<DashboardDefinition> coreDashboardWidgets({
                               aspectRatio: 1 / 1.4,
                               child: BookCover(api: api, book: book),
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 8),
                             Text(
                               book.title,
                               maxLines: 2,
@@ -129,6 +136,8 @@ List<DashboardDefinition> coreDashboardWidgets({
                             const SizedBox(height: 5),
                             Text(
                               '${book.label} · ${data.progress(book)}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -282,7 +291,10 @@ List<DashboardDefinition> coreDashboardWidgets({
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          Text('今日前台阅读 · 目标 $minutes 分钟'),
+                          Text(
+                            '今日前台阅读 · 目标 $minutes 分钟',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
                         ],
                       ),
                     ),
@@ -377,8 +389,11 @@ List<DashboardDefinition> coreDashboardWidgets({
             ),
             const SizedBox(height: 16),
             Text('连续阅读 ${data.streak} 天'),
-            const SizedBox(height: 6),
-            const Text('✓ 达成当日目标 · 时钟 有阅读 · 空圈 无记录'),
+            const SizedBox(height: 4),
+            Text(
+              '✓ 达成当日目标 · 时钟 有阅读 · 空圈 无记录',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ],
         ),
       ),

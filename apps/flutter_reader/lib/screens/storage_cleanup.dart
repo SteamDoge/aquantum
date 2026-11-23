@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import '../data/models.dart';
 import '../data/reader_api.dart';
+import '../design/widgets.dart';
 
 class StorageCleanupScreen extends StatefulWidget {
   final ReaderApi api;
@@ -127,9 +128,13 @@ class _StorageCleanupScreenState extends State<StorageCleanupScreen> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('手动清理预览')),
+        appBar: AppBar(),
         body: Column(
           children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
+              child: AqPageHeading('手动清理预览'),
+            ),
             if (loading || busy)
               LinearProgressIndicator(
                 value: busy && selected.isNotEmpty

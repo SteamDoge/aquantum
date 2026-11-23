@@ -11,6 +11,7 @@ import 'package:aquantum_reader/data/reader_api.dart';
 import 'package:aquantum_reader/plugins/plugin_package.dart';
 import 'package:aquantum_reader/plugins/plugin_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'plugin_fixtures.dart';
@@ -99,9 +100,29 @@ void main() {
         await tester.tap(find.byKey(const ValueKey('nav-core.projects')));
         await tester.pumpAndSettle();
         expect(find.byTooltip('添加内容'), findsOneWidget);
-        await tester.tap(find.byTooltip('切换列表'));
+        // View, sort and selection share one options menu.
+        await tester.tap(find.byTooltip('显示选项'));
         await tester.pumpAndSettle();
-        expect(find.byTooltip('切换网格'), findsOneWidget);
+        await tester.tap(
+          find.widgetWithText(CheckedPopupMenuItem<String>, '列表'),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          (await SharedPreferences.getInstance()).getBool('project-grid.v1'),
+          isFalse,
+        );
+        await tester.tap(find.byTooltip('显示选项'));
+        await tester.pumpAndSettle();
+        expect(
+          tester
+              .widget<CheckedPopupMenuItem<String>>(
+                find.widgetWithText(CheckedPopupMenuItem<String>, '列表'),
+              )
+              .checked,
+          isTrue,
+        );
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
       }
       await tester.pumpWidget(const SizedBox.shrink());

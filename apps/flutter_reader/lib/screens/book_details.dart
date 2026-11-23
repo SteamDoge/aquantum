@@ -73,15 +73,15 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     final metadata = book.metadata;
     final path = library.ancestors(book.project).map((p) => p.name).join(' / ');
     return Scaffold(
-      appBar: AppBar(title: const Text('书籍详情')),
+      appBar: AppBar(),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 920),
           child: ListView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
             children: [
-              AqPageHeading('关于这本书', brand: false, subtitle: path),
-              const SizedBox(height: 22),
+              const AqPageHeading('书籍详情'),
+              const SizedBox(height: 20),
               AqPanel(
                 child: LayoutBuilder(
                   builder: (context, constraints) => Wrap(
@@ -116,7 +116,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                 child: Text(metadata['author']),
                               ),
                             const SizedBox(height: 12),
-                            Text('${book.label} · ${sizeLabel(book.bytes)}'),
+                            Text(
+                              '${book.label} · ${sizeLabel(book.bytes)}\n$path',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
                             const SizedBox(height: 16),
                             if (widget.onRead != null && !book.archived)
                               FilledButton.icon(

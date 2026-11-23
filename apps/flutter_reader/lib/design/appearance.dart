@@ -2,6 +2,7 @@
 // Copyright (C) 2026 AQuantum Reader contributors.
 import 'package:flutter/material.dart';
 import 'theme.dart';
+import 'widgets.dart';
 
 /// ReaderApp owns this preference; independent app/test instances share no state.
 class AqAppearance extends InheritedWidget {
@@ -20,6 +21,7 @@ class AqAppearance extends InheritedWidget {
       oldWidget.palette != palette;
 }
 
+/// Color themes as one grouped selection list, each with its accent swatch.
 class PaletteSettings extends StatefulWidget {
   const PaletteSettings({super.key});
   @override
@@ -48,125 +50,91 @@ class _PaletteSettingsState extends State<PaletteSettings> {
   Widget build(BuildContext context) {
     final appearance = AqAppearance.maybeOf(context);
     if (appearance == null) return const SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    final brightness = Theme.of(context).brightness;
+    final theme = Theme.of(context);
+    return AqSection(
+      header: '颜色主题',
+      footer: error ?? '只改变应用界面配色。正文的纸色与日夜设置在阅读时的 Aa 中逐书保存。',
+      dividerIndent: 58,
       children: [
-        Text('颜色主题', style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 12),
-        LayoutBuilder(
-          builder: (context, size) {
-            final columns =
-                size.maxWidth >= 620 &&
-                    MediaQuery.textScalerOf(context).scale(14) < 25
-                ? 4
-                : 2;
-            return Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                for (final palette in AqPalette.values)
-                  SizedBox(
-                    width: (size.maxWidth - 12 * (columns - 1)) / columns,
-                    child: Builder(
-                      builder: (context) {
-                        final (colors, accent, _) = paletteColors(
-                          palette,
-                          Theme.of(context).brightness,
-                        );
-                        final selected = appearance.palette == palette;
-                        return Semantics(
-                          selected: selected,
-                          button: true,
-                          child: Material(
-                            color: colors.panel,
-                            clipBehavior: Clip.antiAlias,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              side: BorderSide(
-                                color: selected ? accent : colors.line,
-                                width: selected ? 1.5 : 1,
-                              ),
-                            ),
-                            child: InkWell(
-                              onTap: busy
-                                  ? null
-                                  : () => choose(appearance, palette),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      height: 44,
-                                      decoration: BoxDecoration(
-                                        color: colors.backgroundEnd,
-                                        borderRadius: BorderRadius.circular(11),
-                                      ),
-                                      child: Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Container(
-                                            width: 38,
-                                            height: 15,
-                                            decoration: BoxDecoration(
-                                              color: accent,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            palette.label,
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.titleSmall,
-                                          ),
-                                        ),
-                                        if (selected)
-                                          Icon(
-                                            Icons.check_circle_outline,
-                                            size: 18,
-                                            color: accent,
-                                          ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      palette.description,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodySmall,
-                                    ),
-                                  ],
+        for (final palette in AqPalette.values)
+          Builder(
+            builder: (context) {
+              final (colors, accent, _) = paletteColors(palette, brightness);
+              final selected = appearance.palette == palette;
+              return Semantics(
+                selected: selected,
+                button: true,
+                child: InkWell(
+                  onTap: busy ? null : () => choose(appearance, palette),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 56),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        children: [
+                          _Swatch(accent: accent, paper: colors.background),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  palette.label,
+                                  style: theme.textTheme.bodyLarge,
                                 ),
-                              ),
+                                Text(
+                                  palette.description,
+                                  style: theme.textTheme.bodySmall,
+                                ),
+                              ],
                             ),
                           ),
-                        );
-                      },
+                          AnimatedOpacity(
+                            opacity: selected ? 1 : 0,
+                            duration: const Duration(milliseconds: 140),
+                            child: Icon(
+                              Icons.check,
+                              size: 22,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-              ],
-            );
-          },
-        ),
-        if (error != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Text(
-              error!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
+                ),
+              );
+            },
           ),
-        const SizedBox(height: 20),
       ],
     );
   }
+}
+
+class _Swatch extends StatelessWidget {
+  final Color accent, paper;
+  const _Swatch({required this.accent, required this.paper});
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+    child: Container(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: paper,
+        border: Border.all(color: AqColors.of(context).line),
+      ),
+      alignment: Alignment.center,
+      child: Container(
+        width: 18,
+        height: 18,
+        decoration: BoxDecoration(shape: BoxShape.circle, color: accent),
+      ),
+    ),
+  );
 }

@@ -63,7 +63,7 @@ class DashboardScreen extends StatelessWidget {
             key: PageStorageKey('dashboard-${page.name}'),
             padding: EdgeInsets.fromLTRB(
               two ? 32 : 20,
-              16,
+              28,
               two ? 32 : 20,
               32 + MediaQuery.paddingOf(context).bottom,
             ),
@@ -77,9 +77,6 @@ class DashboardScreen extends StatelessWidget {
                     children: [
                       AqPageHeading(
                         page == DashboardPage.home ? '主页' : '阅读统计',
-                        subtitle: page == DashboardPage.home
-                            ? '你的私人阅读空间'
-                            : '把阅读，慢慢累积',
                         actions: [
                           if (page == DashboardPage.home && onImport != null)
                             IconButton(
@@ -91,33 +88,14 @@ class DashboardScreen extends StatelessWidget {
                             key: ValueKey('edit-${page.name}'),
                             tooltip: '管理组件',
                             onPressed: () => edit(context),
-                            icon: const Icon(
-                              Icons.dashboard_customize_outlined,
-                            ),
+                            icon: const Icon(Icons.tune),
                           ),
                         ],
                       ),
                       if (page == DashboardPage.home && onSearch != null) ...[
-                        const SizedBox(height: 22),
-                        InkWell(
-                          onTap: onSearch,
-                          borderRadius: BorderRadius.circular(14),
-                          child: InputDecorator(
-                            decoration: const InputDecoration(
-                              prefixIcon: Icon(Icons.search),
-                            ),
-                            child: Text(
-                              '搜索书名、项目或内容',
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 16),
+                        AqSearchField(hint: '搜索书名、项目或内容', onTap: onSearch),
+                        const SizedBox(height: 8),
                       ],
                       if (layout.error != null)
                         Text(
@@ -215,7 +193,7 @@ class _DashboardTileState extends State<_DashboardTile> {
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
         child: d == null
             ? const ListTile(
                 leading: Icon(Icons.extension_off_outlined),
@@ -317,7 +295,6 @@ class DashboardEditor extends StatelessWidget {
     animation: Listenable.merge([layout, registry]),
     builder: (context, _) => Scaffold(
       appBar: AppBar(
-        title: Text(layout.page == DashboardPage.home ? '主页组件' : '统计组件'),
         actions: [
           TextButton(
             onPressed: layout.busy ? null : () => restore(context),
@@ -326,8 +303,10 @@ class DashboardEditor extends StatelessWidget {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
         children: [
+          AqPageHeading(layout.page == DashboardPage.home ? '主页组件' : '统计组件'),
+          const SizedBox(height: 20),
           if (layout.error != null) Text(layout.error!),
           const Text('当前布局', style: TextStyle(fontSize: 20)),
           for (final (index, item) in layout.items.indexed)

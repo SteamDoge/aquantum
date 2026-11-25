@@ -2,6 +2,7 @@
 // Copyright (C) 2026 AQuantum Reader contributors.
 import 'package:flutter/material.dart';
 import '../data/models.dart';
+import '../l10n/l10n.dart';
 
 class BookTile extends StatelessWidget {
   final Book book;
@@ -21,7 +22,10 @@ class BookTile extends StatelessWidget {
     final cover = coverColors[hash % coverColors.length];
     return Semantics(
       button: true,
-      label: '打开 ${book.title}，${book.label}',
+      label: tr('打开 {title}，{label}', {
+        'title': book.title,
+        'label': book.label,
+      }),
       child: InkWell(
         onTap: onOpen,
         borderRadius: BorderRadius.circular(8),

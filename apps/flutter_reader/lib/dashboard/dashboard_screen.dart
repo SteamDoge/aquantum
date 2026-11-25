@@ -6,6 +6,7 @@ import 'dashboard_data.dart';
 import 'dashboard_layout.dart';
 import 'widget_registry.dart';
 import '../design/widgets.dart';
+import '../l10n/l10n.dart';
 
 class DashboardScreen extends StatelessWidget {
   final DashboardPage page;
@@ -76,17 +77,17 @@ class DashboardScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       AqPageHeading(
-                        page == DashboardPage.home ? '主页' : '阅读统计',
+                        page == DashboardPage.home ? tr('主页') : tr('阅读统计'),
                         actions: [
                           if (page == DashboardPage.home && onImport != null)
                             IconButton(
-                              tooltip: '导入文件',
+                              tooltip: tr('导入文件'),
                               onPressed: onImport,
                               icon: const Icon(Icons.add),
                             ),
                           IconButton(
                             key: ValueKey('edit-${page.name}'),
-                            tooltip: '管理组件',
+                            tooltip: tr('管理组件'),
                             onPressed: () => edit(context),
                             icon: const Icon(Icons.tune),
                           ),
@@ -94,7 +95,7 @@ class DashboardScreen extends StatelessWidget {
                       ),
                       if (page == DashboardPage.home && onSearch != null) ...[
                         const SizedBox(height: 16),
-                        AqSearchField(hint: '搜索书名、项目或内容', onTap: onSearch),
+                        AqSearchField(hint: tr('搜索书名、项目或内容'), onTap: onSearch),
                         const SizedBox(height: 8),
                       ],
                       if (layout.error != null)
@@ -107,7 +108,7 @@ class DashboardScreen extends StatelessWidget {
                       if (layout.items.isEmpty)
                         TextButton(
                           onPressed: () => edit(context),
-                          child: const Text('添加你的第一个组件'),
+                          child: Text(tr('添加你的第一个组件')),
                         ),
                     ],
                   ),
@@ -195,10 +196,9 @@ class _DashboardTileState extends State<_DashboardTile> {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
         child: d == null
-            ? const ListTile(
+            ? ListTile(
                 leading: Icon(Icons.extension_off_outlined),
-                title: Text('组件暂不可用'),
-                subtitle: Text('已保留布局，重新启用插件后恢复'),
+                title: Text(tr('组件暂不可用')),
               )
             : FutureBuilder<Map<String, Object?>>(
                 future: metrics,
@@ -207,13 +207,13 @@ class _DashboardTileState extends State<_DashboardTile> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('${d.name}暂时无法读取'),
+                        Text(tr('{name}暂时无法读取', {'name': d.name})),
                         TextButton(
                           onPressed: () {
                             widget.registry.retry(d);
                             setState(update);
                           },
-                          child: const Text('重试'),
+                          child: Text(tr('重试')),
                         ),
                       ],
                     );
@@ -232,7 +232,7 @@ class _DashboardTileState extends State<_DashboardTile> {
                       result.data!,
                     );
                   } catch (_) {
-                    return Text('${d.name}显示失败，其他组件仍可使用');
+                    return Text(tr('{name}显示失败，其他组件仍可使用', {'name': d.name}));
                   }
                 },
               ),
@@ -268,16 +268,16 @@ class DashboardEditor extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
-        title: const Text('恢复默认组件布局？'),
-        content: const Text('只重置本页面的布局。'),
+        title: Text(tr('恢复默认组件布局？')),
+        content: Text(tr('只重置本页面的布局。')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c, false),
-            child: const Text('取消'),
+            child: Text(tr('取消')),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(c, true),
-            child: const Text('恢复'),
+            child: Text(tr('恢复')),
           ),
         ],
       ),
@@ -298,17 +298,19 @@ class DashboardEditor extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: layout.busy ? null : () => restore(context),
-            child: const Text('恢复默认'),
+            child: Text(tr('恢复默认')),
           ),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
         children: [
-          AqPageHeading(layout.page == DashboardPage.home ? '主页组件' : '统计组件'),
+          AqPageHeading(
+            layout.page == DashboardPage.home ? tr('主页组件') : tr('统计组件'),
+          ),
           const SizedBox(height: 20),
           if (layout.error != null) Text(layout.error!),
-          const Text('当前布局', style: TextStyle(fontSize: 20)),
+          Text(tr('当前布局'), style: TextStyle(fontSize: 20)),
           for (final (index, item) in layout.items.indexed)
             Card(
               child: Padding(
@@ -320,12 +322,13 @@ class DashboardEditor extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            registry[item.id]?.name ?? '已停用组件 ${item.id}',
+                            registry[item.id]?.name ??
+                                tr('已停用组件 {id}', {'id': item.id}),
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
                         IconButton(
-                          tooltip: '上移',
+                          tooltip: tr('上移'),
                           onPressed: index == 0 || layout.busy
                               ? null
                               : () => perform(context, () {
@@ -337,7 +340,7 @@ class DashboardEditor extends StatelessWidget {
                           icon: const Icon(Icons.arrow_upward),
                         ),
                         IconButton(
-                          tooltip: '下移',
+                          tooltip: tr('下移'),
                           onPressed:
                               index == layout.items.length - 1 || layout.busy
                               ? null
@@ -350,7 +353,7 @@ class DashboardEditor extends StatelessWidget {
                           icon: const Icon(Icons.arrow_downward),
                         ),
                         IconButton(
-                          tooltip: '移除组件',
+                          tooltip: tr('移除组件'),
                           onPressed: layout.busy
                               ? null
                               : () => perform(
@@ -381,7 +384,7 @@ class DashboardEditor extends StatelessWidget {
                                   (s) => DropdownMenuItem(
                                     value: s,
                                     child: Text(
-                                      s == 'compact' ? '紧凑样式' : '详细样式',
+                                      s == 'compact' ? tr('紧凑样式') : tr('详细样式'),
                                     ),
                                   ),
                                 )
@@ -397,7 +400,7 @@ class DashboardEditor extends StatelessWidget {
                                   ),
                           ),
                           FilterChip(
-                            label: const Text('宽屏整行'),
+                            label: Text(tr('宽屏整行')),
                             selected: item.wide,
                             onSelected: layout.busy
                                 ? null
@@ -416,7 +419,7 @@ class DashboardEditor extends StatelessWidget {
                                   .map(
                                     (n) => DropdownMenuItem(
                                       value: n,
-                                      child: Text('显示 $n 条'),
+                                      child: Text(tr('显示 {n} 条', {'n': n})),
                                     ),
                                   )
                                   .toList(),
@@ -437,16 +440,16 @@ class DashboardEditor extends StatelessWidget {
               ),
             ),
           const SizedBox(height: 20),
-          const Text('可用组件', style: TextStyle(fontSize: 20)),
+          Text(tr('可用组件'), style: TextStyle(fontSize: 20)),
           for (final d in registry.all.where(
             (d) => d.pages.contains(layout.page),
           ))
             ListTile(
               leading: Icon(d.icon),
               title: Text(d.name),
-              subtitle: Text(d.source == 'core' ? '内置组件' : d.source),
+              subtitle: d.source == 'core' ? null : Text(d.source),
               trailing: IconButton(
-                tooltip: '添加组件',
+                tooltip: tr('添加组件'),
                 onPressed: layout.busy || layout.items.any((i) => i.id == d.id)
                     ? null
                     : () => perform(

@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:pdfrx/pdfrx.dart';
 import '../data/models.dart';
 import '../reader/reader_contract.dart';
+import '../l10n/l10n.dart';
 
 /// PDFium owns its native worker. This session bounds auxiliary search/thumbnail
 /// work and invalidates results on close; pixels never cross the JSON bridge.
@@ -19,11 +20,11 @@ class PdfEngineSession {
   PdfEngineSession(this.document, this.book);
   Future<T> serial<T>(Future<T> Function() action) {
     if (closed || queued >= 64) {
-      return Future.error(StateError('PDF 任务队列已关闭或繁忙，请稍后重试'));
+      return Future.error(StateError(tr('PDF 任务队列已关闭或繁忙，请稍后重试')));
     }
     queued++;
     final result = _pending.then((_) {
-      if (closed) throw StateError('PDF 会话已关闭');
+      if (closed) throw StateError(tr('PDF 会话已关闭'));
       return action();
     });
     _pending = result.then<void>((_) {}, onError: (Object _, StackTrace _) {});
@@ -34,7 +35,7 @@ class PdfEngineSession {
     final current = ++generation;
     highlights.clear();
     if (query.trim().isEmpty) return [];
-    if (query.length > 200) throw const FormatException('搜索词最多 200 字符。');
+    if (query.length > 200) throw FormatException(tr('搜索词最多 200 字符。'));
     final pattern = RegExp(RegExp.escape(query), caseSensitive: false);
     final hits = <ReaderSearchHit>[];
     // One page per worker turn, yielding to visible-page work between pages.
@@ -57,7 +58,11 @@ class PdfEngineSession {
           final end = (match.end + 100).clamp(start, text.fullText.length);
           hits.add(
             ReaderSearchHit(
-              ReaderLocation('page:${book.pages[i]['id']}', '第 ${i + 1} 页', i),
+              ReaderLocation(
+                'page:${book.pages[i]['id']}',
+                tr('第 {value} 页', {'value': i + 1}),
+                i,
+              ),
               text.fullText.substring(start, end),
             ),
           );

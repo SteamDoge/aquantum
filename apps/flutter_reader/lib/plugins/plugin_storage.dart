@@ -2,6 +2,7 @@
 // Copyright (C) 2026 AQuantum Reader contributors.
 import 'dart:io';
 import 'plugin_manifest.dart';
+import '../l10n/l10n.dart';
 
 /// Plugin-owned file boundaries, quotas and recoverable writes. No UI or network.
 class PluginStorage {
@@ -33,14 +34,14 @@ class PluginStorage {
                 caseSensitive: false,
               ).hasMatch(p),
             )) {
-      throw const FormatException('只接受插件私有目录内的相对路径');
+      throw FormatException(tr('只接受插件私有目录内的相对路径'));
     }
     // Check every ancestor, including a user-replaced support/plugin-data root.
     var ancestor = root.absolute;
     while (true) {
       if (await FileSystemEntity.type(ancestor.path, followLinks: false) ==
           FileSystemEntityType.link) {
-        throw const FormatException('插件存储禁止链接');
+        throw FormatException(tr('插件存储禁止链接'));
       }
       final parent = ancestor.parent;
       if (parent.path == ancestor.path) break;
@@ -52,14 +53,14 @@ class PluginStorage {
     while (parent.path.length >= root.path.length) {
       if (await FileSystemEntity.type(parent.path, followLinks: false) ==
           FileSystemEntityType.link) {
-        throw const FormatException('插件存储禁止链接');
+        throw FormatException(tr('插件存储禁止链接'));
       }
       if (parent.path == root.path) break;
       parent = parent.parent;
     }
     if (await FileSystemEntity.type(file.path, followLinks: false) ==
         FileSystemEntityType.link) {
-      throw const FormatException('插件存储禁止链接');
+      throw FormatException(tr('插件存储禁止链接'));
     }
     return file;
   }
@@ -74,7 +75,7 @@ class PluginStorage {
     }
     final replaced = await file.exists() ? await file.length() : 0;
     if (size - replaced + bytes.length > 256 * 1024 * 1024) {
-      throw StateError('插件文件总量超过256MiB，请手动管理文件');
+      throw StateError(tr('插件文件总量超过256MiB，请手动管理文件'));
     }
     // Unique staging files preserve failed writes and existing user versions.
     final staging = File(
@@ -97,7 +98,7 @@ class PluginStorage {
     while (true) {
       if (await FileSystemEntity.type(ancestor.path, followLinks: false) ==
           FileSystemEntityType.link) {
-        throw StateError('配置目录禁止链接');
+        throw StateError(tr('配置目录禁止链接'));
       }
       final next = ancestor.parent;
       if (next.path == ancestor.path) break;
@@ -106,16 +107,16 @@ class PluginStorage {
     final directory = Directory('${root.parent.path}/$area');
     if (await FileSystemEntity.type(directory.path, followLinks: false) ==
         FileSystemEntityType.link) {
-      throw StateError('配置目录禁止链接');
+      throw StateError(tr('配置目录禁止链接'));
     }
     await directory.create(recursive: true);
     final file = File('${directory.path}/settings.json');
     if (await FileSystemEntity.type(file.path, followLinks: false) ==
         FileSystemEntityType.link) {
-      throw StateError('配置文件禁止链接');
+      throw StateError(tr('配置文件禁止链接'));
     }
     if (await file.exists() && await file.length() > 256 * 1024) {
-      throw StateError('配置文件过大');
+      throw StateError(tr('配置文件过大'));
     }
     return file;
   }

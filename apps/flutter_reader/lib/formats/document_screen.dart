@@ -22,6 +22,7 @@ import 'document_engine_windows.dart';
 import 'document_engine_android.dart';
 import 'document_reader.dart';
 import 'reader_provider.dart';
+import '../l10n/l10n.dart';
 
 /// Reads an EPUB/MOBI/AZW3/FB2 book the way its publisher laid it out.
 ///
@@ -177,7 +178,7 @@ class _DocumentReaderScreenState extends State<DocumentReaderScreen>
 
   Future<void> _connect() async {
     if (!supported) {
-      setState(() => error = '当前平台还不能显示这种文档。');
+      setState(() => error = tr('当前平台还不能显示这种文档。'));
       return;
     }
     if (!mounted) return;
@@ -306,7 +307,7 @@ class _DocumentReaderScreenState extends State<DocumentReaderScreen>
       });
       if (mounted) adapter?.setContinuous(preferences.continuous);
     } catch (_) {
-      adapter?.setStatus('阅读设置应用失败，请重试。');
+      adapter?.setStatus(tr('阅读设置应用失败，请重试。'));
     }
   }
 
@@ -331,7 +332,7 @@ class _DocumentReaderScreenState extends State<DocumentReaderScreen>
         'progress': (adapter.fraction * 100).round().clamp(0, 100),
       });
     } catch (e) {
-      if (mounted) adapter.setStatus('保存进度失败：$e');
+      if (mounted) adapter.setStatus(tr('保存进度失败：{e}', {'e': e}));
     }
   }
 
@@ -369,7 +370,7 @@ class _DocumentReaderScreenState extends State<DocumentReaderScreen>
         'progress': (adapter.fraction * 100).round().clamp(0, 100),
         'text': text,
       });
-      if (mounted) adapter.setStatus('笔记已保存在当前位置');
+      if (mounted) adapter.setStatus(tr('笔记已保存在当前位置'));
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -400,7 +401,7 @@ class _DocumentReaderScreenState extends State<DocumentReaderScreen>
     if (notes.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('这本书还没有关联笔记。')));
+      ).showSnackBar(SnackBar(content: Text(tr('这本书还没有关联笔记。'))));
       return;
     }
     String? anchor;
@@ -408,7 +409,7 @@ class _DocumentReaderScreenState extends State<DocumentReaderScreen>
       anchor = await showDialog<String>(
         context: context,
         builder: (sheet) => AlertDialog(
-          title: const Text('关联笔记'),
+          title: Text(tr('关联笔记')),
           content: SizedBox(
             width: 600,
             child: ListView.separated(
@@ -421,11 +422,13 @@ class _DocumentReaderScreenState extends State<DocumentReaderScreen>
                 final document = location is Map ? location['Document'] : null;
                 final percent = document is Map ? document['progress'] : null;
                 final stale = note['stale'] == true;
-                final label = percent is int ? '约 $percent%' : '文内位置';
+                final label = percent is int
+                    ? tr('约 {percent}%', {'percent': percent})
+                    : tr('文内位置');
                 return ListTile(
                   title: Text(note['markdown']?.toString() ?? ''),
                   subtitle: Text(
-                    stale ? '$label · 锚点可能漂移' : label,
+                    stale ? tr('{label} · 锚点可能漂移', {'label': label}) : label,
                     style: stale
                         ? TextStyle(color: Theme.of(context).colorScheme.error)
                         : null,
@@ -446,7 +449,7 @@ class _DocumentReaderScreenState extends State<DocumentReaderScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(sheet),
-              child: const Text('关闭'),
+              child: Text(tr('关闭')),
             ),
           ],
         ),
@@ -468,7 +471,7 @@ class _DocumentReaderScreenState extends State<DocumentReaderScreen>
       await engine.turn(delta);
       await adapter.settle();
     } catch (e) {
-      adapter.setStatus('翻页失败：$e');
+      adapter.setStatus(tr('翻页失败：{e}', {'e': e}));
     } finally {
       turning = false;
       // Every turn is a reading event; the debounce keeps a fast flip cheap
@@ -504,7 +507,7 @@ class _DocumentReaderScreenState extends State<DocumentReaderScreen>
                             unawaited(_connect());
                           }
                         : null,
-                    child: const Text('重试'),
+                    child: Text(tr('重试')),
                   ),
                 ],
               ),
@@ -571,7 +574,7 @@ class _DocumentReaderScreenState extends State<DocumentReaderScreen>
                         'reader-font-size.v1.${widget.book.id}',
                         fontSize.toDouble(),
                       )) {
-                        adapter.setStatus('字号保存失败');
+                        adapter.setStatus(tr('字号保存失败'));
                       }
                     }),
                   );

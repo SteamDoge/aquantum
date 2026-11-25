@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/l10n.dart';
 
 Future<Map<String, dynamic>> preferenceSnapshot() async {
   final prefs = await SharedPreferences.getInstance();
@@ -16,13 +17,13 @@ Map<String, dynamic> restoredPreferenceSnapshot(Map<String, dynamic> values) {
   final result = Map<String, dynamic>.from(values);
   final encoded = result['plugins.javascript.v1'];
   if (encoded == null) return result;
-  if (encoded is! String) throw const FormatException('备份插件设置类型无效');
+  if (encoded is! String) throw FormatException(tr('备份插件设置类型无效'));
   final state = jsonDecode(encoded);
   if (state is! Map || state['version'] != 1 || state['plugins'] is! Map) {
-    throw const FormatException('备份插件授权记录无效，未切换资料库');
+    throw FormatException(tr('备份插件授权记录无效，未切换资料库'));
   }
   for (final config in (state['plugins'] as Map).values) {
-    if (config is! Map) throw const FormatException('备份插件记录无效');
+    if (config is! Map) throw FormatException(tr('备份插件记录无效'));
     config['enabled'] = false;
     config['grants'] = <String>[];
   }
@@ -38,13 +39,15 @@ Future<void> applyPreferenceSnapshot(Map<String, dynamic> values) async {
         value is int ||
         value is double ||
         value is List && value.every((v) => v is String))) {
-      throw const FormatException('备份包含不受支持的设置类型');
+      throw FormatException(tr('备份包含不受支持的设置类型'));
     }
   }
   final prefs = await SharedPreferences.getInstance();
   for (final key
       in prefs.getKeys().where((key) => !values.containsKey(key)).toList()) {
-    if (!await prefs.remove(key)) throw StateError('无法恢复设置 $key');
+    if (!await prefs.remove(key)) {
+      throw StateError(tr('无法恢复设置 {key}', {'key': key}));
+    }
   }
   for (final entry in values.entries) {
     final value = entry.value;
@@ -56,7 +59,7 @@ Future<void> applyPreferenceSnapshot(Map<String, dynamic> values) async {
       List v => await prefs.setStringList(entry.key, v.cast<String>()),
       _ => false,
     };
-    if (!ok) throw StateError('无法恢复设置 ${entry.key}');
+    if (!ok) throw StateError(tr('无法恢复设置 {key}', {'key': entry.key}));
   }
 }
 

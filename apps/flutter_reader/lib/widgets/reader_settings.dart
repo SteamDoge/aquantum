@@ -6,15 +6,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../reader/reader_contract.dart';
 import '../formats/reader_provider_preferences.dart';
 import 'article_settings_panel.dart';
+import '../l10n/l10n.dart';
 
 class ReaderPreferences {
   String? warning;
 
   static Map _decode(Object encoded) {
-    if (encoded is! String) throw const FormatException('阅读设置格式无效');
+    if (encoded is! String) throw FormatException(tr('阅读设置格式无效'));
     final data = jsonDecode(encoded);
     if (data is! Map || data['version'] != 1) {
-      throw const FormatException('阅读设置版本无效');
+      throw FormatException(tr('阅读设置版本无效'));
     }
     return data;
   }
@@ -116,7 +117,7 @@ class ReaderPreferences {
     try {
       data = _decode(encoded);
     } on FormatException {
-      warning = '阅读设置无法读取，已使用默认显示；原记录保留。';
+      warning = tr('阅读设置无法读取，已使用默认显示；原记录保留。');
       return;
     }
     _readVisual(data);
@@ -192,7 +193,7 @@ class ReaderPreferences {
       try {
         _decode(existing);
       } on FormatException {
-        throw const FormatException('原阅读设置无法解析，暂不能覆盖保存；原记录保留。');
+        throw FormatException(tr('原阅读设置无法解析，暂不能覆盖保存；原记录保留。'));
       }
     }
     if (!await prefs.setString(
@@ -218,7 +219,7 @@ class ReaderPreferences {
         'weight': weight,
       }),
     )) {
-      throw StateError('阅读设置保存失败');
+      throw StateError(tr('阅读设置保存失败'));
     }
   }
 }
@@ -329,10 +330,10 @@ class ReaderSettingsPanel extends StatelessWidget {
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
-          const TabBar(
+          TabBar(
             tabs: [
-              Tab(text: '布局'),
-              Tab(text: '更多'),
+              Tab(text: tr('布局')),
+              Tab(text: tr('更多')),
             ],
           ),
           Expanded(
@@ -342,15 +343,15 @@ class ReaderSettingsPanel extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   children: [
                     if (supports(ReaderSetting.fontSize))
-                      slider('字号', fontSize, 14, 32, onFont),
+                      slider(tr('字号'), fontSize, 14, 32, onFont),
                     if (supports(ReaderSetting.fontFamily))
-                      choices('字体', p.font, [
-                        ('serif', '衬线字体'),
-                        ('system', '系统字体'),
+                      choices(tr('字体'), p.font, [
+                        ('serif', tr('衬线字体')),
+                        ('system', tr('系统字体')),
                       ], (v) => onChanged(() => p.font = v)),
                     if (supports(ReaderSetting.fontWeight))
                       slider(
-                        '字重',
+                        tr('字重'),
                         p.weight,
                         400,
                         700,
@@ -358,7 +359,7 @@ class ReaderSettingsPanel extends StatelessWidget {
                       ),
                     if (supports(ReaderSetting.lineHeight))
                       slider(
-                        '行距',
+                        tr('行距'),
                         p.lineHeight,
                         1.2,
                         2.6,
@@ -366,7 +367,7 @@ class ReaderSettingsPanel extends StatelessWidget {
                       ),
                     if (supports(ReaderSetting.paragraphGap))
                       slider(
-                        '段距',
+                        tr('段距'),
                         p.paragraphGap,
                         8,
                         48,
@@ -374,60 +375,60 @@ class ReaderSettingsPanel extends StatelessWidget {
                       ),
                     if (supports(ReaderSetting.margin))
                       slider(
-                        '页边距',
+                        tr('页边距'),
                         p.margin,
                         12,
                         64,
                         (v) => onChanged(() => p.margin = v),
                       ),
                     if (supports(ReaderSetting.textPaging))
-                      choices('阅读方式', p.textPaged ? 'paged' : 'scroll', [
-                        ('scroll', '上下滚动'),
-                        ('paged', '左右翻页'),
+                      choices(tr('阅读方式'), p.textPaged ? 'paged' : 'scroll', [
+                        ('scroll', tr('上下滚动')),
+                        ('paged', tr('左右翻页')),
                       ], (v) => onChanged(() => p.textPaged = v == 'paged')),
                     if (supports(ReaderSetting.fit))
-                      choices('适应屏幕', p.fit, [
-                        ('page', '适应页面'),
-                        ('width', '适应宽度'),
+                      choices(tr('适应屏幕'), p.fit, [
+                        ('page', tr('适应页面')),
+                        ('width', tr('适应宽度')),
                       ], (v) => onChanged(() => p.fit = v)),
                     if (supports(ReaderSetting.continuous))
                       // 从上到下 is top-to-bottom reading itself, so it always
                       // scrolls; paging is only ever left/right.
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('纵向连续阅读'),
-                        subtitle: Text(
-                          verticalTurning
-                              ? '阅读方向为从上到下，始终上下连续滚动；改为从左到右或从右到左后可按页翻阅'
-                              : '关闭后左右按页翻阅',
-                        ),
+                        title: Text(tr('纵向连续阅读')),
+                        subtitle: verticalTurning
+                            ? Text(tr('阅读方向为从上到下，始终上下连续滚动；改为从左到右或从右到左后可按页翻阅'))
+                            : null,
                         value: p.continuous || verticalTurning,
                         onChanged: verticalTurning
                             ? null
                             : (v) => onChanged(() => p.continuous = v),
                       ),
                     if (supports(ReaderSetting.imageGap))
-                      choices('页面间距', p.seamless ? 'seamless' : 'gapped', [
-                        ('gapped', '有缝'),
-                        ('seamless', '无缝'),
+                      choices(tr('页面间距'), p.seamless ? 'seamless' : 'gapped', [
+                        ('gapped', tr('有缝')),
+                        ('seamless', tr('无缝')),
                       ], (v) => onChanged(() => p.seamless = v == 'seamless')),
                     // The core direction panel owns LeftToRight / RightToLeft /
                     // TopToBottom. This quick switch only mirrors the horizontal
                     // pair, so it is meaningless while turns are top-to-bottom.
                     if (supports(ReaderSetting.direction) && !verticalTurning)
-                      choices('横向翻页方向', p.rightToLeft ? 'rtl' : 'ltr', [
-                        ('ltr', '从左到右'),
-                        ('rtl', '从右到左'),
+                      choices(tr('横向翻页方向'), p.rightToLeft ? 'rtl' : 'ltr', [
+                        ('ltr', tr('从左到右')),
+                        ('rtl', tr('从右到左')),
                       ], (v) => onChanged(() => p.rightToLeft = v == 'rtl')),
                     if (supports(ReaderSetting.rotation))
                       OutlinedButton.icon(
                         onPressed: () =>
                             onChanged(() => p.rotation = (p.rotation + 1) % 4),
                         icon: const Icon(Icons.rotate_right),
-                        label: Text('旋转 · ${p.rotation * 90}°'),
+                        label: Text(
+                          tr('旋转 · {value}°', {'value': p.rotation * 90}),
+                        ),
                       ),
                     if (capabilities.settings.isEmpty)
-                      const Text('当前渲染器没有可调整的布局设置。'),
+                      Text(tr('当前渲染器没有可调整的布局设置。')),
                   ],
                 ),
                 ListView(
@@ -435,11 +436,15 @@ class ReaderSettingsPanel extends StatelessWidget {
                   children: [
                     if (supports(ReaderSetting.theme))
                       choices(
-                        '阅读主题',
+                        tr('阅读主题'),
                         p.theme == 'system'
                             ? 'system'
                             : (p.isDark(Brightness.light) ? 'dark' : p.theme),
-                        [('system', '跟随应用'), ('paper', '纸张'), ('dark', '夜间')],
+                        [
+                          ('system', tr('跟随应用')),
+                          ('paper', tr('纸张')),
+                          ('dark', tr('夜间')),
+                        ],
                         (v) => onChanged(() {
                           if (v == 'system') {
                             p.theme = v;
@@ -454,20 +459,17 @@ class ReaderSettingsPanel extends StatelessWidget {
                     if (supports(ReaderSetting.animation))
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('页面切换动画'),
-                        subtitle: const Text('系统减少动态效果优先'),
+                        title: Text(tr('页面切换动画')),
                         value: p.pageAnimation,
                         onChanged: (v) => onChanged(() => p.pageAnimation = v),
                       ),
-                    if (desktop && !paged)
-                      const Text('上下滚动使用顶部工具栏，轻点正文切换沉浸。分页时可设置工具栏停靠位置。'),
                     if (desktop && paged)
-                      choices('阅读工具栏位置', p.dock, [
-                        ('top', '上'),
-                        ('bottom', '下'),
-                        ('left', '左'),
-                        ('right', '右'),
-                        ('hidden', '隐藏'),
+                      choices(tr('阅读工具栏位置'), p.dock, [
+                        ('top', tr('上')),
+                        ('bottom', tr('下')),
+                        ('left', tr('左')),
+                        ('right', tr('右')),
+                        ('hidden', tr('隐藏')),
                       ], (v) => onChanged(() => p.dock = v)),
                   ],
                 ),

@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:crypto/crypto.dart';
 import 'plugin_instance.dart';
+import '../l10n/l10n.dart';
 export 'plugin_instance.dart';
 
 const pluginZipLimit = 32 * 1024 * 1024;
@@ -15,7 +16,14 @@ const pluginManifestName = 'aquantum.plugin.json';
 
 /// Validate off the UI isolate. No entry is ever extracted to a filesystem path.
 Future<JavaScriptPlugin> inspectPluginZip(Uint8List bytes) async {
-  final json = await Isolate.run(() => _readManifest(bytes));
+  final Map<String, dynamic> json;
+  try {
+    json = await Isolate.run(() => _readManifest(bytes));
+  } on FormatException catch (error) {
+    // The worker isolate has no interface language, so its messages arrive as
+    // the Simplified Chinese source text; translate them here.
+    throw FormatException(tr(error.message));
+  }
   return JavaScriptPlugin.fromJson(
     Map<String, dynamic>.from(json['manifest']),
     assets: (json['assets'] as Map?)?.map(
@@ -26,7 +34,7 @@ Future<JavaScriptPlugin> inspectPluginZip(Uint8List bytes) async {
 
 Map<String, dynamic> _readManifest(Uint8List bytes) {
   if (bytes.length > pluginZipLimit || bytes.length < 22) {
-    throw const FormatException('插件 ZIP 无效或超过32MiB');
+    throw FormatException(tr('插件 ZIP 无效或超过32MiB'));
   }
   final directory = ZipDirectory()..read(InputMemoryStream(bytes));
   if (directory.numberOfThisDisk != 0 ||
@@ -34,7 +42,7 @@ Map<String, dynamic> _readManifest(Uint8List bytes) {
       directory.fileHeaders.isEmpty ||
       directory.fileHeaders.length > 4096 ||
       directory.fileHeaders.length != directory.totalCentralDirectoryEntries) {
-    throw const FormatException('不支持空包、分卷包或过多条目');
+    throw FormatException(tr('不支持空包、分卷包或过多条目'));
   }
   final names = <String>{};
   var total = 0;
@@ -64,14 +72,14 @@ Map<String, dynamic> _readManifest(Uint8List bytes) {
             (name == pluginManifestName
                 ? pluginManifestLimit
                 : 16 * 1024 * 1024)) {
-      throw const FormatException('包包含不允许的路径、重复文件、链接、加密或可执行内容');
+      throw FormatException(tr('包包含不允许的路径、重复文件、链接、加密或可执行内容'));
     }
     total += header.uncompressedSize;
-    if (total > 64 * 1024 * 1024) throw const FormatException('插件解压内容超过64MiB');
+    if (total > 64 * 1024 * 1024) throw FormatException(tr('插件解压内容超过64MiB'));
     if (name == pluginManifestName) manifest = local;
   }
   if (manifest == null) {
-    throw const FormatException('ZIP 根目录缺少 aquantum.plugin.json');
+    throw FormatException(tr('ZIP 根目录缺少 aquantum.plugin.json'));
   }
   // archive >=4.5.2 bounds decompression to the declared size. Validate actual
   // byte count and CRC explicitly; ZipDecoder.verify currently is not sufficient.
@@ -80,19 +88,19 @@ Map<String, dynamic> _readManifest(Uint8List bytes) {
     final content = header.file!.getStream().toUint8List();
     if (content.length != header.uncompressedSize ||
         getCrc32(content) != header.crc32) {
-      throw const FormatException('插件文件大小或 CRC 校验失败');
+      throw FormatException(tr('插件文件大小或 CRC 校验失败'));
     }
     assets[header.filename] = content;
   }
   final decoded = jsonDecode(utf8.decode(assets.remove(pluginManifestName)!));
   if (decoded is! Map<String, dynamic>) {
-    throw const FormatException('插件清单必须是 JSON 对象');
+    throw FormatException(tr('插件清单必须是 JSON 对象'));
   }
   // Validate the schema inside the isolate, not just ZIP structure.
   JavaScriptPlugin.validate(decoded);
   final entry = decoded['entry'] as String;
   if (!directory.fileHeaders.any((h) => h.filename == entry)) {
-    throw const FormatException('缺少 JavaScript 入口');
+    throw FormatException(tr('缺少 JavaScript 入口'));
   }
   if (directory.fileHeaders.any(
     (h) =>
@@ -102,7 +110,7 @@ Map<String, dynamic> _readManifest(Uint8List bytes) {
         ).hasMatch(h.filename) &&
         !{'LICENSE', 'NOTICES'}.contains(h.filename),
   )) {
-    throw const FormatException('插件只允许 JavaScript 与静态资源，禁止原生代码和 WASM');
+    throw FormatException(tr('插件只允许 JavaScript 与静态资源，禁止原生代码和 WASM'));
   }
   return {'manifest': decoded, 'assets': assets};
 }
@@ -157,7 +165,7 @@ class FilePluginPackageStore implements PluginPackageStore {
             FileSystemEntityType.file) {
           incompleteBytes += await pending.length();
         }
-        errors.add('存在未完成的插件导入，文件已保留');
+        errors.add(tr('存在未完成的插件导入，文件已保留'));
         continue;
       }
       try {
@@ -169,7 +177,7 @@ class FilePluginPackageStore implements PluginPackageStore {
         if ((await FileSystemEntity.type(file.path, followLinks: false)) !=
                 FileSystemEntityType.file ||
             await file.length() > pluginZipLimit) {
-          throw const FormatException('插件包过大或不是普通文件');
+          throw FormatException(tr('插件包过大或不是普通文件'));
         }
         final plugin = await inspectPluginZip(await file.readAsBytes());
         versions.add(plugin);
@@ -183,7 +191,7 @@ class FilePluginPackageStore implements PluginPackageStore {
           plugins[plugin.manifest.id] = plugin;
         }
       } catch (error) {
-        errors.add('一个插件包未加载：$error');
+        errors.add(tr('一个插件包未加载：{error}', {'error': error}));
       }
     }
     return LoadedPluginPackages(

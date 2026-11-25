@@ -6,6 +6,8 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:ffi/ffi.dart';
+import '../l10n/l10n.dart';
+import 'core_messages.dart';
 
 abstract interface class ReaderApi {
   Future<dynamic> call(String method, [Map<String, dynamic> args = const {}]);
@@ -48,11 +50,23 @@ class RustReaderApi implements ReaderApi {
     // The reply is parsed in the worker too: page images arrive as multi-MB
     // base64 strings, and decoding them on the UI isolate costs frames during
     // page turns. Isolate.run hands the parsed map back without copying.
-    final envelope = await Isolate.run(
-      () => jsonDecode(_invoke(path, request)) as Map<String, dynamic>,
-    );
+    final Map<String, dynamic> envelope;
+    try {
+      envelope = await Isolate.run(
+        () => jsonDecode(_invoke(path, request)) as Map<String, dynamic>,
+      );
+    } on _LoadFailure catch (failure) {
+      // Translated here: the worker isolate has no interface language.
+      throw ReaderFailure(
+        tr(
+          '无法加载原生阅读核心。源码测试请先运行 scripts/check.ps1，或构建 aq-bridge 并设置 AQ_RUST_LIB。详情：{error}',
+          {'error': failure.detail},
+        ),
+      );
+    }
     if (envelope['ok'] != true) {
-      throw ReaderFailure(envelope['error']?.toString() ?? '操作失败');
+      final error = envelope['error'];
+      throw ReaderFailure(error == null ? tr('操作失败') : coreText(error));
     }
     return envelope['data'];
   }
@@ -68,9 +82,7 @@ String _invoke(String path, String request) {
   try {
     library = DynamicLibrary.open(path);
   } catch (error) {
-    throw ReaderFailure(
-      '无法加载原生阅读核心。源码测试请先运行 scripts/check.ps1，或构建 aq-bridge 并设置 AQ_RUST_LIB。详情：$error',
-    );
+    throw _LoadFailure('$error');
   }
   final invoke = library.lookupFunction<_InvokeNative, _InvokeDart>(
     'aq_invoke_json',
@@ -85,6 +97,11 @@ String _invoke(String path, String request) {
     calloc.free(input);
     if (output != null) free(output);
   }
+}
+
+class _LoadFailure implements Exception {
+  final String detail;
+  _LoadFailure(this.detail);
 }
 
 class ReaderFailure implements Exception {

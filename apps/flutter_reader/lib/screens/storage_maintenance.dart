@@ -11,32 +11,34 @@ import '../data/reader_api.dart';
 import 'import_preview.dart';
 import 'storage_cleanup.dart';
 import '../design/widgets.dart';
+import '../l10n/l10n.dart';
+import '../data/core_messages.dart';
 
 String taskKindLabel(dynamic kind) =>
-    const {
-      'import': '导入',
-      'cleanup': '手动清理',
-      'backup': '备份',
-      'restore': '恢复',
+    {
+      'import': tr('导入'),
+      'cleanup': tr('手动清理'),
+      'backup': tr('备份'),
+      'restore': tr('恢复'),
     }[kind] ??
-    '存储任务';
+    tr('存储任务');
 String taskPhaseLabel(dynamic phase) =>
-    const {
-      'ready': '等待执行',
-      'preview': '等待确认',
-      'completed': '已完成',
-      'stopped': '已暂停或失败',
-      'discarded': '已放弃',
-      'discarding': '放弃中，待完成',
-      'error': '需要处理',
-      'staging': '准备文件',
-      'packing': '写入备份',
-      'checking': '校验文件',
-      'copying': '复制文件',
-      'pending': '等待执行',
-      'cancelled': '已取消，待继续',
+    {
+      'ready': tr('等待执行'),
+      'preview': tr('等待确认'),
+      'completed': tr('已完成'),
+      'stopped': tr('已暂停或失败'),
+      'discarded': tr('已放弃'),
+      'discarding': tr('放弃中，待完成'),
+      'error': tr('需要处理'),
+      'staging': tr('准备文件'),
+      'packing': tr('写入备份'),
+      'checking': tr('校验文件'),
+      'copying': tr('复制文件'),
+      'pending': tr('等待执行'),
+      'cancelled': tr('已取消，待继续'),
     }[phase] ??
-    '处理中';
+    tr('处理中');
 
 class StorageMaintenanceScreen extends StatefulWidget {
   final ReaderApi api;
@@ -145,22 +147,22 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
     if (jobKind == null || jobTask == null) return;
     try {
       await widget.api.call('task_cancel', {'kind': jobKind, 'task': jobTask});
-      if (mounted) setState(() => message = '已请求暂停，已完成文件与失败残留保留。');
+      if (mounted) setState(() => message = tr('已请求暂停，已完成文件与失败残留保留。'));
     } catch (e) {
       if (mounted) setState(() => error = '$e');
     }
   }
 
-  Future<bool> confirm(String title, String body, String action) async =>
+  Future<bool> confirm(String title, String? body, String action) async =>
       await showDialog<bool>(
         context: context,
         builder: (c) => AlertDialog(
           title: Text(title),
-          content: Text(body),
+          content: body == null ? null : Text(body),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(c, false),
-              child: const Text('取消'),
+              child: Text(tr('取消')),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(c, true),
@@ -171,7 +173,7 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
       ) ==
       true;
   Future<({DocumentOutput directory, String name})?> backupDestination() async {
-    final directory = await pickDocumentOutput('选择备份保存目录');
+    final directory = await pickDocumentOutput(tr('选择备份保存目录'));
     if (directory == null) return null;
     return (
       directory: directory,
@@ -191,9 +193,12 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
         id = plan['task'];
         if (!mounted) return;
         if (!await confirm(
-          '创建资料库备份？',
-          '包含 ${plan['files']} 个文件，约 ${sizeLabel(plan['bytes'] as num)}。包含正文、历史、笔记、进度、阅读设置、插件和导入暂存。\n\n同名目标不会覆盖；扫描失败或源文件变化时不会报告备份成功。',
-          '开始备份',
+          tr('创建资料库备份？'),
+          tr('包含 {value} 个文件，约 {value2}。', {
+            'value': plan['files'],
+            'value2': sizeLabel(plan['bytes'] as num),
+          }),
+          tr('开始备份'),
         )) {
           return;
         }
@@ -211,14 +216,16 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
       );
       final published = await destination.directory.publish(destination.name);
       if (mounted) {
-        setState(() => message = '备份已校验并保存：$published');
+        setState(
+          () => message = tr('备份已校验并保存：{published}', {'published': published}),
+        );
       }
     });
   }
 
   Future<void> restore({String? task}) async {
     if (widget.onRestored == null) {
-      setState(() => error = '当前运行入口没有配置资料库切换。');
+      setState(() => error = tr('当前运行入口没有配置资料库切换。'));
       return;
     }
     String? source;
@@ -230,7 +237,7 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
       if (selected == null || selected.files.isEmpty) return;
       source = selected.files.single.path;
       if (source == null) {
-        if (mounted) setState(() => error = '无法取得备份路径，请先保存到设备文件后重选。');
+        if (mounted) setState(() => error = tr('无法取得备份路径，请先保存到设备文件后重选。'));
         return;
       }
       source = await pickedCachePath(source);
@@ -252,9 +259,16 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
       );
       if (!mounted) return;
       final accepted = await confirm(
-        '使用已恢复的资料库？',
-        '已校验 ${result['books']} 项内容、${result['notes']} 条笔记。恢复到独立副本，原资料库和当前设置快照保留，可从这里回退。\n\n${result['missing_external_sources']} 个任务来源需要重新选择。阅读设置与插件数据将恢复；插件需要重新授权启用。',
-        '切换到恢复副本',
+        tr('使用已恢复的资料库？'),
+        tr(
+          '已校验 {value} 项内容、{value2} 条笔记。恢复到独立副本，原资料库和当前设置快照保留，可从这里回退。\n\n{value3} 个任务来源需要重新选择。阅读设置与插件数据将恢复；插件需要重新授权启用。',
+          {
+            'value': result['books'],
+            'value2': result['notes'],
+            'value3': result['missing_external_sources'],
+          },
+        ),
+        tr('切换到恢复副本'),
       );
       if (!accepted) return;
       await widget.onRestored!(result);
@@ -285,13 +299,13 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
   }
 
   /// Continuing is always an explicit user action, never an automatic restart.
-  /// A cancelled task says so in its own words before anything runs again.
+  /// A cancelled task asks before anything runs again.
   Future<void> resume(Map<String, dynamic> task) async {
     if (task['phase'] == 'cancelled' &&
         !await confirm(
-          '继续${taskKindLabel(task['kind'])}任务？',
-          '该任务此前被取消。继续会从已保留的进度接着执行，已校验的部分不会重做；原件和目标不会被覆盖。',
-          '继续任务',
+          tr('继续{value}任务？', {'value': taskKindLabel(task['kind'])}),
+          null,
+          tr('继续任务'),
         )) {
       return;
     }
@@ -327,11 +341,7 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
     final kind = task["kind"];
     final label = taskKindLabel(kind);
     if (kind == "import") {
-      if (!await confirm(
-        "放弃此导入任务？",
-        "停止对此任务继续恢复。原计划和暂存仍保留，仅释放未引用副本的任务保护；当前正文和历史引用仍受保护。之后可重新选择原文件导入。",
-        "放弃恢复",
-      )) {
+      if (!await confirm(tr('放弃此导入任务？'), tr('之后可重新选择原文件导入。'), tr('放弃恢复'))) {
         return;
       }
       await run(() async {
@@ -340,9 +350,9 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
       return;
     }
     if (!await confirm(
-      "放弃$label任务？",
-      "只删除这个任务自己的暂存与半成品，已发布的文件和其他任务都不受影响；放弃后不能继续，需要时请重新创建任务。",
-      "放弃任务",
+      tr('放弃{label}任务？', {'label': label}),
+      tr('放弃后不能继续，需要时请重新创建任务。'),
+      tr('放弃任务'),
     )) {
       return;
     }
@@ -372,7 +382,7 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
         appBar: AppBar(
           actions: [
             IconButton(
-              tooltip: '刷新',
+              tooltip: tr('刷新'),
               onPressed: busy ? null : refresh,
               icon: const Icon(Icons.refresh),
             ),
@@ -381,7 +391,7 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
         body: ListView(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
           children: [
-            const AqPageHeading('存储维护与备份'),
+            AqPageHeading(tr('存储维护与备份')),
             const SizedBox(height: 16),
             if (busy) const LinearProgressIndicator(),
             if (error != null)
@@ -406,9 +416,11 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
               ),
             for (final output in documentOutputs)
               ListTile(
-                title: Text('待完成保存 · ${output['name']}'),
+                title: Text(tr('待完成保存 · {value}', {'value': output['name']})),
                 subtitle: Text(
-                  '${sizeLabel(output['bytes'] as num)} · 已生成文件保留，选择新目录继续保存',
+                  tr('{value} · 已生成文件保留，选择新目录继续保存', {
+                    'value': sizeLabel(output['bytes'] as num),
+                  }),
                 ),
                 trailing: OutlinedButton(
                   onPressed: busy
@@ -418,49 +430,57 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
                             output['path'] as String,
                           );
                           if (uri != null && mounted) {
-                            setState(() => message = '已校验并保存：$uri');
+                            setState(
+                              () => message = tr('已校验并保存：{uri}', {'uri': uri}),
+                            );
                           }
                         }),
-                  child: const Text('继续保存'),
+                  child: Text(tr('继续保存')),
                 ),
               ),
             if (busy && jobKind != null)
               OutlinedButton.icon(
                 onPressed: cancel,
                 icon: const Icon(Icons.pause),
-                label: const Text('暂停任务并保留文件'),
+                label: Text(tr('暂停任务并保留文件')),
               ),
             if (usage != null) ...[
               if (documentStaging != null)
                 ListTile(
                   title: Text(
-                    '授权文件暂存 ${sizeLabel(documentStaging!['bytes'] as num)}',
+                    tr('授权文件暂存 {value}', {
+                      'value': sizeLabel(documentStaging!['bytes'] as num),
+                    }),
                   ),
                   subtitle: Text(
-                    '${documentStaging!['files']} 个文件 · 完成与失败副本均保留，未自动清理；暂不提供单独删除',
+                    tr('{count} 份文件', {'count': documentStaging!['files']}),
                   ),
                 ),
               Text(
-                '设备可用空间 ${sizeLabel(overview!['available_bytes'] as num)}',
+                tr('设备可用空间 {value}', {
+                  'value': sizeLabel(overview!['available_bytes'] as num),
+                }),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 12),
               ListTile(
-                title: const Text('正文与历史引用'),
+                title: Text(tr('正文与历史引用')),
                 trailing: Text(sizeLabel(usage['original_bytes'] as num)),
               ),
               ListTile(
-                title: const Text('未引用副本'),
+                title: Text(tr('未引用副本')),
                 trailing: Text(
                   sizeLabel(usage['retained_unreferenced_bytes'] as num),
                 ),
               ),
               ListTile(
-                title: const Text('失败临时文件'),
+                title: Text(tr('失败临时文件')),
                 trailing: Text(sizeLabel(usage['incomplete_bytes'] as num)),
               ),
               Text(
-                '另有 ${overview!['pinned_resources']} 个资源身份由可恢复任务保护。不会按时间或空间自动清理。',
+                tr('另有 {value} 个资源身份由可恢复任务保护。', {
+                  'value': overview!['pinned_resources'],
+                }),
               ),
             ],
             const SizedBox(height: 16),
@@ -471,17 +491,17 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
                 FilledButton.icon(
                   onPressed: busy ? null : () => cleanup(),
                   icon: const Icon(Icons.cleaning_services_outlined),
-                  label: const Text('手动清理预览'),
+                  label: Text(tr('手动清理预览')),
                 ),
                 OutlinedButton.icon(
                   onPressed: busy ? null : () => backup(),
                   icon: const Icon(Icons.save_alt),
-                  label: const Text('创建备份'),
+                  label: Text(tr('创建备份')),
                 ),
                 OutlinedButton.icon(
                   onPressed: busy ? null : () => restore(),
                   icon: const Icon(Icons.restore),
-                  label: const Text('恢复备份'),
+                  label: Text(tr('恢复备份')),
                 ),
                 if (widget.onRollback != null)
                   TextButton(
@@ -489,49 +509,53 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
                         ? null
                         : () => run(() async {
                             if (await confirm(
-                              '返回恢复前的资料库？',
-                              '恢复前的资料库和设置快照仍保留。当前恢复副本也会保留。',
-                              '回退资料库',
+                              tr('返回恢复前的资料库？'),
+                              tr('恢复前的资料库和设置快照仍保留。当前恢复副本也会保留。'),
+                              tr('回退资料库'),
                             )) {
                               await widget.onRollback!();
                               await returnToLibrary();
                             }
                           }),
-                    child: const Text('恢复回退'),
+                    child: Text(tr('恢复回退')),
                   ),
               ],
             ),
             const SizedBox(height: 24),
             ExpansionTile(
-              title: const Text('按项目查看（共享资源在项目内去重）'),
+              title: Text(tr('按项目查看')),
               children: [
                 for (final p in overview?['projects'] ?? [])
                   ListTile(
                     title: Text(p['name']),
-                    subtitle: Text('${p['books']} 项内容 · ${p['resources']} 个资源'),
+                    subtitle: Text(
+                      tr('{value} 项内容 · {value2} 个资源', {
+                        'value': p['books'],
+                        'value2': p['resources'],
+                      }),
+                    ),
                     trailing: Text(sizeLabel(p['bytes'] as num)),
                   ),
               ],
             ),
             ExpansionTile(
-              title: const Text('按文件查看'),
+              title: Text(tr('按文件查看')),
               children: [
                 for (final b in overview?['books'] ?? [])
                   ListTile(
                     title: Text(
-                      '${b['title']}${b['archived'] == true ? '（已移出书架）' : ''}',
+                      b['archived'] == true
+                          ? tr('{title}（已移出书架）', {'title': b['title']})
+                          : '${b['title']}',
                     ),
                     trailing: Text(sizeLabel(b['bytes'] as num)),
                   ),
               ],
             ),
             const SizedBox(height: 16),
-            Text('任务与恢复', style: Theme.of(context).textTheme.titleLarge),
+            Text(tr('任务与恢复'), style: Theme.of(context).textTheme.titleLarge),
             if (tasks.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text('没有存储任务。'),
-              ),
+              Padding(padding: EdgeInsets.all(16), child: Text(tr('没有存储任务。'))),
             for (final t in tasks)
               Card(
                 child: ListTile(
@@ -539,7 +563,13 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
                     '${taskKindLabel(t['kind'])} · ${taskPhaseLabel(t['phase'])}',
                   ),
                   subtitle: Text(
-                    '完成 ${t['completed'] ?? 0} / ${t['total'] ?? 0} 项${t['error'] == null ? '' : '\n${t['error']}'}',
+                    tr('完成 {value} / {value2} 项{value3}', {
+                      'value': t['completed'] ?? 0,
+                      'value2': t['total'] ?? 0,
+                      'value3': t['error'] == null
+                          ? ''
+                          : '\n${coreText(t['error'])}',
+                    }),
                   ),
                   trailing: Wrap(
                     children: [
@@ -556,8 +586,8 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
                                     ].contains(t['phase'])))
                         IconButton(
                           tooltip: t['phase'] == 'completed'
-                              ? '查看或使用结果'
-                              : '继续任务',
+                              ? tr('查看或使用结果')
+                              : tr('继续任务'),
                           onPressed: busy
                               ? null
                               : () => resume(Map<String, dynamic>.from(t)),
@@ -565,7 +595,7 @@ class _StorageMaintenanceScreenState extends State<StorageMaintenanceScreen> {
                         ),
                       if (t['phase'] != 'completed' && t['discardable'] == true)
                         IconButton(
-                          tooltip: '放弃任务',
+                          tooltip: tr('放弃任务'),
                           onPressed: busy
                               ? null
                               : () => discard(Map<String, dynamic>.from(t)),

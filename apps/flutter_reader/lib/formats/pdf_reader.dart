@@ -2,6 +2,8 @@
 // Copyright (C) 2026 AQuantum Reader contributors.
 import 'reader_provider_preferences.dart';
 import 'pdf_paged_layout.dart';
+import 'pdf_scroll_layout.dart';
+import '../design/widgets.dart';
 import '../reader/reader_motion.dart';
 import 'pdf_region.dart';
 import '../reader/reader_panels.dart';
@@ -24,6 +26,54 @@ import '../reader/reader_shell.dart';
 import '../widgets/note_dialog.dart';
 import '../widgets/reader_settings.dart';
 import 'pdf_engine.dart';
+import '../l10n/l10n.dart';
+
+/// Displayed paper of a PDF reading palette: dark inverts white pages.
+Color pdfPaper(String theme, Brightness system) =>
+    theme == 'dark' || (theme == 'system' && system == Brightness.dark)
+    ? const Color(0xff111111)
+    : theme == 'paper'
+    ? const Color(0xfff4ecd8)
+    : Colors.white;
+
+/// Applies a reading palette to rendered pages. Transparent pixels stay
+/// transparent, so a canvas painted underneath keeps its own colour.
+Widget pdfPalette(String theme, Brightness system, Widget child) =>
+    pdfPaper(theme, system) == const Color(0xff111111)
+    ? ColorFiltered(
+        colorFilter: const ColorFilter.matrix([
+          -1,
+          0,
+          0,
+          0,
+          255,
+          0,
+          -1,
+          0,
+          0,
+          255,
+          0,
+          0,
+          -1,
+          0,
+          255,
+          0,
+          0,
+          0,
+          1,
+          0,
+        ]),
+        child: child,
+      )
+    : theme == 'paper'
+    ? ColorFiltered(
+        colorFilter: const ColorFilter.mode(
+          Color(0xfff4ecd8),
+          BlendMode.modulate,
+        ),
+        child: child,
+      )
+    : child;
 
 class PdfReaderScreen extends StatefulWidget {
   final ReaderApi api;
@@ -130,46 +180,32 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
     });
   }
 
-  Widget palette(BuildContext context, Widget viewer) {
-    final dark =
-        preferences.theme == 'dark' ||
-        (preferences.theme == 'system' &&
-            Theme.of(context).brightness == Brightness.dark);
-    return dark
-        ? ColorFiltered(
-            colorFilter: const ColorFilter.matrix([
-              -1,
-              0,
-              0,
-              0,
-              255,
-              0,
-              -1,
-              0,
-              0,
-              255,
-              0,
-              0,
-              -1,
-              0,
-              255,
-              0,
-              0,
-              0,
-              1,
-              0,
-            ]),
-            child: viewer,
-          )
-        : preferences.theme == 'paper'
-        ? ColorFiltered(
-            colorFilter: const ColorFilter.mode(
-              Color(0xfff4ecd8),
-              BlendMode.modulate,
-            ),
-            child: viewer,
-          )
-        : viewer;
+  Widget palette(BuildContext context, Widget viewer) =>
+      pdfPalette(preferences.theme, Theme.of(context).brightness, viewer);
+
+  /// Pinch state of the current continuous interaction, for the fit snap.
+  bool pinched = false;
+  double pinchFocalY = 0;
+
+  /// A pinch that ends near fit-width settles on it. Runs after the viewer's
+  /// own release handling, whose bounds animation the settle replaces.
+  void settlePinch() {
+    if (paged || !viewportReady || !controller.isReady) return;
+    final target = pdfFitSnap(
+      controller.value,
+      view: controller.viewSize,
+      document: controller.layout.documentSize,
+      focalY: pinchFocalY,
+    );
+    if (target == null) return;
+    unawaited(
+      controller.goTo(
+        target,
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 200),
+      ),
+    );
   }
 
   Widget fullPage(BuildContext context, int index, {bool preview = false}) =>
@@ -183,7 +219,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
         ),
       );
 
-  String status = '阅读位置自动保留';
+  String? status;
   bool exiting = false, locked = false, selectionActive = false;
   int overlays = 0;
   Timer? heartbeat;
@@ -234,21 +270,17 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
     final result = await showDialog<String>(
       context: context,
       builder: (c) => AlertDialog(
-        title: const Text('PDF 密码'),
+        title: Text(tr('PDF 密码')),
         content: TextField(
           controller: text,
           obscureText: true,
           autofocus: true,
-          decoration: const InputDecoration(labelText: '仅用于本次打开，不保存密码'),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(c),
-            child: const Text('取消'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(c), child: Text(tr('取消'))),
           FilledButton(
             onPressed: () => Navigator.pop(c, text.text),
-            child: const Text('打开'),
+            child: Text(tr('打开')),
           ),
         ],
       ),
@@ -339,7 +371,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
           if (engine == null) {
             error = '$e';
           } else {
-            status = '阅读状态保存失败：$e';
+            status = tr('阅读状态保存失败：{e}', {'e': e});
           }
         });
       }
@@ -355,9 +387,11 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
         'book': book!.id,
         'index': index,
       });
-      if (mounted) setState(() => status = '已保存到第 ${index + 1} 页');
+      if (mounted) {
+        setState(() => status = tr('已保存到第 {value} 页', {'value': index + 1}));
+      }
     } catch (e) {
-      if (mounted) setState(() => status = '保存失败：$e');
+      if (mounted) setState(() => status = tr('保存失败：{e}', {'e': e}));
     }
   }
 
@@ -421,7 +455,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
       if (list.isEmpty) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('这本书还没有关联笔记。')));
+        ).showSnackBar(SnackBar(content: Text(tr('这本书还没有关联笔记。'))));
         return;
       }
       Map<String, dynamic>? target;
@@ -429,7 +463,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
         target = await showDialog<Map<String, dynamic>>(
           context: context,
           builder: (c) => AlertDialog(
-            title: const Text('关联笔记'),
+            title: Text(tr('关联笔记')),
             content: SizedBox(
               width: 600,
               child: ListView.separated(
@@ -444,12 +478,14 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
                   );
                   final stale = note['stale'] == true;
                   final anchor = number >= 0
-                      ? '第 ${number + 1} 页'
-                      : '页面已不在本文件中';
+                      ? tr('第 {value} 页', {'value': number + 1})
+                      : tr('页面已不在本文件中');
                   return ListTile(
                     title: Text(note['markdown']?.toString() ?? ''),
                     subtitle: Text(
-                      stale ? '$anchor · 锚点可能漂移' : anchor,
+                      stale
+                          ? tr('{anchor} · 锚点可能漂移', {'anchor': anchor})
+                          : anchor,
                       style: stale
                           ? TextStyle(
                               color: Theme.of(context).colorScheme.error,
@@ -465,7 +501,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(c),
-                child: const Text('关闭'),
+                child: Text(tr('关闭')),
               ),
             ],
           ),
@@ -500,7 +536,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
       await showDialog<void>(
         context: context,
         builder: (c) => AlertDialog(
-          title: const Text('文档外部链接'),
+          title: Text(tr('文档外部链接')),
           content: SelectableText(uri.toString()),
           actions: [
             TextButton(
@@ -508,11 +544,11 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
                 await Clipboard.setData(ClipboardData(text: uri.toString()));
                 if (c.mounted) Navigator.pop(c);
               },
-              child: const Text('复制链接'),
+              child: Text(tr('复制链接')),
             ),
             TextButton(
               onPressed: () => Navigator.pop(c),
-              child: const Text('关闭'),
+              child: Text(tr('关闭')),
             ),
           ],
         ),
@@ -551,7 +587,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
                           setState(() => error = null);
                           load();
                         },
-                        child: const Text('重新打开'),
+                        child: Text(tr('重新打开')),
                       ),
                     ],
                   ),
@@ -561,7 +597,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
     }
     final capabilities = ReaderCapabilities(
       search: true,
-      navigationLabel: 'PDF 页面',
+      navigationLabel: tr('PDF 页面'),
       settings: {
         ReaderSetting.theme,
         ReaderSetting.imageGap,
@@ -570,6 +606,9 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
         if (paged) ReaderSetting.animation,
       },
     );
+    final paper = pdfPaper(preferences.theme, Theme.of(context).brightness);
+    // Top-to-bottom gaps and the area around zoomed-out pages share one colour.
+    final canvas = readerGapColor(paper);
     Widget content(BuildContext context) {
       final viewer = LayoutBuilder(
         builder: (context, constraints) {
@@ -580,7 +619,9 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
             controller: controller,
             initialPageNumber: position + 1,
             params: PdfViewerParams(
-              margin: preferences.seamless ? 0 : 12,
+              // Continuous pages carry their gap in the column layout, so
+              // fit-width is the widest page edge to edge.
+              margin: paged && !preferences.seamless ? 12 : 0,
               pageDropShadow: null,
               scrollPhysics: paged ? pagePhysics : readerContinuousPhysics,
               scrollPhysicsScale: readerContinuousPhysics,
@@ -591,9 +632,11 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
                       useAlternativeFitScaleAsMinScale: false,
                       calculateInitialZoom: pdfPagedInitialZoom,
                     )
-                  : null,
+                  : const PdfScrollSizing(),
               layoutPages: !paged
-                  ? null
+                  ? (pages, _) => continuousPdfLayout([
+                      for (final page in pages) Size(page.width, page.height),
+                    ], gap: preferences.seamless ? 0 : 12)
                   : (pages, params) => pagedPdfLayout(
                       [for (final page in pages) Size(page.width, page.height)],
                       margin: params.margin,
@@ -615,8 +658,9 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
                               : slot) +
                           1;
                     },
-              // Apply the reading palette once below, including the page margin.
-              backgroundColor: Colors.white,
+              // Paged: the palette below also tints the page margin. Continuous:
+              // gaps and surroundings show the canvas painted under the palette.
+              backgroundColor: paged ? Colors.white : Colors.transparent,
               maxImageBytesCachedOnMemory: 64 * 1024 * 1024,
               onePassRenderingSizeThreshold: 1536,
               horizontalCacheExtent: .25,
@@ -630,9 +674,22 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
               },
               onInteractionStart: (_) {
                 locked = true;
+                pinched = false;
+              },
+              onInteractionUpdate: (details) {
+                if (details.pointerCount > 1) {
+                  pinched = true;
+                  pinchFocalY = details.localFocalPoint.dy;
+                }
               },
               onInteractionEnd: (details) {
                 locked = false;
+                if (pinched) {
+                  pinched = false;
+                  scheduleMicrotask(() {
+                    if (mounted) settlePinch();
+                  });
+                }
                 if (details.velocity.pixelsPerSecond.distance == 0) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (mounted) settleStillDrag();
@@ -661,13 +718,15 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
           );
         },
       );
-      return palette(context, viewer);
+      return paged
+          ? palette(context, viewer)
+          : ColoredBox(color: canvas, child: palette(context, viewer));
     }
 
     final adapter = PdfReaderAdapter(
       book: book!,
       position: position,
-      status: status,
+      status: status ?? '',
       content: content,
       onGo: go,
       locked: () => locked || selectionActive,
@@ -699,14 +758,8 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
       },
       child: Scaffold(
         body: ReaderShell(
-          paperColor:
-              preferences.theme == 'dark' ||
-                  (preferences.theme == 'system' &&
-                      Theme.of(context).brightness == Brightness.dark)
-              ? const Color(0xff111111)
-              : preferences.theme == 'paper'
-              ? const Color(0xfff4ecd8)
-              : Colors.white,
+          // The bar strips continue whatever surrounds the page.
+          paperColor: paged ? paper : canvas,
           adapter: adaptReaderProvider(
             selectedProvider(widget.book, widget.plugins, providerId),
             adapter,
@@ -756,9 +809,11 @@ class _PdfReaderScreenState extends State<PdfReaderScreen>
                       })
                       .catchError((Object e) {
                         if (mounted) {
-                          ScaffoldMessenger.of(
-                            this.context,
-                          ).showSnackBar(SnackBar(content: Text('阅读方向未保存：$e')));
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            SnackBar(
+                              content: Text(tr('阅读方向未保存：{e}', {'e': e})),
+                            ),
+                          );
                         }
                         return null;
                       }),
@@ -852,7 +907,7 @@ class PdfReaderAdapter extends SessionReaderAdapter
   @override
   int get count => book.pages.length;
   @override
-  String get unit => '页';
+  String get unit => tr('页');
   @override
   bool get paged => !vertical;
 
@@ -865,7 +920,7 @@ class PdfReaderAdapter extends SessionReaderAdapter
   @override
   ReaderLocation location(int index) => ReaderLocation(
     'page:${book.pages[index]['id']}',
-    '第 ${index + 1} 页',
+    tr('第 {value} 页', {'value': index + 1}),
     index,
   );
   @override

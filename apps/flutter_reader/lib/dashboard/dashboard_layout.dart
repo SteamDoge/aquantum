@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'widget_registry.dart';
+import '../l10n/l10n.dart';
 
 class DashboardLayout extends ChangeNotifier {
   final DashboardPage page;
@@ -29,7 +30,7 @@ class DashboardLayout extends ChangeNotifier {
             json['version'] != 1 ||
             json['items'] is! List ||
             json['items'].length > 64) {
-          throw const FormatException('无法读取组件布局，原配置已保留');
+          throw FormatException(tr('无法读取组件布局，原配置已保留'));
         }
         final parsed = (json['items'] as List)
             .map(
@@ -37,7 +38,7 @@ class DashboardLayout extends ChangeNotifier {
             )
             .toList();
         if (parsed.map((e) => e.id).toSet().length != parsed.length) {
-          throw const FormatException('组件配置有重复编号');
+          throw FormatException(tr('组件配置有重复编号'));
         }
         items = parsed;
       }
@@ -53,11 +54,11 @@ class DashboardLayout extends ChangeNotifier {
     bool restore = false,
   }) async {
     if (!ready || busy || (error != null && !restore)) {
-      throw StateError(error ?? '组件设置忙碌中');
+      throw StateError(error ?? tr('组件设置忙碌中'));
     }
     if (next.map((i) => i.id).toSet().length != next.length ||
         next.length > 64) {
-      throw StateError('组件重复或超过上限');
+      throw StateError(tr('组件重复或超过上限'));
     }
     busy = true;
     notifyListeners();
@@ -69,7 +70,7 @@ class DashboardLayout extends ChangeNotifier {
           'items': next.map((e) => e.toJson()).toList(),
         }),
       )) {
-        throw StateError('组件布局保存失败');
+        throw StateError(tr('组件布局保存失败'));
       }
       items = List.unmodifiable(next);
       error = null;

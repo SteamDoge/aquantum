@@ -38,6 +38,7 @@ import 'import_dialog.dart';
 import 'reader_screen.dart';
 import 'profile_screen.dart';
 import 'storage_maintenance.dart';
+import '../l10n/l10n.dart';
 
 class LibraryScreen extends StatefulWidget {
   final ReaderApi api;
@@ -114,7 +115,7 @@ class _LibraryScreenState extends State<LibraryScreen>
       final prefs = await SharedPreferences.getInstance();
       if (!await prefs.setString('project-sort.v1', order) ||
           !await prefs.setBool('project-grid.v1', value)) {
-        throw StateError('项目视图保存失败');
+        throw StateError(tr('项目视图保存失败'));
       }
       if (mounted) {
         setState(() {
@@ -169,7 +170,7 @@ class _LibraryScreenState extends State<LibraryScreen>
     features = FeatureRegistry([
       AppFeature(
         id: 'core.statistics-api',
-        name: '统计接口说明',
+        localizedName: () => tr('统计接口说明'),
         icon: Icons.code_outlined,
         allowNavigation: false,
         builder: (context) => ListView(
@@ -179,11 +180,13 @@ class _LibraryScreenState extends State<LibraryScreen>
             20,
             24 + MediaQuery.paddingOf(context).bottom,
           ),
-          children: const [
-            AqPageHeading('统计接口', subtitle: '读取接口 · API 1'),
+          children: [
+            AqPageHeading(tr('统计接口'), subtitle: tr('读取接口 · API 1')),
             SizedBox(height: 20),
             SelectableText(
-              '组件使用同一个只读 DashboardData 快照。\n\ntoday / daily：本地日期的前台阅读毫秒。\nweek：含今天的最近七天。\nstreak：截至今天或昨天的连续有阅读记录天数。\nyearTime / yearBooks：当年毫秒 / 唯一阅读文件数。\ncompletedBooks：到达末尾的唯一文件数，非人工确认读完。\nrecent / latest：有效书架文件的最近会话。\n\n组件定义：source.widget.id、名称、图标、适用页、样式、尺寸、依赖、renderer。实例配置：id/style/wide/limit，主页和统计分别保存。\n\n可信编译插件通过 PluginRegistrar.widget/provider 注册；每份快照复用 provider 结果。声明式 ZIP 只能使用预定只读指标，不执行代码。\n\n当前只统计本机，不回填旧版缺失的时长。跨设备同步、任意时间范围、OCR/翻译、代码沙箱和系统桌面组件待实现。完整示例见交付的插件规范与 PRODUCT_SPEC。',
+              tr(
+                '组件使用同一个只读 DashboardData 快照。\n\ntoday / daily：本地日期的前台阅读毫秒。\nweek：含今天的最近七天。\nstreak：截至今天或昨天的连续有阅读记录天数。\nyearTime / yearBooks：当年毫秒 / 唯一阅读文件数。\ncompletedBooks：到达末尾的唯一文件数，非人工确认读完。\nrecent / latest：有效书架文件的最近会话。\n\n组件定义：source.widget.id、名称、图标、适用页、样式、尺寸、依赖、renderer。实例配置：id/style/wide/limit，主页和统计分别保存。\n\n可信编译插件通过 PluginRegistrar.widget/provider 注册；每份快照复用 provider 结果。声明式 ZIP 只能使用预定只读指标，不执行代码。\n\n当前只统计本机，不回填旧版缺失的时长。跨设备同步、任意时间范围、OCR/翻译、代码沙箱和系统桌面组件待实现。完整示例见交付的插件规范与 PRODUCT_SPEC。',
+              ),
               style: TextStyle(fontSize: 15, height: 1.7),
             ),
           ],
@@ -191,7 +194,7 @@ class _LibraryScreenState extends State<LibraryScreen>
       ),
       AppFeature(
         id: 'core.search',
-        name: '全文搜索',
+        localizedName: () => tr('全文搜索'),
         icon: Icons.search,
         builder: (_) => library == null
             ? _loading()
@@ -204,7 +207,7 @@ class _LibraryScreenState extends State<LibraryScreen>
       ),
       AppFeature(
         id: FeatureRegistry.home,
-        name: '主页',
+        localizedName: () => tr('主页'),
         icon: Icons.home_outlined,
         builder: (_) => library == null
             ? _loading()
@@ -219,7 +222,7 @@ class _LibraryScreenState extends State<LibraryScreen>
       ),
       AppFeature(
         id: FeatureRegistry.statistics,
-        name: '阅读统计',
+        localizedName: () => tr('阅读统计'),
         icon: Icons.insights_outlined,
         builder: (_) => library == null
             ? _loading()
@@ -232,7 +235,7 @@ class _LibraryScreenState extends State<LibraryScreen>
       ),
       AppFeature(
         id: 'core.archive',
-        name: '已移除文件',
+        localizedName: () => tr('已移除文件'),
         icon: Icons.restore,
         builder: (context) => library == null
             ? _loading()
@@ -249,12 +252,10 @@ class _LibraryScreenState extends State<LibraryScreen>
                       24 + MediaQuery.paddingOf(context).bottom,
                     ),
                     children: [
-                      const AqPageHeading('已移除文件'),
+                      AqPageHeading(tr('已移除文件')),
                       const SizedBox(height: 24),
                       AqSection(
-                        footer: archived.isEmpty
-                            ? '没有移出书架的文件。'
-                            : '副本与记录均保留，恢复后回到原项目。',
+                        footer: archived.isEmpty ? tr('没有移出书架的文件。') : null,
                         dividerIndent: 16,
                         children: [
                           for (final b in archived)
@@ -262,7 +263,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                               title: b.title,
                               subtitle: b.label,
                               trailing: IconButton(
-                                tooltip: '恢复到书架',
+                                tooltip: tr('恢复到书架'),
                                 icon: const Icon(Icons.restore),
                                 onPressed: () => act(() async {
                                   await widget.api.call('manage_book', {
@@ -281,7 +282,7 @@ class _LibraryScreenState extends State<LibraryScreen>
       ),
       AppFeature(
         id: FeatureRegistry.projects,
-        name: '资料库',
+        localizedName: () => tr('资料库'),
         icon: Icons.library_books_outlined,
         builder: (context) => library == null
             ? _loading()
@@ -289,7 +290,7 @@ class _LibraryScreenState extends State<LibraryScreen>
       ),
       AppFeature(
         id: FeatureRegistry.plugins,
-        name: '插件',
+        localizedName: () => tr('插件'),
         icon: Icons.extension_outlined,
         builder: (_) => PluginScreen(
           manager: plugins,
@@ -301,10 +302,10 @@ class _LibraryScreenState extends State<LibraryScreen>
       for (final section in ProfileDetail.values)
         AppFeature(
           id: 'core.${section.name}',
-          name: switch (section) {
-            ProfileDetail.settings => '设置',
-            ProfileDetail.storage => '存储管理',
-            ProfileDetail.history => '操作记录',
+          localizedName: () => switch (section) {
+            ProfileDetail.settings => tr('设置'),
+            ProfileDetail.storage => tr('存储管理'),
+            ProfileDetail.history => tr('操作记录'),
           },
           icon: switch (section) {
             ProfileDetail.settings => Icons.settings_outlined,
@@ -345,7 +346,7 @@ class _LibraryScreenState extends State<LibraryScreen>
         ),
       AppFeature(
         id: FeatureRegistry.me,
-        name: '我的',
+        localizedName: () => tr('我的'),
         icon: Icons.person_outline,
         builder: (_) => library == null
             ? _loading()
@@ -390,7 +391,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                 bytes,
                 scope: pluginId,
               );
-              if (!mounted) throw StateError('宿主页面已关闭');
+              if (!mounted) throw StateError(tr('宿主页面已关闭'));
               // Opening acknowledges presentation; reading may last much longer
               // than a JS RPC timeout and must not hold the plugin request open.
               unawaited(
@@ -464,7 +465,7 @@ class _LibraryScreenState extends State<LibraryScreen>
       }
       if (packages != null) plugins.setInventory(packages);
     } catch (error) {
-      plugins.packageErrors.add('插件包读取失败：$error');
+      plugins.packageErrors.add(tr('插件包读取失败：{error}', {'error': error}));
     }
     if (mounted) await plugins.load();
   }
@@ -505,7 +506,7 @@ class _LibraryScreenState extends State<LibraryScreen>
   Future<void> importPlugin() async {
     final packages = widget.pluginPackages;
     if (packages == null) {
-      notify('当前运行入口未配置插件包目录');
+      notify(tr('当前运行入口未配置插件包目录'));
       return;
     }
     if (busy || !plugins.ready || plugins.busy) return;
@@ -611,29 +612,29 @@ class _LibraryScreenState extends State<LibraryScreen>
       projectId!,
       library!.project(projectId!).name,
     );
-    if (changed) notify('已导入，原文件保留');
+    if (changed) notify(tr('已导入，原文件保留'));
   });
   Future<void> createProject() async {
     var candidate = '';
     final name = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('新建项目'),
+        title: Text(tr('新建项目')),
         content: TextField(
           onChanged: (value) => candidate = value,
           autofocus: true,
           maxLength: 80,
-          decoration: const InputDecoration(labelText: '项目名称'),
+          decoration: InputDecoration(labelText: tr('项目名称')),
           onSubmitted: (value) => Navigator.pop(context, value),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(tr('取消')),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, candidate),
-            child: const Text('创建'),
+            child: Text(tr('创建')),
           ),
         ],
       ),
@@ -650,11 +651,13 @@ class _LibraryScreenState extends State<LibraryScreen>
   }
 
   Future<void> loadSample() => act(() async {
-    const files = {
-      '山间笔记.txt':
-          '山间笔记\n\n清晨的山谷安静，只有风从树梢经过。走进林间时，脚步也自然放慢了。\n\n阅读也是一次缓慢的行走。不必急着到达终点，每一段停留都有它的意义。\n\n你可以调整字号、保存阅读位置，或记下此刻想到的事。下次打开时，仍从这一段开始。',
-      '阅读器使用说明.md':
-          '# 让书回到手边\n\n先在项目页导入文件。软件保留原文件，阅读时使用内部副本。\n\n## 当前版本\n\n支持 TXT、Markdown、PDF、EPUB、MOBI、AZW3、FB2 与图片漫画。不同格式的阅读设置按实际能力显示。\n\n## 阅读笔记\n\n打开一本书，选择“记笔记”。笔记和原书通过固定编号关联。',
+    final files = {
+      tr('山间笔记.txt'): tr(
+        '山间笔记\n\n清晨的山谷安静，只有风从树梢经过。走进林间时，脚步也自然放慢了。\n\n阅读也是一次缓慢的行走。不必急着到达终点，每一段停留都有它的意义。\n\n你可以调整字号、保存阅读位置，或记下此刻想到的事。下次打开时，仍从这一段开始。',
+      ),
+      tr('阅读器使用说明.md'): tr(
+        '# 让书回到手边\n\n先在项目页导入文件。软件保留原文件，阅读时使用内部副本。\n\n## 当前版本\n\n支持 TXT、Markdown、PDF、EPUB、MOBI、AZW3、FB2 与图片漫画。不同格式的阅读设置按实际能力显示。\n\n## 阅读笔记\n\n打开一本书，选择“记笔记”。笔记和原书通过固定编号关联。',
+      ),
     };
     await widget.api.call('import_files', {
       'target': projectId,
@@ -664,7 +667,7 @@ class _LibraryScreenState extends State<LibraryScreen>
           )
           .toList(),
     });
-    notify('示例已加入当前项目');
+    notify(tr('示例已加入当前项目'));
   });
   Future<void> open(Book book, {int? position}) async {
     plugins.hostServices?.currentReader = {
@@ -758,7 +761,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                         Padding(
                           padding: const EdgeInsets.fromLTRB(12, 18, 12, 6),
                           child: Text(
-                            '项目',
+                            tr('项目'),
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(fontWeight: FontWeight.w600),
                           ),
@@ -831,11 +834,11 @@ class _LibraryScreenState extends State<LibraryScreen>
           : Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('资料库暂时无法打开', style: TextStyle(fontSize: 22)),
+                Text(tr('资料库暂时无法打开'), style: TextStyle(fontSize: 22)),
                 const SizedBox(height: 16),
                 SelectableText(error!),
                 const SizedBox(height: 24),
-                FilledButton(onPressed: refresh, child: const Text('重试')),
+                FilledButton(onPressed: refresh, child: Text(tr('重试'))),
               ],
             ),
     ),

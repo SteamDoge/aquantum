@@ -3,6 +3,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
+import '../l10n/l10n.dart';
 
 const _documents = MethodChannel('cn.aquantum/documents');
 
@@ -20,13 +21,13 @@ Future<T?> _invokeDocument<T>(
   try {
     return await _documents.invokeMethod<T>(method, args);
   } on PlatformException catch (error) {
-    throw _DocumentFailure(error.message ?? '系统存储操作失败，原文件和暂存保留。');
+    throw _DocumentFailure(error.message ?? tr('系统存储操作失败，原文件和暂存保留。'));
   }
 }
 
 Future<String?> pickImportDirectory() => Platform.isAndroid
     ? _invokeDocument<String>('importTree')
-    : FilePicker.platform.getDirectoryPath(dialogTitle: '选择导入文件夹');
+    : FilePicker.platform.getDirectoryPath(dialogTitle: tr('选择导入文件夹'));
 
 /// Rust creates and verifies a new local file first. Android publishes through
 /// the selected document provider and verifies it again before reporting saved.
@@ -59,7 +60,7 @@ Future<List<Map<String, dynamic>>> pendingDocumentOutputs() async =>
     : [];
 
 Future<String?> retryDocumentOutput(String source) async {
-  final output = await pickDocumentOutput('重新选择保存目录');
+  final output = await pickDocumentOutput(tr('重新选择保存目录'));
   if (output == null) return null;
   return _invokeDocument<String>('retry', {
     'job': output.job,

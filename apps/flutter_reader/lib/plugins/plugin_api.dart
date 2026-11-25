@@ -6,6 +6,7 @@ export 'plugin_manifest.dart';
 import '../features/feature_registry.dart';
 import '../dashboard/widget_registry.dart';
 import '../reader/reader_contract.dart';
+import '../l10n/l10n.dart';
 
 /// Both installed declarations and trusted compiled plugins select host surfaces.
 /// Installed JavaScript registers stable host surfaces and cannot inject Dart adapters.
@@ -25,14 +26,14 @@ class ReaderFormatRegistration {
         result.count != base.count ||
         (base is PagedReaderAdapter) != (result is PagedReaderAdapter) ||
         (base is OutlineReaderAdapter) != (result is OutlineReaderAdapter)) {
-      throw StateError('格式处理器必须保留文档身份、定位单位和可选接口');
+      throw StateError(tr('格式处理器必须保留文档身份、定位单位和可选接口'));
     }
     for (final i in {
       if (base.count > 0) 0,
       if (base.count > 0) base.count - 1,
     }) {
       if (result.location(i).id != base.location(i).id) {
-        throw StateError('格式处理器不能改写来源位置');
+        throw StateError(tr('格式处理器不能改写来源位置'));
       }
     }
     return result;
@@ -132,7 +133,7 @@ class PluginRegistrar {
         _formats.any((item) => item.id == value.id) ||
         (value.create != null &&
             !manifest.permissions.contains(PluginPermission.documentText))) {
-      throw ArgumentError('格式处理器编号、能力或权限无效');
+      throw ArgumentError(tr('格式处理器编号、能力或权限无效'));
     }
     _formats.add(value);
   }
@@ -141,7 +142,7 @@ class PluginRegistrar {
     _check();
     if (definition.source != manifest.id ||
         !definition.id.startsWith('${manifest.id}.widget.')) {
-      throw ArgumentError('组件编号须属于插件');
+      throw ArgumentError(tr('组件编号须属于插件'));
     }
     _widgets.add(definition);
   }
@@ -150,7 +151,7 @@ class PluginRegistrar {
     _check();
     if (provider.source != manifest.id ||
         !provider.id.startsWith('${manifest.id}.metric.')) {
-      throw ArgumentError('数据编号须属于插件');
+      throw ArgumentError(tr('数据编号须属于插件'));
     }
     _providers.add(provider);
   }
@@ -164,7 +165,7 @@ class PluginRegistrar {
   }) {
     _check();
     if (!id.startsWith('${manifest.id}.page.')) {
-      throw ArgumentError('页面编号须属于插件');
+      throw ArgumentError(tr('页面编号须属于插件'));
     }
     _pages.add(
       AppFeature(
@@ -186,13 +187,13 @@ class PluginRegistrar {
         (action.point == ExtensionPoint.textSelection &&
             !action.permissions.contains(PluginPermission.selectedText)) ||
         _actions.any((item) => item.id == action.id)) {
-      throw ArgumentError('扩展编号、权限或操作声明无效');
+      throw ArgumentError(tr('扩展编号、权限或操作声明无效'));
     }
     _actions.add(action);
   }
 
   void _check() {
-    if (_sealed) throw StateError('注册事务已结束');
+    if (_sealed) throw StateError(tr('注册事务已结束'));
   }
 
   void seal() => _sealed = true;

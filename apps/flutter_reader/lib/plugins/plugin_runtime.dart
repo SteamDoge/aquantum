@@ -2,6 +2,7 @@
 // Copyright (C) 2026 AQuantum Reader contributors.
 import 'dart:async';
 import '../data/reader_api.dart';
+import '../l10n/l10n.dart';
 
 /// JS actors live on Rust-owned OS threads; FFI runs outside Flutter's UI isolate.
 class PluginRuntime {
@@ -31,7 +32,7 @@ class PluginRuntime {
     String? name,
     Duration timeout = const Duration(seconds: 15),
   }) async {
-    if (closed || _handle == null) throw StateError('插件运行时已停止');
+    if (closed || _handle == null) throw StateError(tr('插件运行时已停止'));
     final id = ++_sequence;
     final completion = Completer<dynamic>();
     _waiting[id] = completion;
@@ -48,7 +49,7 @@ class PluginRuntime {
       return await completion.future.timeout(
         timeout,
         onTimeout: () {
-          final error = TimeoutException('插件任务超时，运行实例已终止');
+          final error = TimeoutException(tr('插件任务超时，运行实例已终止'));
           unawaited(close());
           onFailure?.call(error);
           throw error;
@@ -126,7 +127,9 @@ class PluginRuntime {
     if (closed && _handle == null) return;
     closed = true;
     for (final waiting in _waiting.values) {
-      if (!waiting.isCompleted) waiting.completeError(StateError('插件运行时已停止'));
+      if (!waiting.isCompleted) {
+        waiting.completeError(StateError(tr('插件运行时已停止')));
+      }
     }
     await _destroy();
   }

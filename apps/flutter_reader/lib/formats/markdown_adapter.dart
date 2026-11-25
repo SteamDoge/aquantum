@@ -3,6 +3,7 @@
 import '../reader/reader_contract.dart';
 import '../reader/reader_renderers.dart';
 import 'markdown_document.dart';
+import '../l10n/l10n.dart';
 
 class MarkdownReaderAdapter extends TextReaderAdapter
     implements OutlineReaderAdapter {
@@ -18,9 +19,9 @@ class MarkdownReaderAdapter extends TextReaderAdapter
     required this.document,
   });
   @override
-  ReaderCapabilities get capabilities => const ReaderCapabilities(
+  ReaderCapabilities get capabilities => ReaderCapabilities(
     search: true,
-    navigationLabel: '文档标题',
+    navigationLabel: tr('文档标题'),
     settings: {
       ReaderSetting.fontSize,
       ReaderSetting.fontFamily,

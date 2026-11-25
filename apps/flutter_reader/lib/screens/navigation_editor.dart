@@ -5,6 +5,7 @@ import '../features/feature_registry.dart';
 import '../navigation/navigation_controller.dart';
 import '../navigation/navigation_preferences.dart';
 import '../design/widgets.dart';
+import '../l10n/l10n.dart';
 
 class NavigationEditor extends StatefulWidget {
   final AppNavigation navigation;
@@ -40,16 +41,16 @@ class _NavigationEditorState extends State<NavigationEditor> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('恢复此平台的默认导航？'),
-        content: const Text('只重置快捷入口、顺序与展开偏好，功能和阅读资料保留。'),
+        title: Text(tr('恢复此平台的默认导航？')),
+        content: Text(tr('只重置快捷入口、顺序与展开偏好，功能和阅读资料保留。')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(tr('取消')),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('恢复默认'),
+            child: Text(tr('恢复默认')),
           ),
         ],
       ),
@@ -71,7 +72,7 @@ class _NavigationEditorState extends State<NavigationEditor> {
         return ListView(
           padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
           children: [
-            const AqPageHeading('导航栏自定义'),
+            AqPageHeading(tr('导航栏自定义')),
             const SizedBox(height: 20),
             Wrap(
               spacing: 8,
@@ -79,7 +80,9 @@ class _NavigationEditorState extends State<NavigationEditor> {
                 for (final option in NavigationProfile.values)
                   ChoiceChip(
                     label: Text(
-                      option == NavigationProfile.mobile ? '移动端' : '桌面端',
+                      option == NavigationProfile.mobile
+                          ? tr('移动端')
+                          : tr('桌面端'),
                     ),
                     selected: profile == option,
                     onSelected: saving
@@ -91,10 +94,6 @@ class _NavigationEditorState extends State<NavigationEditor> {
                   ),
               ],
             ),
-            const SizedBox(height: 16),
-            const Text('导航是快捷入口。隐藏后仍可从“我的”打开；我的始终保留在末尾。'),
-            if (profile == NavigationProfile.mobile)
-              const Text('最多显示 5 项；可只保留我的。'),
             if (saving) const LinearProgressIndicator(),
             if (error != null || navigation.loadErrors[profile] != null)
               Padding(
@@ -105,8 +104,8 @@ class _NavigationEditorState extends State<NavigationEditor> {
                 ),
               ),
             const SizedBox(height: 24),
-            const Text(
-              '已显示',
+            Text(
+              tr('已显示'),
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
             for (var index = 0; index < visible.length; index++)
@@ -115,15 +114,14 @@ class _NavigationEditorState extends State<NavigationEditor> {
                 contentPadding: EdgeInsets.zero,
                 leading: Icon(visible[index].icon),
                 title: Text(visible[index].name),
-                subtitle: visible[index].id == FeatureRegistry.me
-                    ? const Text('固定入口')
-                    : null,
                 trailing: visible[index].id == FeatureRegistry.me
                     ? const Icon(Icons.lock_outline)
                     : Wrap(
                         children: [
                           IconButton(
-                            tooltip: '上移${visible[index].name}',
+                            tooltip: tr('上移{value}', {
+                              'value': visible[index].name,
+                            }),
                             onPressed: saving || index == 0
                                 ? null
                                 : () {
@@ -139,7 +137,9 @@ class _NavigationEditorState extends State<NavigationEditor> {
                             icon: const Icon(Icons.arrow_upward),
                           ),
                           IconButton(
-                            tooltip: '下移${visible[index].name}',
+                            tooltip: tr('下移{value}', {
+                              'value': visible[index].name,
+                            }),
                             onPressed: saving || index >= visible.length - 2
                                 ? null
                                 : () {
@@ -155,7 +155,9 @@ class _NavigationEditorState extends State<NavigationEditor> {
                             icon: const Icon(Icons.arrow_downward),
                           ),
                           IconButton(
-                            tooltip: '隐藏${visible[index].name}',
+                            tooltip: tr('隐藏{value}', {
+                              'value': visible[index].name,
+                            }),
                             onPressed: saving
                                 ? null
                                 : () => update(
@@ -180,17 +182,17 @@ class _NavigationEditorState extends State<NavigationEditor> {
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.extension_off_outlined),
                 title: Text(id),
-                subtitle: const Text('已停用或不可用；保留快捷位置，重新启用后恢复'),
+                subtitle: Text(tr('已停用')),
                 trailing: IconButton(
-                  tooltip: '忘记快捷偏好',
+                  tooltip: tr('忘记快捷偏好'),
                   icon: const Icon(Icons.remove_circle_outline),
                   onPressed: saving
                       ? null
                       : () => update(() => navigation.pin(profile, id, false)),
                 ),
               ),
-            const Text(
-              '可添加',
+            Text(
+              tr('可添加'),
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
             for (final feature in hidden)
@@ -198,11 +200,11 @@ class _NavigationEditorState extends State<NavigationEditor> {
                 contentPadding: EdgeInsets.zero,
                 leading: Icon(feature.icon),
                 title: Text(feature.name),
-                subtitle: Text(
-                  feature.source == 'core' ? '内置功能' : feature.source,
-                ),
+                subtitle: feature.source == 'core'
+                    ? null
+                    : Text(feature.source),
                 trailing: IconButton(
-                  tooltip: '添加${feature.name}',
+                  tooltip: tr('添加{name}', {'name': feature.name}),
                   onPressed: saving
                       ? null
                       : () => update(
@@ -216,7 +218,7 @@ class _NavigationEditorState extends State<NavigationEditor> {
               alignment: Alignment.centerLeft,
               child: OutlinedButton(
                 onPressed: saving ? null : reset,
-                child: const Text('恢复默认导航'),
+                child: Text(tr('恢复默认导航')),
               ),
             ),
           ],

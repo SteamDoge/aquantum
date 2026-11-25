@@ -10,6 +10,7 @@ import '../data/book_metadata.dart';
 import '../data/models.dart';
 import '../data/reader_api.dart';
 import '../design/widgets.dart';
+import '../l10n/l10n.dart';
 
 class BookMetadataScreen extends StatefulWidget {
   final Book book;
@@ -72,7 +73,7 @@ class _BookMetadataScreenState extends State<BookMetadataScreen> {
 
   Future<void> validateCover(Uint8List bytes) async {
     if (bytes.isEmpty || bytes.length > 8 * 1024 * 1024) {
-      throw const FormatException('封面须小于8MiB');
+      throw FormatException(tr('封面须小于8MiB'));
     }
     final codec = await ui.instantiateImageCodec(bytes, targetWidth: 512);
     try {
@@ -117,15 +118,15 @@ class _BookMetadataScreenState extends State<BookMetadataScreen> {
     );
     if (picked == null) return;
     final file = picked.files.single;
-    if (file.size > 8 * 1024 * 1024) throw const FormatException('封面须小于8MiB');
+    if (file.size > 8 * 1024 * 1024) throw FormatException(tr('封面须小于8MiB'));
     if (file.path != null &&
         await File(file.path!).length() > 8 * 1024 * 1024) {
-      throw const FormatException('封面须小于8MiB');
+      throw FormatException(tr('封面须小于8MiB'));
     }
     final bytes =
         file.bytes ??
         (file.path == null ? null : await File(file.path!).readAsBytes());
-    if (bytes == null) throw const FormatException('无法读取封面');
+    if (bytes == null) throw FormatException(tr('无法读取封面'));
     await validateCover(bytes);
     if (mounted) {
       setState(() {
@@ -135,7 +136,7 @@ class _BookMetadataScreenState extends State<BookMetadataScreen> {
     }
   });
   Future<void> save() => run(() async {
-    if (title.text.trim().isEmpty) throw const FormatException('书名不能为空');
+    if (title.text.trim().isEmpty) throw FormatException(tr('书名不能为空'));
     await widget.api.call('update_book_metadata', {
       'book': widget.book.id,
       'revision': widget.book.revision,
@@ -162,20 +163,20 @@ class _BookMetadataScreenState extends State<BookMetadataScreen> {
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            const AqPageHeading('封面与信息', subtitle: '检索或手动填写，确认后才保存。'),
+            AqPageHeading(tr('封面与信息')),
             const SizedBox(height: 22),
             AqPanel(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text('在线匹配 · Open Library'),
+                  Text(tr('在线匹配 · Open Library')),
                   const SizedBox(height: 10),
-                  const Text('只在搜索时发送输入的书名、作者或ISBN；结果可能不完整，请核对版本。'),
+                  Text(tr('只在搜索时发送输入的书名、作者或ISBN；结果可能不完整，请核对版本。')),
                   const SizedBox(height: 16),
                   TextField(
                     controller: query,
                     maxLength: 256,
-                    decoration: const InputDecoration(labelText: '书名、作者或ISBN'),
+                    decoration: InputDecoration(labelText: tr('书名、作者或ISBN')),
                     onSubmitted: busy
                         ? null
                         : (_) => run(() async {
@@ -191,19 +192,21 @@ class _BookMetadataScreenState extends State<BookMetadataScreen> {
                             if (mounted) setState(() => matches = result);
                           }),
                     icon: const Icon(Icons.search),
-                    label: const Text('搜索候选'),
+                    label: Text(tr('搜索候选')),
                   ),
                   if (matches?.isEmpty == true)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.only(top: 16),
-                      child: Text('没有找到候选。可修改关键词，或在下方手动填写。'),
+                      child: Text(tr('没有找到匹配内容。')),
                     ),
                   for (final candidate in matches ?? <BookMatch>[])
                     ListTile(
                       key: ValueKey('metadata-candidate-${candidate.sourceId}'),
                       selected: selected?.sourceId == candidate.sourceId,
                       title: Text(candidate.title),
-                      subtitle: Text('作品贡献者：${candidate.author}'),
+                      subtitle: Text(
+                        tr('作品贡献者：{author}', {'author': candidate.author}),
+                      ),
                       trailing: Icon(
                         selected?.sourceId == candidate.sourceId
                             ? Icons.check_circle
@@ -219,14 +222,16 @@ class _BookMetadataScreenState extends State<BookMetadataScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('核对信息', style: Theme.of(context).textTheme.titleMedium),
-                  const Text('候选缺少的字段会保留现有信息，也可以手动编辑或清空。'),
+                  Text(
+                    tr('核对信息'),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   for (final field in [
-                    (title, '书名'),
-                    (author, '作者 / 贡献者'),
-                    (publisher, '出版社'),
+                    (title, tr('书名')),
+                    (author, tr('作者 / 贡献者')),
+                    (publisher, tr('出版社')),
                     (isbn, 'ISBN'),
-                    (summary, '简介'),
+                    (summary, tr('简介')),
                   ])
                     Padding(
                       padding: const EdgeInsets.only(top: 16),
@@ -242,7 +247,11 @@ class _BookMetadataScreenState extends State<BookMetadataScreen> {
                       ),
                     ),
                   if (selected != null)
-                    SelectableText('来源：Open Library · ${selected!.sourceId}'),
+                    SelectableText(
+                      tr('来源：Open Library · {sourceId}', {
+                        'sourceId': selected!.sourceId,
+                      }),
+                    ),
                   const SizedBox(height: 16),
                   if (cover != null)
                     SizedBox(
@@ -257,12 +266,12 @@ class _BookMetadataScreenState extends State<BookMetadataScreen> {
                         OutlinedButton.icon(
                           onPressed: busy ? null : fetchCover,
                           icon: const Icon(Icons.image_search),
-                          label: const Text('使用此版本封面'),
+                          label: Text(tr('使用此版本封面')),
                         ),
                       OutlinedButton.icon(
                         onPressed: busy ? null : pickCover,
                         icon: const Icon(Icons.add_photo_alternate_outlined),
-                        label: const Text('选择本地封面'),
+                        label: Text(tr('选择本地封面')),
                       ),
                       if (cover != null ||
                           widget.book.metadata['cover'] != null)
@@ -273,13 +282,11 @@ class _BookMetadataScreenState extends State<BookMetadataScreen> {
                                   cover = null;
                                   clearCover = true;
                                 }),
-                          child: const Text('恢复默认封面'),
+                          child: Text(tr('恢复默认封面')),
                         ),
                     ],
                   ),
-                  if (clearCover) const Text('保存后使用默认封面；历史封面仍可随修改记录恢复。'),
-                  if (cover == null && !clearCover)
-                    const Text('未选择新封面时保留当前封面。'),
+                  if (clearCover) Text(tr('保存后使用默认封面')),
                 ],
               ),
             ),
@@ -296,7 +303,7 @@ class _BookMetadataScreenState extends State<BookMetadataScreen> {
             FilledButton.icon(
               onPressed: busy ? null : save,
               icon: const Icon(Icons.check),
-              label: const Text('确认并保存'),
+              label: Text(tr('确认并保存')),
             ),
             const SizedBox(height: 24),
           ],

@@ -6,6 +6,8 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import '../data/models.dart';
 import '../data/reader_api.dart';
+import '../l10n/l10n.dart';
+import '../data/core_messages.dart';
 
 /// A private reading session never adds the source to the user's main library.
 class PluginReaderSession {
@@ -54,7 +56,11 @@ class PluginReaderSession {
       ],
     });
     if ((plan['issues'] as List).isNotEmpty) {
-      throw StateError('直接阅读的文件预览失败：${plan['issues']}');
+      throw StateError(
+        tr('直接阅读的文件预览失败：{value}', {
+          'value': (plan['issues'] as List).map(coreText).join(tr('；')),
+        }),
+      );
     }
     await api.call('commit_import', {
       'task': plan['task'],
@@ -78,7 +84,7 @@ class PluginReaderSession {
     final opened = LibrarySnapshot(
       Map<String, dynamic>.from(await api.call('snapshot')),
     );
-    if (opened.books.isEmpty) throw StateError('此文件没有可阅读内容');
+    if (opened.books.isEmpty) throw StateError(tr('此文件没有可阅读内容'));
     return PluginReaderSession(
       api,
       opened.books.first,

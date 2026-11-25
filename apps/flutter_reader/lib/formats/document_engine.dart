@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'package:flutter/widgets.dart';
 
 import '../reader/reader_contract.dart';
+import '../l10n/l10n.dart';
 
 /// One message the page pushes while no request is waiting: the current
 /// location, one search hit, a link the book asked to open, or readiness.
@@ -171,7 +172,7 @@ class DocumentHit {
 /// offering those switches would be a control that does nothing; only the
 /// theme, fit, direction, animation and scrolling switches belong there.
 abstract final class DocumentEngineCapabilities {
-  static const reflowable = ReaderCapabilities(
+  static ReaderCapabilities get reflowable => ReaderCapabilities(
     settings: {
       ReaderSetting.fontSize,
       ReaderSetting.fontFamily,
@@ -185,20 +186,20 @@ abstract final class DocumentEngineCapabilities {
     },
     search: true,
     searchExplanation: '',
-    navigationLabel: '目录',
+    navigationLabel: tr('目录'),
   );
 
-  static const fixed = ReaderCapabilities(
+  static ReaderCapabilities get fixed => ReaderCapabilities(
     settings: {ReaderSetting.theme, ReaderSetting.fit},
     search: true,
     searchExplanation: '',
-    navigationLabel: '目录',
+    navigationLabel: tr('目录'),
   );
-  static const comic = ReaderCapabilities(
+  static ReaderCapabilities get comic => ReaderCapabilities(
     settings: {ReaderSetting.theme, ReaderSetting.fit},
     search: false,
-    searchExplanation: '图片漫画没有可搜索正文；OCR 尚未实现。',
-    navigationLabel: '页面',
+    searchExplanation: tr('图片漫画没有可搜索正文；OCR 尚未实现。'),
+    navigationLabel: tr('页面'),
   );
 }
 
@@ -221,7 +222,7 @@ class DocumentChannel {
   Future<void> get ready => _ready.future.timeout(
     timeout,
     onTimeout: () {
-      throw const DocumentEngineFailure('文档页面未就绪');
+      throw DocumentEngineFailure(tr('文档页面未就绪'));
     },
   );
   Stream<DocumentEvent> get events => _events.stream;
@@ -259,7 +260,7 @@ class DocumentChannel {
         );
       } else {
         waiter.completeError(
-          DocumentEngineFailure(message['error']?.toString() ?? '文档操作失败'),
+          DocumentEngineFailure(message['error']?.toString() ?? tr('文档操作失败')),
         );
       }
       return;
@@ -269,7 +270,7 @@ class DocumentChannel {
       return;
     }
     if (message['event'] == 'load-error') {
-      fail((message['detail'] as Map?)?['error']?.toString() ?? '文档加载失败');
+      fail((message['detail'] as Map?)?['error']?.toString() ?? tr('文档加载失败'));
       return;
     }
     if (message['event'] != null && !_events.isClosed) {
@@ -281,7 +282,7 @@ class DocumentChannel {
     String method, [
     Map<String, dynamic> args = const {},
   ]) async {
-    if (_closed) throw const DocumentEngineFailure('文档引擎已关闭');
+    if (_closed) throw DocumentEngineFailure(tr('文档引擎已关闭'));
     final seq = ++_next;
     final waiter = Completer<Map<String, dynamic>>();
     _pending[seq] = waiter;
@@ -295,7 +296,7 @@ class DocumentChannel {
       timeout,
       onTimeout: () {
         _pending.remove(seq);
-        throw const DocumentEngineFailure('文档引擎没有响应');
+        throw DocumentEngineFailure(tr('文档引擎没有响应'));
       },
     );
   }
@@ -320,12 +321,12 @@ class DocumentChannel {
     _closed = true;
     for (final waiter in _pending.values) {
       if (!waiter.isCompleted) {
-        waiter.completeError(const DocumentEngineFailure('文档引擎已关闭'));
+        waiter.completeError(DocumentEngineFailure(tr('文档引擎已关闭')));
       }
     }
     _pending.clear();
     if (!_ready.isCompleted) {
-      _ready.completeError(const DocumentEngineFailure('文档引擎已关闭'));
+      _ready.completeError(DocumentEngineFailure(tr('文档引擎已关闭')));
       // The error is delivered to whoever awaited it; an unawaited engine may
       // never ask, and that must not become an unhandled error.
       _ready.future.ignore();

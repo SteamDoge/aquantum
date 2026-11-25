@@ -8,6 +8,7 @@ import '../data/reader_api.dart';
 import '../data/picked_paths.dart';
 import '../data/document_io.dart';
 import 'import_preview.dart';
+import '../l10n/l10n.dart';
 
 Future<bool> pickAndImport(
   BuildContext context,
@@ -25,20 +26,19 @@ Future<bool> pickAndImport(
         children: [
           ListTile(
             leading: const Icon(Icons.insert_drive_file_outlined),
-            title: Text(append == null ? '选择文件 / ZIP / CBZ' : '选择追加图片'),
+            title: Text(append == null ? tr('选择文件 / ZIP / CBZ') : tr('选择追加图片')),
             onTap: () => Navigator.pop(c, 'files'),
           ),
           if (append == null)
             ListTile(
               leading: const Icon(Icons.create_new_folder_outlined),
-              title: const Text('选择整个文件夹'),
-              subtitle: const Text('递归保留子项目，每层图片合为漫画'),
+              title: Text(tr('选择整个文件夹')),
               onTap: () => Navigator.pop(c, 'folder'),
             ),
           if (append == null)
             ListTile(
               leading: const Icon(Icons.restore),
-              title: const Text('继续导入任务'),
+              title: Text(tr('继续导入任务')),
               onTap: () => Navigator.pop(c, 'resume'),
             ),
         ],
@@ -55,17 +55,22 @@ Future<bool> pickAndImport(
     final task = await showDialog<String>(
       context: context,
       builder: (c) => AlertDialog(
-        title: const Text('继续导入任务'),
+        title: Text(tr('继续导入任务')),
         content: SizedBox(
           width: 460,
           child: tasks.isEmpty
-              ? const Text('没有待处理任务。')
+              ? Text(tr('没有待处理任务。'))
               : ListView(
                   shrinkWrap: true,
                   children: [
                     for (final t in tasks)
                       ListTile(
-                        title: Text('${t['books']} 项内容 · ${t['issues']} 项异常'),
+                        title: Text(
+                          tr('{value} 项内容 · {value2} 项异常', {
+                            'value': t['books'],
+                            'value2': t['issues'],
+                          }),
+                        ),
                         subtitle: Text(t['task']),
                         onTap: () => Navigator.pop(c, t['task']),
                       ),
@@ -73,10 +78,7 @@ Future<bool> pickAndImport(
                 ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(c),
-            child: const Text('关闭'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(c), child: Text(tr('关闭'))),
         ],
       ),
     );
@@ -134,12 +136,14 @@ Future<bool> pickAndImport(
       var total = 0;
       for (final file in files.files) {
         final stream = file.readStream;
-        if (stream == null) throw ReaderFailure('无法读取 ${file.name}，请重新选择。');
+        if (stream == null) {
+          throw ReaderFailure(tr('无法读取 {name}，请重新选择。', {'name': file.name}));
+        }
         final data = BytesBuilder(copy: false);
         await for (final chunk in stream) {
           total += chunk.length;
           if (total > 32 * 1024 * 1024) {
-            throw ReaderFailure('文件流每批最多 32 MiB，请分批选择。');
+            throw ReaderFailure(tr('文件流每批最多 32 MiB，请分批选择。'));
           }
           data.add(chunk);
         }

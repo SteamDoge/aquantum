@@ -15,7 +15,7 @@ String webPluginDocument(String origin, bool dark, String entry) {
 const pluginClientScript = r'''
 (()=>{
 let sequence=0;const pending=new Map();
-window.aq={call(method,args={}){return new Promise((resolve,reject)=>{const id=++sequence;const timer=setTimeout(()=>{pending.delete(id);reject(Error('宿主请求超时'));},60000);pending.set(id,{resolve,reject,timer});parent.postMessage({id,method,args},'*');});},encode(text){return btoa(String.fromCharCode(...new TextEncoder().encode(text)));},decode(data){return new TextDecoder().decode(Uint8Array.from(atob(data),c=>c.charCodeAt(0)));}};
+window.aq={call(method,args={}){return new Promise((resolve,reject)=>{const id=++sequence;const timer=setTimeout(()=>{pending.delete(id);reject(Error('宿主请求超时'));},60000);pending.set(id,{resolve,reject,timer});parent.postMessage({id,method,args},'*');});},encode(text){return btoa(String.fromCharCode(...new TextEncoder().encode(text)));},decode(data){return new TextDecoder().decode(Uint8Array.from(atob(data),c=>c.charCodeAt(0)));}};/* l10n-keep: error given to plugin code, not host UI */
 addEventListener('DOMContentLoaded',()=>aq.call('runtime.ready').catch(()=>{}),{once:true});
 addEventListener('error',event=>aq.call('runtime.error',{message:String(event.message).slice(0,2000)}).catch(()=>{}));
 addEventListener('unhandledrejection',event=>aq.call('runtime.error',{message:String(event.reason).slice(0,2000)}).catch(()=>{}));

@@ -1,16 +1,21 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 AQuantum Reader contributors.
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 /// Palettes change color only; shape, typography and motion remain shared.
 enum AqPalette {
-  lucent('澄光', '中性灰与系统蓝'),
-  folio('纸境', '暖纸与琥珀'),
-  edition('墨序', '骨白与朱红'),
-  nocturne('曜夜', '石墨与靛紫');
+  lucent,
+  folio,
+  edition,
+  nocturne;
 
-  final String label, description;
-  const AqPalette(this.label, this.description);
+  String get label => switch (this) {
+    lucent => tr('澄光'),
+    folio => tr('纸境'),
+    edition => tr('墨序'),
+    nocturne => tr('曜夜'),
+  };
   static AqPalette parse(String? value) =>
       values.firstWhere((p) => p.name == value, orElse: () => lucent);
 }

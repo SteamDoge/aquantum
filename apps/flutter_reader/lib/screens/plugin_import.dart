@@ -7,7 +7,8 @@ import 'package:flutter/services.dart';
 import '../plugins/plugin_manager.dart';
 import '../plugins/plugin_package.dart';
 import '../plugins/plugin_download.dart';
-import 'plugin_screen.dart' show permissionLabel;
+import 'plugin_screen.dart' show permissionList;
+import '../l10n/l10n.dart';
 
 Future<void> importPluginZip(
   BuildContext context,
@@ -25,19 +26,19 @@ Future<void> importPluginZip(
     );
   } on PlatformException catch (error) {
     if (error.code == 'invalid_format_type') {
-      throw const FormatException('系统无法打开 ZIP 文件选择器，请检查系统文件管理器是否可用。');
+      throw FormatException(tr('系统无法打开 ZIP 文件选择器，请检查系统文件管理器是否可用。'));
     }
     rethrow;
   }
   if (picked == null || picked.files.isEmpty || !context.mounted) return;
   final file = picked.files.single;
   if (file.size > pluginZipLimit || file.readStream == null) {
-    throw const FormatException('插件 ZIP 最多32MiB，请重新选择');
+    throw FormatException(tr('插件 ZIP 最多32MiB，请重新选择'));
   }
   final builder = BytesBuilder(copy: false);
   await for (final chunk in file.readStream!) {
     if (builder.length + chunk.length > pluginZipLimit) {
-      throw const FormatException('插件 ZIP 超过32MiB');
+      throw FormatException(tr('插件 ZIP 超过32MiB'));
     }
     builder.add(chunk);
   }
@@ -60,22 +61,22 @@ Future<void> importPluginLink(
       link = await showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('从链接安装插件'),
+          title: Text(tr('从链接安装插件')),
           content: TextField(
             controller: controller,
             autofocus: true,
-            decoration: const InputDecoration(
-              labelText: 'GitHub 仓库、Release 或 HTTPS ZIP 链接',
+            decoration: InputDecoration(
+              labelText: tr('GitHub 仓库、Release 或 HTTPS ZIP 链接'),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('取消'),
+              child: Text(tr('取消')),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, controller.text),
-              child: const Text('检查安装包'),
+              child: Text(tr('检查安装包')),
             ),
           ],
         ),
@@ -87,14 +88,14 @@ Future<void> importPluginLink(
   if (link == null || !context.mounted) return;
   ScaffoldMessenger.of(
     context,
-  ).showSnackBar(const SnackBar(content: Text('正在下载并检查插件…')));
+  ).showSnackBar(SnackBar(content: Text(tr('正在下载并检查插件…'))));
   final download = await PluginDownloader().inspect(
-    link.replaceFirst('（默认分支声明）', ''),
+    link.replaceFirst(tr('（默认分支声明）'), ''),
   );
   if (!context.mounted) return;
   if (updating != null) {
     if (download.plugin.manifest.id != updating.manifest.id) {
-      throw const FormatException('更新包的插件 ID 与已安装插件不同');
+      throw FormatException(tr('更新包的插件 ID 与已安装插件不同'));
     }
     if (comparePluginVersions(
           download.plugin.manifest.version,
@@ -103,7 +104,7 @@ Future<void> importPluginLink(
         0) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('没有更高版本；未修改已安装插件')));
+      ).showSnackBar(SnackBar(content: Text(tr('没有更高版本；未修改已安装插件'))));
       return;
     }
   }
@@ -125,7 +126,7 @@ Future<void> confirmPluginImport(
   PluginPackageStore packages,
   JavaScriptPlugin plugin,
   Uint8List bytes, {
-  String source = '本地 ZIP',
+  String source = '本地 ZIP', // l10n-keep: stored value, shown via tr
   String notes = '',
   String? digest,
 }) async {
@@ -135,7 +136,7 @@ Future<void> confirmPluginImport(
   final accepted = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text(old.isEmpty ? '导入插件' : '更新插件'),
+      title: Text(old.isEmpty ? tr('导入插件') : tr('更新插件')),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -150,28 +151,34 @@ Future<void> confirmPluginImport(
             const SizedBox(height: 12),
             Text(plugin.manifest.description),
             Text(
-              '作者：${plugin.manifest.author}\n发布者声明：${plugin.manifest.publisher}（未经身份验证）',
+              tr('作者：{author}\n发布者声明：{publisher}（未经身份验证）', {
+                'author': plugin.manifest.author,
+                'publisher': plugin.manifest.publisher,
+              }),
             ),
-            SelectableText('来源：$source'),
+            SelectableText(tr('来源：{source}', {'source': source})),
             if (notes.isNotEmpty) Text(notes),
             if (digest != null) SelectableText('SHA-256：$digest'),
             const SizedBox(height: 12),
             Text(
-              'JavaScript 入口：${plugin.entry}\n权限：${plugin.manifest.permissions.isEmpty ? '无需额外权限' : plugin.manifest.permissions.map(permissionLabel).join('、')}',
+              tr('JavaScript 入口：{entry}\n权限：{permissions}', {
+                'entry': plugin.entry,
+                'permissions': permissionList(plugin.manifest.permissions),
+              }),
             ),
             const SizedBox(height: 12),
-            Text('此包包含 JavaScript 代码。安装后停用；启用须确认权限，更新保留私有数据。发布者身份未经签名验证。'),
+            Text(tr('此包包含 JavaScript 代码。安装后停用；启用须确认权限，更新保留私有数据。发布者身份未经签名验证。')),
           ],
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('取消'),
+          child: Text(tr('取消')),
         ),
         FilledButton(
           onPressed: () => Navigator.pop(context, true),
-          child: Text(old.isEmpty ? '导入副本' : '更新并停用'),
+          child: Text(old.isEmpty ? tr('导入副本') : tr('更新并停用')),
         ),
       ],
     ),
@@ -181,6 +188,6 @@ Future<void> confirmPluginImport(
   if (context.mounted) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('插件已导入，请在插件页面启用')));
+    ).showSnackBar(SnackBar(content: Text(tr('插件已导入，请在插件页面启用'))));
   }
 }

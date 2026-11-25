@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 
 import 'document_engine.dart';
 import 'document_engine_channel.dart';
+import '../l10n/l10n.dart';
 
 /// A local HTTPS origin is served from APK assets by Android's WebViewClient.
 /// There is no HTTP listener, network permission, or file:// module origin.
@@ -19,7 +20,7 @@ class AndroidDocumentEngine extends ChannelDocumentEngine {
     late final AndroidDocumentEngine engine;
     final channel = DocumentChannel((message) async {
       if (engine._closed || engine._native == null) {
-        throw const DocumentEngineFailure('文档视图尚未连接');
+        throw DocumentEngineFailure(tr('文档视图尚未连接'));
       }
       await engine._native!.invokeMethod<void>('post', message);
     });

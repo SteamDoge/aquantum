@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../data/reader_api.dart';
 import '../design/widgets.dart';
 import '../data/models.dart';
+import '../l10n/l10n.dart';
 
 /// Search scope sent to the core. Mirrors `aq_application::SearchScope`; a
 /// scope without its id is rejected by the core rather than widened to all.
@@ -19,9 +20,9 @@ class _Scope {
   /// Names the chosen kind; the specific book or project is shown next to it by
   /// the chip so a reader never has to open the sheet to know the scope.
   String get label => switch (kind) {
-    'book' => '当前书',
-    'project' => '当前项目及子项目',
-    _ => '全部内容',
+    'book' => tr('当前书'),
+    'project' => tr('当前项目及子项目'),
+    _ => tr('全部内容'),
   };
   String? nameFor(LibrarySnapshot library) => switch (kind) {
     'book' =>
@@ -99,14 +100,10 @@ class _SearchScreenState extends State<SearchScreen> {
         child: ListView(
           shrinkWrap: true,
           children: [
-            const ListTile(
-              dense: true,
-              title: Text('搜索范围'),
-              subtitle: Text('默认搜全部内容；选项目会包含其所有子项目。'),
-            ),
+            ListTile(dense: true, title: Text(tr('搜索范围'))),
             ListTile(
               leading: const Icon(Icons.all_inbox),
-              title: const Text('全部内容'),
+              title: Text(tr('全部内容')),
               trailing: scope.kind == 'all' ? const Icon(Icons.check) : null,
               onTap: () => Navigator.pop(context, const _Scope('all')),
             ),
@@ -165,11 +162,11 @@ class _SearchScreenState extends State<SearchScreen> {
             24 + MediaQuery.paddingOf(context).bottom,
           ),
           children: [
-            const AqPageHeading('全文搜索'),
+            AqPageHeading(tr('全文搜索')),
             const SizedBox(height: 16),
             AqSearchField(
               controller: controller,
-              hint: '搜索 TXT / Markdown 正文',
+              hint: tr('搜索 TXT / Markdown 正文'),
               maxLength: 200,
               onSubmitted: (_) => search(),
             ),
@@ -183,7 +180,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   onPressed: busy ? null : pickScope,
                   icon: const Icon(Icons.filter_alt_outlined, size: 18),
                   label: Text(
-                    '范围：${scope.nameFor(widget.library) ?? scope.label}',
+                    tr('范围：{value}', {
+                      'value': scope.nameFor(widget.library) ?? scope.label,
+                    }),
                   ),
                 ),
                 TextButton(
@@ -197,11 +196,11 @@ class _SearchScreenState extends State<SearchScreen> {
                           );
                           widget.onIndexChanged();
                         }),
-                  child: const Text('建立 / 更新索引'),
+                  child: Text(tr('建立 / 更新索引')),
                 ),
                 FilledButton(
                   onPressed: busy ? null : search,
-                  child: const Text('搜索'),
+                  child: Text(tr('搜索')),
                 ),
               ],
             ),
@@ -214,7 +213,10 @@ class _SearchScreenState extends State<SearchScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
                 child: Text(
-                  '本范围已索引 ${status!['indexed']} / ${status!['eligible']} 份文本；图片 OCR 待实现。',
+                  tr('本范围已索引 {value} / {value2} 份文本', {
+                    'value': status!['indexed'],
+                    'value2': status!['eligible'],
+                  }),
                   style: small,
                 ),
               ),
@@ -236,15 +238,17 @@ class _SearchScreenState extends State<SearchScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Text(
-                  '没有匹配内容。新导入的文本请先建立索引。',
+                  tr('没有匹配内容。新导入的文本请先建立索引。'),
                   textAlign: TextAlign.center,
                   style: small,
                 ),
               ),
             if (visible.isNotEmpty)
               AqSection(
-                header: '${visible.length} 条结果',
-                footer: hits.length == 100 ? '显示前 100 条结果，请缩小关键词或范围。' : null,
+                header: tr('{count} 条结果', {'count': visible.length}),
+                footer: hits.length == 100
+                    ? tr('显示前 100 条结果，请缩小关键词或范围。')
+                    : null,
                 dividerIndent: 16,
                 children: [
                   for (final hit in visible)
@@ -252,8 +256,10 @@ class _SearchScreenState extends State<SearchScreen> {
                       title: widget.library.books
                           .firstWhere((b) => b.id == hit['book'])
                           .title,
-                      subtitle:
-                          '第 ${(hit['paragraph'] as int) + 1} 段 · ${hit['snippet']}',
+                      subtitle: tr('第 {value} 段 · {value2}', {
+                        'value': (hit['paragraph'] as int) + 1,
+                        'value2': hit['snippet'],
+                      }),
                       onTap: () => widget.onOpen(
                         widget.library.books.firstWhere(
                           (b) => b.id == hit['book'],

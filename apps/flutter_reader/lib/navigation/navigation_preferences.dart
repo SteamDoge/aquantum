@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../features/feature_registry.dart';
+import '../l10n/l10n.dart';
 
 enum NavigationProfile { mobile, desktop }
 
@@ -40,14 +41,14 @@ class NavigationPreferences {
   factory NavigationPreferences.decode(String encoded) {
     final data = jsonDecode(encoded);
     if (data is! Map || data['version'] != 1) {
-      throw const FormatException('无法读取此版本的导航配置，原配置已保留');
+      throw FormatException(tr('无法读取此版本的导航配置，原配置已保留'));
     }
     final pins = data['pins'];
     if (pins is! List ||
         pins.any((id) => id is! String) ||
         data['selected'] is! String ||
         data['layout'] is! Map) {
-      throw const FormatException('导航配置损坏，原配置已保留');
+      throw FormatException(tr('导航配置损坏，原配置已保留'));
     }
     final layout = data['layout'] as Map;
     return NavigationPreferences(
@@ -97,7 +98,7 @@ class DeviceNavigationStore implements NavigationStore {
       key(profile),
       value,
     )) {
-      throw StateError('导航配置保存失败');
+      throw StateError(tr('导航配置保存失败'));
     }
   }
 }

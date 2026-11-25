@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../data/models.dart';
 import '../data/reader_api.dart';
 import 'comic_page.dart';
+import '../l10n/l10n.dart';
 
 /// Visible covers request one managed image; text documents use a typographic cover.
 class BookCover extends StatefulWidget {
@@ -19,7 +20,7 @@ class BookCover extends StatefulWidget {
 class _BookCoverState extends State<BookCover> {
   Future<Uint8List>? cover() => widget.book.metadata['cover'] != null
       ? widget.api.call('book_cover', {'book': widget.book.id}).then((value) {
-          if (value is! String) throw const FormatException('封面不可用');
+          if (value is! String) throw FormatException(tr('封面不可用'));
           return base64Decode(value);
         })
       : widget.book.isComic && widget.book.pages.isNotEmpty
@@ -48,7 +49,7 @@ class _BookCoverState extends State<BookCover> {
       Color(0xff655d80),
     ];
     final fallback = Semantics(
-      label: '封面：${widget.book.title}',
+      label: tr('封面：{title}', {'title': widget.book.title}),
       image: true,
       child: ExcludeSemantics(
         child: MediaQuery.withNoTextScaling(
@@ -109,18 +110,6 @@ class _BookCoverState extends State<BookCover> {
                                 ),
                               ),
                               const Spacer(flex: 3),
-                              Text(
-                                'AQuantum',
-                                maxLines: 1,
-                                style: TextStyle(
-                                  color: Colors.white60,
-                                  fontSize: (constraints.maxWidth * .045).clamp(
-                                    7.0,
-                                    9.0,
-                                  ),
-                                  letterSpacing: 1,
-                                ),
-                              ),
                             ],
                           ),
                         ),

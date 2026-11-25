@@ -9,6 +9,7 @@ import '../data/models.dart';
 import '../reader/reader_contract.dart';
 import 'document_engine.dart';
 import 'document_engine_channel.dart';
+import '../l10n/l10n.dart';
 
 /// The reader's view onto a document laid out by the bundled foliate engine.
 ///
@@ -72,7 +73,7 @@ class DocumentReaderAdapter extends ChangeNotifier
   @override
   String get title => info?.title.isNotEmpty == true ? info!.title : book.title;
   @override
-  String get unit => book.isComic ? '页' : '%';
+  String get unit => book.isComic ? tr('页') : '%';
   @override
   int get position => count == 0
       ? 0
@@ -143,7 +144,7 @@ class DocumentReaderAdapter extends ChangeNotifier
         try {
           await engine.goToFraction(target);
         } catch (e) {
-          _status = '跳转失败：$e';
+          _status = tr('跳转失败：{e}', {'e': e});
           notifyListeners();
         }
       }
@@ -174,8 +175,11 @@ class DocumentReaderAdapter extends ChangeNotifier
     if (error != null) return error!;
     final percent = (fraction * 100).round();
     return _position.label.isEmpty
-        ? '约 $percent%'
-        : '${_position.label} · 约 $percent%';
+        ? tr('约 {percent}%', {'percent': percent})
+        : tr('{label} · 约 {percent}%', {
+            'label': _position.label,
+            'percent': percent,
+          });
   }
 
   @override
@@ -184,7 +188,7 @@ class DocumentReaderAdapter extends ChangeNotifier
       final page = index.clamp(0, book.pages.length - 1);
       return ReaderLocation(
         'document:${book.id}$_anchorMarker${book.pages[page]['id']}',
-        '第 ${page + 1} 页',
+        tr('第 {value} 页', {'value': page + 1}),
         page,
       );
     }
@@ -198,7 +202,7 @@ class DocumentReaderAdapter extends ChangeNotifier
     final clamped = index.clamp(0, _perMille);
     return ReaderLocation(
       'document:${book.id}:at:$clamped',
-      '约 ${(clamped / _perMille * 100).round()}%',
+      tr('约 {value}%', {'value': (clamped / _perMille * 100).round()}),
       clamped,
     );
   }
@@ -231,11 +235,14 @@ class DocumentReaderAdapter extends ChangeNotifier
     }
     final target = index.clamp(0, _perMille) / _perMille;
     _locked = true;
-    _status = '正在翻到 ${(target * 100).round()}%';
+    _status = tr('正在翻到 {value}%', {'value': (target * 100).round()});
     notifyListeners();
     engine
         .goToFraction(target)
-        .then<void>((_) {}, onError: (Object e) => _status = '跳转失败：$e')
+        .then<void>(
+          (_) {},
+          onError: (Object e) => _status = tr('跳转失败：{e}', {'e': e}),
+        )
         .whenComplete(() {
           if (_disposed) return;
           _locked = false;
@@ -298,7 +305,7 @@ class DocumentReaderAdapter extends ChangeNotifier
   ReaderLocation _hitLocation(DocumentHit hit) {
     final id = 'document:${book.id}$_anchorMarker${hit.anchor}';
     _targets[id] = hit.anchor;
-    return ReaderLocation(id, hit.label.isEmpty ? '文内位置' : hit.label, 0);
+    return ReaderLocation(id, hit.label.isEmpty ? tr('文内位置') : hit.label, 0);
   }
 
   /// Opens the book body once the engine page is ready.
@@ -310,7 +317,7 @@ class DocumentReaderAdapter extends ChangeNotifier
   }) async {
     busy = true;
     error = null;
-    _status = '正在排版';
+    _status = tr('正在排版');
     notifyListeners();
     try {
       _apply(
@@ -337,7 +344,7 @@ class DocumentReaderAdapter extends ChangeNotifier
   }) async {
     final target = engine;
     if (target is! ChannelDocumentEngine) {
-      throw const DocumentEngineFailure('当前引擎不支持图片书籍');
+      throw DocumentEngineFailure(tr('当前引擎不支持图片书籍'));
     }
     _apply(
       await target.openImages(
@@ -390,12 +397,12 @@ class DocumentReaderAdapter extends ChangeNotifier
         _publish();
         notifyListeners();
       case 'load-error':
-        error = event.detail['error']?.toString() ?? '文档加载失败';
+        error = event.detail['error']?.toString() ?? tr('文档加载失败');
         _status = '';
         notifyListeners();
       case 'external-link':
         final href = event.detail['href']?.toString() ?? '';
-        if (href.isNotEmpty) _status = '书内链接：$href';
+        if (href.isNotEmpty) _status = tr('书内链接：{href}', {'href': href});
         notifyListeners();
     }
   }

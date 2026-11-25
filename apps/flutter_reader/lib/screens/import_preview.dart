@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import '../data/models.dart';
 import '../data/reader_api.dart';
 import '../design/widgets.dart';
+import '../l10n/l10n.dart';
+import '../data/core_messages.dart';
 
 class ImportPreviewScreen extends StatefulWidget {
   final ReaderApi api;
@@ -101,7 +103,9 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '已保存 ${(result['books'] as List).length} 项内容；外部原件保留。',
+              tr('已保存 {value} 项内容；外部原件保留。', {
+                'value': (result['books'] as List).length,
+              }),
             ),
           ),
         );
@@ -142,9 +146,10 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
               children: [
-                AqPageHeading(widget.append == null ? '导入预览' : '追加 / 插入图片'),
+                AqPageHeading(
+                  widget.append == null ? tr('导入预览') : tr('追加 / 插入图片'),
+                ),
                 const SizedBox(height: 16),
-                const Text('修改的是导入副本。取消后可从“继续导入任务”重新打开预览。'),
                 if (error != null)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -161,7 +166,7 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                     initialValue: projects.any((p) => p['id'] == plan['target'])
                         ? plan['target']
                         : null,
-                    decoration: const InputDecoration(labelText: '保存到项目'),
+                    decoration: InputDecoration(labelText: tr('保存到项目')),
                     isExpanded: true,
                     items: [
                       for (final p in projects)
@@ -189,7 +194,21 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                   ),
                 const SizedBox(height: 16),
                 Text(
-                  '${newProjects.length} 个新项目 · ${books.length} 项内容 · ${sizeLabel(books.fold<int>(0, (n, b) => n + (b['resources'] as List).fold<int>(0, (n, r) => n + (r['bytes'] as int))))}',
+                  tr('{count} 个新项目 · {count2} 项内容 · {value}', {
+                    'count': newProjects.length,
+                    'count2': books.length,
+                    'value': sizeLabel(
+                      books.fold<int>(
+                        0,
+                        (n, b) =>
+                            n +
+                            (b['resources'] as List).fold<int>(
+                              0,
+                              (n, r) => n + (r['bytes'] as int),
+                            ),
+                      ),
+                    ),
+                  }),
                 ),
                 for (final p in newProjects)
                   Padding(
@@ -198,8 +217,8 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                       key: ValueKey(p['id']),
                       initialValue: p['name'],
                       enabled: !busy,
-                      decoration: const InputDecoration(
-                        labelText: '新项目名称',
+                      decoration: InputDecoration(
+                        labelText: tr('新项目名称'),
                         prefixIcon: Icon(Icons.folder_outlined),
                       ),
                       onChanged: (v) => p['name'] = v,
@@ -216,14 +235,15 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                             key: ValueKey(b['id']),
                             initialValue: b['title'],
                             enabled: !busy,
-                            decoration: const InputDecoration(
-                              labelText: '内容名称',
-                            ),
+                            decoration: InputDecoration(labelText: tr('内容名称')),
                             onChanged: (v) => b['title'] = v,
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            '${b['format']} · ${(b['resources'] as List).length} 个资源',
+                            tr('{value} · {value2} 个资源', {
+                              'value': b['format'],
+                              'value2': (b['resources'] as List).length,
+                            }),
                           ),
                           if (projects.isNotEmpty)
                             DropdownButtonFormField<String>(
@@ -234,8 +254,8 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                                   ].any((p) => p['id'] == b['project'])
                                   ? b['project']
                                   : null,
-                              decoration: const InputDecoration(
-                                labelText: '所属项目',
+                              decoration: InputDecoration(
+                                labelText: tr('所属项目'),
                               ),
                               isExpanded: true,
                               items: [
@@ -260,7 +280,7 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                             TextButton.icon(
                               onPressed: busy ? null : () => editPages(b),
                               icon: const Icon(Icons.photo_library_outlined),
-                              label: const Text('缩略图、选择与页序'),
+                              label: Text(tr('缩略图、选择与页序')),
                             ),
                         ],
                       ),
@@ -268,17 +288,17 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                   ),
                 if (issues.isNotEmpty) ...[
                   Text(
-                    '发现 ${issues.length} 项异常',
+                    tr('发现 {count} 项异常', {'count': issues.length}),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  for (final issue in issues) Text('• $issue'),
+                  for (final issue in issues) Text('• ${coreText(issue)}'),
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,
                     value: skip,
                     onChanged: busy
                         ? null
                         : (v) => setState(() => skip = v ?? false),
-                    title: const Text('明确跳过以上异常，其余内容继续导入'),
+                    title: Text(tr('明确跳过以上异常，其余内容继续导入')),
                   ),
                 ],
               ],
@@ -295,7 +315,7 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                       onPressed: busy
                           ? null
                           : () => Navigator.pop(context, false),
-                      child: const Text('保留任务，稍后继续'),
+                      child: Text(tr('保留任务，稍后继续')),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -304,7 +324,7 @@ class _ImportPreviewScreenState extends State<ImportPreviewScreen> {
                       onPressed: busy || (issues.isNotEmpty && !skip)
                           ? null
                           : commit,
-                      child: const Text('确认导入副本'),
+                      child: Text(tr('确认导入副本')),
                     ),
                   ),
                 ],
@@ -345,14 +365,14 @@ class _ImportPagesScreenState extends State<ImportPagesScreen> {
             context,
             resources.where((r) => selected.contains(r['id'])).toList(),
           ),
-          child: const Text('应用'),
+          child: Text(tr('应用')),
         ),
       ],
     ),
     body: ReorderableListView.builder(
-      header: const Padding(
+      header: Padding(
         padding: EdgeInsets.fromLTRB(16, 4, 16, 12),
-        child: AqPageHeading('选择导入页与顺序'),
+        child: AqPageHeading(tr('选择导入页与顺序')),
       ),
       itemCount: resources.length,
       buildDefaultDragHandles: false,
@@ -388,7 +408,7 @@ class _ImportPagesScreenState extends State<ImportPagesScreen> {
                 }),
               ),
               IconButton(
-                tooltip: '上移一页',
+                tooltip: tr('上移一页'),
                 onPressed: i == 0
                     ? null
                     : () => setState(() {
@@ -398,7 +418,7 @@ class _ImportPagesScreenState extends State<ImportPagesScreen> {
                 icon: const Icon(Icons.arrow_upward),
               ),
               IconButton(
-                tooltip: '下移一页',
+                tooltip: tr('下移一页'),
                 onPressed: i == resources.length - 1
                     ? null
                     : () => setState(() {
@@ -445,8 +465,8 @@ class _ImportThumbnailState extends State<ImportThumbnail> {
     future: bytes,
     builder: (context, snapshot) {
       if (snapshot.hasError) {
-        return const Tooltip(
-          message: '无法解码或读取，原件保留',
+        return Tooltip(
+          message: tr('无法解码或读取，原件保留'),
           child: Icon(Icons.broken_image_outlined),
         );
       }

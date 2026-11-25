@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'reader_contract.dart';
 import '../design/widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Real, scaled page canvases, not a detached thumbnail list or fake neighbours.
 class ReaderPageOverview extends StatefulWidget {
@@ -101,7 +102,7 @@ class _ReaderPageOverviewState extends State<ReaderPageOverview> {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
             child: Semantics(
               button: true,
-              label: '第 ${index + 1} 页，轻点返回沉浸阅读',
+              label: tr('第 {value} 页，轻点返回沉浸阅读', {'value': index + 1}),
               child: GestureDetector(
                 onTap: () {
                   if (index != widget.adapter.position) {

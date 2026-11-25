@@ -1,15 +1,22 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 AQuantum Reader contributors.
+import '../l10n/l10n.dart';
+
 class Project {
   final String id;
   final String? parent;
-  final String name;
+  final String _name;
+  final bool _root;
   final int color;
-  Project(Map<String, dynamic> json)
+  Project(Map<String, dynamic> json, {bool root = false})
     : id = json['id'],
       parent = json['parent'],
-      name = json['name'],
+      _name = json['name'],
+      _root = root,
       color = json['color'] ?? 0;
+
+  /// The root is named by the app, so its name follows the interface language.
+  String get name => _root ? tr('资料库') : _name;
 }
 
 class BookCapabilities {
@@ -77,7 +84,7 @@ class Book {
   /// EPUB/MOBI/AZW3/FB2: laid out by the bundled browser engine, anchored by CFI.
   bool get isDocument => capabilities.document;
   String get label => switch (format) {
-    'Comic' => '漫画',
+    'Comic' => tr('漫画'),
     'Markdown' => 'Markdown',
     'Pdf' => 'PDF',
     'Epub' => 'EPUB',
@@ -101,7 +108,7 @@ class LibrarySnapshot {
   late final Map<String, dynamic> catalog = raw['catalog'];
   late final List<Project> projects = List.unmodifiable(
     (catalog['projects'] as List).map(
-      (p) => Project(p['id'] == inbox ? {...p, 'name': '资料库'} : p),
+      (p) => Project(p, root: p['id'] == inbox),
     ),
   );
   late final List<Book> allBooks = List.unmodifiable(

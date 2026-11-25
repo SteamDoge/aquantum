@@ -3,6 +3,7 @@
 import 'package:flutter/foundation.dart';
 import '../features/feature_registry.dart';
 import 'navigation_preferences.dart';
+import '../l10n/l10n.dart';
 
 class AppNavigation extends ChangeNotifier {
   final FeatureRegistry registry;
@@ -40,7 +41,7 @@ class AppNavigation extends ChangeNotifier {
         }
         if (profile == NavigationProfile.mobile &&
             _preferences[profile]!.pins.length > 5) {
-          throw const FormatException('移动导航配置超过五项，原配置已保留');
+          throw FormatException(tr('移动导航配置超过五项，原配置已保留'));
         }
       } catch (error) {
         _preferences[profile] = NavigationPreferences.defaults();
@@ -82,7 +83,7 @@ class AppNavigation extends ChangeNotifier {
       return Future.value();
     }
     return _change(profile, (old) {
-      if (registry[id] == null) throw StateError('此功能已停用');
+      if (registry[id] == null) throw StateError(tr('此功能已停用'));
       return old.copyWith(selected: id);
     }).catchError((Object error, StackTrace stack) {
       // A transient page choice must stay usable when preference storage is
@@ -97,9 +98,9 @@ class AppNavigation extends ChangeNotifier {
 
   Future<void> pin(NavigationProfile profile, String id, bool show) =>
       _change(profile, (old) {
-        if (id == FeatureRegistry.me) throw StateError('我的不能移除');
+        if (id == FeatureRegistry.me) throw StateError(tr('我的不能移除'));
         if (show && registry[id]?.allowNavigation != true) {
-          throw StateError('只有已注册到我的且允许添加的功能可以加入导航');
+          throw StateError(tr('只有已注册到我的且允许添加的功能可以加入导航'));
         }
         final pins = old.pins
             .where((item) => item != id && item != FeatureRegistry.me)
@@ -108,7 +109,7 @@ class AppNavigation extends ChangeNotifier {
           if (profile == NavigationProfile.mobile &&
               old.pins.length >= 5 &&
               !old.pins.contains(id)) {
-            throw StateError('移动导航最多保留 5 个位置，请先隐藏入口或忘记停用插件的快捷偏好');
+            throw StateError(tr('移动导航最多保留 5 个位置，请先隐藏入口或忘记停用插件的快捷偏好'));
           }
           pins.add(id);
         }
@@ -123,7 +124,7 @@ class AppNavigation extends ChangeNotifier {
             visible.toSet().length != visible.length ||
             !visible.toSet().containsAll(expected) ||
             visible.last != FeatureRegistry.me) {
-          throw StateError('导航顺序无效，我的必须在最后');
+          throw StateError(tr('导航顺序无效，我的必须在最后'));
         }
         var next = 0;
         final pins = old.pins
@@ -154,9 +155,9 @@ class AppNavigation extends ChangeNotifier {
     bool allowReset = false,
   }) {
     final operation = _pending.then((_) async {
-      if (!ready) throw StateError('导航配置仍在读取');
+      if (!ready) throw StateError(tr('导航配置仍在读取'));
       if (!allowReset && loadErrors.containsKey(profile)) {
-        throw StateError('旧导航配置无法读取；请先明确恢复默认，原配置尚未覆盖');
+        throw StateError(tr('旧导航配置无法读取；请先明确恢复默认，原配置尚未覆盖'));
       }
       final next = edit(preferences(profile));
       await store.write(profile, next.encode());

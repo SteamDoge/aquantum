@@ -6,6 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'theme.dart';
+import '../l10n/l10n.dart';
 
 /// A page's one strong element: a large title with quiet accent actions.
 /// [leading] sits above the title (for example a back link to the parent).
@@ -183,13 +184,22 @@ class AqRow extends StatelessWidget {
                   ],
                 ),
               ),
+              // The title keeps the rest of the row; a long value (such as
+              // a translated label) is cut short instead of overflowing.
               if (value != null)
-                Padding(
-                  padding: const EdgeInsets.only(left: 12),
-                  child: Text(
-                    value!,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colors.muted,
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.sizeOf(context).width * .4,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 12),
+                    child: Text(
+                      value!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colors.muted,
+                      ),
                     ),
                   ),
                 ),
@@ -214,7 +224,7 @@ class AqRow extends StatelessWidget {
 /// The filled search field shared by the library, home and search pages.
 /// Without a [controller] it renders as a button that opens search elsewhere.
 class AqSearchField extends StatelessWidget {
-  final String hint;
+  final String? _hint;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged, onSubmitted;
   final VoidCallback? onTap;
@@ -222,14 +232,15 @@ class AqSearchField extends StatelessWidget {
   final int? maxLength;
   const AqSearchField({
     super.key,
-    this.hint = '搜索',
+    String? hint,
     this.controller,
     this.onChanged,
     this.onSubmitted,
     this.onTap,
     this.autofocus = false,
     this.maxLength,
-  });
+  }) : _hint = hint;
+  String get hint => _hint ?? tr('搜索');
   @override
   Widget build(BuildContext context) {
     final colors = AqColors.of(context);
@@ -294,7 +305,7 @@ class AqSearchField extends StatelessWidget {
           builder: (context, _) => controller!.text.isEmpty
               ? const SizedBox.shrink()
               : IconButton(
-                  tooltip: '清除',
+                  tooltip: tr('清除'),
                   iconSize: 18,
                   icon: Icon(Icons.cancel, color: colors.muted),
                   onPressed: () {
@@ -426,7 +437,7 @@ Future<T?> showAqContextMenu<T>(
   return showGeneralDialog<T>(
     context: context,
     barrierDismissible: true,
-    barrierLabel: '关闭菜单',
+    barrierLabel: tr('关闭菜单'),
     barrierColor: Colors.black.withValues(alpha: .12),
     // Reduced motion: the menu fades in without growing.
     transitionDuration: const Duration(milliseconds: 160),
@@ -662,6 +673,14 @@ Color readerOverviewBackground(Color paper) => Color.lerp(
   paper,
   paper.computeLuminance() > .45 ? Colors.black : Colors.white,
   .055,
+)!;
+
+/// Top-to-bottom canvas around and between pages: one shade off the paper,
+/// darker by day and lighter by night, so every page edge stays visible.
+Color readerGapColor(Color paper) => Color.lerp(
+  paper,
+  paper.computeLuminance() > .45 ? Colors.black : Colors.white,
+  .15,
 )!;
 Color readerPaperEdge(Color paper) => Color.lerp(
   paper,

@@ -2,6 +2,7 @@
 // Copyright (C) 2026 AQuantum Reader contributors.
 import 'package:flutter/material.dart';
 import 'reader_settings.dart';
+import '../l10n/l10n.dart';
 
 /// Compact native text controls; spacing is a separate page inside the sheet.
 class ArticleSettingsPanel extends StatefulWidget {
@@ -115,7 +116,7 @@ class _ArticleSettingsPanelState extends State<ArticleSettingsPanel> {
                   : null,
             ),
             child: Text(
-              ['较小', '适中', '较大', '最大'][index],
+              [tr('较小'), tr('适中'), tr('较大'), tr('最大')][index],
               style: TextStyle(
                 color: active ? colors.onSurface : colors.onSurfaceVariant,
               ),
@@ -145,7 +146,7 @@ class _ArticleSettingsPanelState extends State<ArticleSettingsPanel> {
               size: 20,
             ),
             const SizedBox(width: 8),
-            Text(label),
+            Flexible(child: Text(label)),
           ],
         ),
       ),
@@ -218,7 +219,7 @@ class _ArticleSettingsPanelState extends State<ArticleSettingsPanel> {
           TextButton.icon(
             onPressed: () => setState(() => page = 0),
             icon: const Icon(Icons.arrow_back),
-            label: const Text('返回阅读设置'),
+            label: Text(tr('返回阅读设置')),
           ),
           Expanded(
             child: widget.advanced(context, () {
@@ -236,13 +237,13 @@ class _ArticleSettingsPanelState extends State<ArticleSettingsPanel> {
           Row(
             children: [
               IconButton(
-                tooltip: '返回阅读设置',
+                tooltip: tr('返回阅读设置'),
                 onPressed: () => setState(() => page = 0),
                 icon: const Icon(Icons.keyboard_arrow_down),
               ),
               Expanded(
                 child: Text(
-                  '间距设置',
+                  tr('间距设置'),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
@@ -250,19 +251,19 @@ class _ArticleSettingsPanelState extends State<ArticleSettingsPanel> {
             ],
           ),
           const SizedBox(height: 24),
-          spacing('行间距', p.lineHeight, [
+          spacing(tr('行间距'), p.lineHeight, [
             1.2,
             1.6,
             2.0,
             2.6,
           ], (v) => p.lineHeight = v),
-          spacing('段间距', p.paragraphGap, [
+          spacing(tr('段间距'), p.paragraphGap, [
             8,
             16,
             28,
             48,
           ], (v) => p.paragraphGap = v),
-          spacing('页面边距', p.margin, [12, 24, 40, 64], (v) => p.margin = v),
+          spacing(tr('页面边距'), p.margin, [12, 24, 40, 64], (v) => p.margin = v),
         ],
       );
     }
@@ -274,19 +275,25 @@ class _ArticleSettingsPanelState extends State<ArticleSettingsPanel> {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  '字号',
+                  tr('字号'),
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-              Text('字号 ${widget.fontSize.round()}'),
+              Flexible(
+                child: Text(
+                  tr('字号 {value}', {'value': widget.fontSize.round()}),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ],
           ),
           Row(
             children: [
               IconButton(
-                tooltip: '缩小字号',
+                tooltip: tr('缩小字号'),
                 onPressed: () =>
                     widget.onFont((widget.fontSize - 1).clamp(14, 32)),
                 icon: const Icon(Icons.text_decrease),
@@ -302,7 +309,7 @@ class _ArticleSettingsPanelState extends State<ArticleSettingsPanel> {
                 ),
               ),
               IconButton(
-                tooltip: '增大字号',
+                tooltip: tr('增大字号'),
                 onPressed: () =>
                     widget.onFont((widget.fontSize + 1).clamp(14, 32)),
                 icon: const Icon(Icons.text_increase),
@@ -310,7 +317,7 @@ class _ArticleSettingsPanelState extends State<ArticleSettingsPanel> {
             ],
           ),
           const Divider(height: 32),
-          const Text('字体', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(tr('字体'), style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
             initialValue: p.font,
@@ -318,45 +325,43 @@ class _ArticleSettingsPanelState extends State<ArticleSettingsPanel> {
               border: OutlineInputBorder(),
               isDense: true,
             ),
-            items: const [
-              DropdownMenuItem(value: 'system', child: Text('系统字体')),
-              DropdownMenuItem(value: 'serif', child: Text('衬线字体')),
+            items: [
+              DropdownMenuItem(value: 'system', child: Text(tr('系统字体'))),
+              DropdownMenuItem(value: 'serif', child: Text(tr('衬线字体'))),
             ],
             onChanged: (v) {
               if (v != null) change(() => p.font = v);
             },
           ),
           const Divider(height: 32),
-          const Text('阅读背景', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(tr('阅读背景'), style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           palette(
-            '日间背景',
+            tr('日间背景'),
             false,
             const ['white', 'grey', 'paper', 'green'],
-            const ['白色', '浅灰', '纸张', '浅绿'],
+            [tr('白色'), tr('浅灰'), tr('纸张'), tr('浅绿')],
           ),
           const SizedBox(height: 12),
           palette(
-            '夜间背景',
+            tr('夜间背景'),
             true,
             const ['dark', 'charcoal', 'navy', 'brown'],
-            const ['夜间', '深灰', '蓝黑', '棕黑'],
+            [tr('夜间'), tr('深灰'), tr('蓝黑'), tr('棕黑')],
           ),
-          const SizedBox(height: 8),
-          const Text('日间与夜间背景独立保存，切换主题时自动恢复。', style: TextStyle(fontSize: 12)),
           const Divider(height: 32),
-          const Text('阅读方式', style: TextStyle(fontWeight: FontWeight.bold)),
-          mode(true, '左右翻页'),
+          Text(tr('阅读方式'), style: TextStyle(fontWeight: FontWeight.bold)),
+          mode(true, tr('左右翻页')),
           if (paged && widget.showEffects)
             LayoutBuilder(
               builder: (context, c) => Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (final effect in const [
-                    ('slide', '平移翻页', Icons.view_carousel_outlined),
-                    ('cover', '覆盖翻页', Icons.layers_outlined),
-                    ('curl', '仿真翻页', Icons.auto_stories_outlined),
+                  for (final effect in [
+                    ('slide', tr('平移翻页'), Icons.view_carousel_outlined),
+                    ('cover', tr('覆盖翻页'), Icons.layers_outlined),
+                    ('curl', tr('仿真翻页'), Icons.auto_stories_outlined),
                   ])
                     SizedBox(
                       width: c.maxWidth >= 320
@@ -384,7 +389,7 @@ class _ArticleSettingsPanelState extends State<ArticleSettingsPanel> {
                 ],
               ),
             ),
-          mode(false, '上下滚动'),
+          mode(false, tr('上下滚动')),
           const Divider(height: 32),
           Row(
             children: [
@@ -392,14 +397,14 @@ class _ArticleSettingsPanelState extends State<ArticleSettingsPanel> {
                 child: OutlinedButton.icon(
                   onPressed: () => setState(() => page = 1),
                   icon: const Icon(Icons.format_line_spacing),
-                  label: const Text('间距设置'),
+                  label: Text(tr('间距设置')),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: TextButton(
                   onPressed: () => setState(() => page = 2),
-                  child: const Text('更多'),
+                  child: Text(tr('更多')),
                 ),
               ),
             ],

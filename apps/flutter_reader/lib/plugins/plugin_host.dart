@@ -16,6 +16,8 @@ import 'plugin_broker.dart';
 import 'plugin_instance.dart';
 import 'plugin_storage.dart';
 import 'plugin_system.dart';
+import '../l10n/l10n.dart';
+import '../data/core_messages.dart';
 
 /// Explicit ports; plugins never receive ReaderApi or filesystem paths.
 class PluginHostServices {
@@ -60,7 +62,7 @@ class PluginHostServices {
     Set<PluginPermission>? grants,
   }) async {
     final root = storagePath ?? await storageRoot?.call();
-    if (root == null) throw StateError('宿主未配置插件存储根');
+    if (root == null) throw StateError(tr('宿主未配置插件存储根'));
     // Platform support paths may contain OS aliases (Android /data/user/0).
     // Canonicalize only the host-configured base; plugin-owned links remain denied.
     final base = await Directory(root).create(recursive: true);
@@ -96,11 +98,11 @@ class PluginHostSession {
   }
 
   void _check([PluginPermission? permission]) {
-    if (!active) throw StateError('插件已停用');
+    if (!active) throw StateError(tr('插件已停用'));
     if (permission != null &&
         (!manifest.permissions.contains(permission) ||
             !grants.contains(permission))) {
-      throw StateError('插件未获 ${permission.name} 权限');
+      throw StateError(tr('插件未获 {name} 权限', {'name': permission.name}));
     }
   }
 
@@ -117,7 +119,7 @@ class PluginHostSession {
     };
     if (!mutations.contains(method)) return _call(method, args);
     _check();
-    if (_queued >= 16) throw StateError('插件写入队列已满');
+    if (_queued >= 16) throw StateError(tr('插件写入队列已满'));
     _queued++;
     final operation = _mutations.then((_) => _call(method, args));
     _mutations = operation.then<void>(
@@ -134,7 +136,7 @@ class PluginHostSession {
   Future<dynamic> _call(String method, Map<String, dynamic> args) async {
     _check();
     services.onRequest?.call(manifest.id, method);
-    if (_pending >= 4) throw StateError('同时最多四个宿主请求');
+    if (_pending >= 4) throw StateError(tr('同时最多四个宿主请求'));
     _pending++;
     try {
       if (PluginSystemAccess.methods.contains(method)) {
@@ -148,7 +150,7 @@ class PluginHostSession {
           final key = args['key'];
           if (key is! String ||
               !RegExp(r'^[a-zA-Z0-9_.-]{1,80}$').hasMatch(key)) {
-            throw const FormatException('设置键无效');
+            throw FormatException(tr('设置键无效'));
           }
           final file = await storage.configuration(
             area: method.startsWith('data.') ? 'data' : 'config',
@@ -161,7 +163,7 @@ class PluginHostSession {
           values[key] = args['value'];
           final encoded = jsonEncode(values);
           if (utf8.encode(encoded).length > 256 * 1024) {
-            throw StateError('插件配置超过256KiB');
+            throw StateError(tr('插件配置超过256KiB'));
           }
           // History is retained and remains exportable, but cannot consume the
           // quota of the current configuration and permanently disable writes.
@@ -180,7 +182,7 @@ class PluginHostSession {
         case 'logger.write':
           final message = args['message'];
           if (message is! String || message.length > 4000) {
-            throw const FormatException('日志过长');
+            throw FormatException(tr('日志过长'));
           }
           final logs = services.logs.putIfAbsent(manifest.id, () => []);
           if (logs.length >= 200) logs.removeAt(0);
@@ -195,7 +197,7 @@ class PluginHostSession {
           if (message is! String ||
               message.length > 4000 ||
               services.onMessage == null) {
-            throw StateError('无效提示或宿主界面不可用');
+            throw StateError(tr('无效提示或宿主界面不可用'));
           }
           await services.onMessage!(message);
           _check();
@@ -205,7 +207,7 @@ class PluginHostSession {
           if (id is! String ||
               !id.startsWith('${manifest.id}.page.') ||
               services.onOpenPage == null) {
-            throw StateError('只能打开自己的插件页面');
+            throw StateError(tr('只能打开自己的插件页面'));
           }
           await services.onOpenPage!(id);
           _check();
@@ -246,10 +248,10 @@ class PluginHostSession {
             'projectCount': data.library.projects.length - 1,
           };
         case 'files.open':
-          if (services.onOpenFile == null) throw StateError('宿主阅读器入口不可用');
+          if (services.onOpenFile == null) throw StateError(tr('宿主阅读器入口不可用'));
           final file = await storage.file(args['name']);
           if (!await file.exists() || await file.length() > 16 * 1024 * 1024) {
-            throw StateError('阅读文件不存在或过大');
+            throw StateError(tr('阅读文件不存在或过大'));
           }
           final content = await file.readAsBytes();
           _check(PluginPermission.derivedFiles);
@@ -269,7 +271,7 @@ class PluginHostSession {
           final file = await storage.file(args['name']);
           if (await FileSystemEntity.type(file.path, followLinks: false) !=
               FileSystemEntityType.file) {
-            throw StateError('只允许删除普通文件；目录必须先清空');
+            throw StateError(tr('只允许删除普通文件；目录必须先清空'));
           }
           _check(PluginPermission.derivedFiles);
           await file.delete();
@@ -281,7 +283,7 @@ class PluginHostSession {
                   FileSystemEntityType.file ||
               await FileSystemEntity.type(target.path, followLinks: false) !=
                   FileSystemEntityType.notFound) {
-            throw StateError('源须为普通文件且目标不得存在');
+            throw StateError(tr('源须为普通文件且目标不得存在'));
           }
           await target.parent.create(recursive: true);
           _check(PluginPermission.derivedFiles);
@@ -304,14 +306,14 @@ class PluginHostSession {
         case 'crypto.md5':
           final text = args['text'];
           if (text is! String || text.length > 4096) {
-            throw const FormatException('摘要输入过长');
+            throw FormatException(tr('摘要输入过长'));
           }
           return md5.convert(utf8.encode(text)).toString();
         case 'archive.create':
           final output = await storage.file(args['name']);
           final names = args['files'];
           if (names is! List || names.isEmpty || names.length > 512) {
-            throw const FormatException('归档需要1至512个文件');
+            throw FormatException(tr('归档需要1至512个文件'));
           }
           final archive = Archive();
           var total = 0;
@@ -319,7 +321,7 @@ class PluginHostSession {
             final file = await storage.file(name);
             total += await file.length();
             if (total > 16 * 1024 * 1024) {
-              throw const FormatException('归档输入超过16MiB');
+              throw FormatException(tr('归档输入超过16MiB'));
             }
             final bytes = await file.readAsBytes();
             archive.addFile(ArchiveFile(name as String, bytes.length, bytes));
@@ -361,7 +363,7 @@ class PluginHostSession {
           final file = await storage.file(args['name']);
           if (!await file.exists()) return null;
           if (await file.length() > 16 * 1024 * 1024) {
-            throw StateError('文件超过16MiB');
+            throw StateError(tr('文件超过16MiB'));
           }
           return base64Encode(await file.readAsBytes());
         case 'storage.write':
@@ -391,7 +393,7 @@ class PluginHostSession {
           _check(PluginPermission.libraryImport);
           final file = await storage.file(args['name']);
           if (!await file.exists() || await file.length() > 16 * 1024 * 1024) {
-            throw StateError('文件不存在或超过16MiB');
+            throw StateError(tr('文件不存在或超过16MiB'));
           }
           final data = base64Encode(await file.readAsBytes());
           final hook = await services.broker.emit('library.beforeImport', {
@@ -399,7 +401,7 @@ class PluginHostSession {
             'bytes': await file.length(),
           });
           if (hook is Map && hook['cancel'] == true) {
-            throw StateError(hook['reason']?.toString() ?? '插件Hook取消了导入');
+            throw StateError(hook['reason']?.toString() ?? tr('插件Hook取消了导入'));
           }
           _check(PluginPermission.libraryImport);
           final snapshot = LibrarySnapshot(
@@ -415,7 +417,11 @@ class PluginHostSession {
             }),
           );
           if ((plan['issues'] as List).isNotEmpty) {
-            throw StateError('导入预览存在异常：${(plan['issues'] as List).join('；')}');
+            throw StateError(
+              tr('导入预览存在异常：{value}', {
+                'value': (plan['issues'] as List).map(coreText).join(tr('；')),
+              }),
+            );
           }
           _check(PluginPermission.libraryImport);
           final result = await services.api.call('commit_import', {
@@ -460,7 +466,7 @@ class PluginHostSession {
           );
           return result;
         default:
-          throw const FormatException('未知插件服务');
+          throw FormatException(tr('未知插件服务'));
       }
     } finally {
       _pending--;
@@ -481,11 +487,11 @@ class PluginHostSession {
 
   Uint8List _bytes(Object? value) {
     if (value is! String || value.length > 24 * 1024 * 1024) {
-      throw const FormatException('文件数据过大');
+      throw FormatException(tr('文件数据过大'));
     }
     final bytes = base64Decode(value);
     if (bytes.length > 16 * 1024 * 1024) {
-      throw const FormatException('文件超过16MiB');
+      throw FormatException(tr('文件超过16MiB'));
     }
     return bytes;
   }

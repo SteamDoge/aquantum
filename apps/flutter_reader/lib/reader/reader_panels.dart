@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'reader_contract.dart';
 import 'reader_renderers.dart' show PagedTextReaderAdapter;
 import '../formats/reader_provider_preferences.dart';
+import '../l10n/l10n.dart';
+import '../data/core_messages.dart';
 
 class ReaderNavigationPanel extends StatelessWidget {
   final ReaderAdapter adapter;
@@ -21,21 +23,11 @@ class ReaderNavigationPanel extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    if (adapter.count == 0) return const Center(child: Text('内容仍在加载或无法读取。'));
+    if (adapter.count == 0) return Center(child: Text(tr('内容仍在加载或无法读取。')));
     if (thumbnails &&
         adapter is LiveReaderAdapter &&
         (adapter as LiveReaderAdapter).liveSurface) {
-      return Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Text('正文由文档引擎实时排版，当前不提供邻页缩略图。可通过目录和进度跳转。'),
-          ),
-          Expanded(
-            child: ReaderNavigationPanel(adapter: adapter, onSelect: onSelect),
-          ),
-        ],
-      );
+      return ReaderNavigationPanel(adapter: adapter, onSelect: onSelect);
     }
     final outline = adapter is OutlineReaderAdapter
         ? (adapter as OutlineReaderAdapter).outline
@@ -96,6 +88,21 @@ class ReaderNavigationPanel extends StatelessWidget {
     }
     ReaderLocation entry(int i) =>
         outline.isEmpty ? adapter.location(i) : outline[i];
+    // Paged labels read "page n · chapter"; the list shows the page number in
+    // its own column, so the title drops that prefix in any language.
+    String withoutPagePrefix(ReaderLocation location) {
+      final template = tr('第 {value} 页 · {value2}');
+      final parts = template
+          .substring(0, template.indexOf('{value2}'))
+          .split('{value}');
+      return location.label.replaceFirst(
+        RegExp(
+          '^${RegExp.escape(parts.first)}\\d+${RegExp.escape(parts.last)}',
+        ),
+        '',
+      );
+    }
+
     return ScrollablePositionedList.builder(
       key: ValueKey(('navigation', adapter.documentId, outline.length, active)),
       itemCount: outline.isEmpty ? adapter.count : outline.length,
@@ -106,12 +113,12 @@ class ReaderNavigationPanel extends StatelessWidget {
         selected: i == active,
         leading: Text(
           adapter is PagedTextReaderAdapter
-              ? '第 ${entry(i).index + 1} 页'
+              ? tr('第 {value} 页', {'value': entry(i).index + 1})
               : '${i + 1}',
         ),
         title: Text(
           adapter is PagedTextReaderAdapter
-              ? entry(i).label.replaceFirst(RegExp(r'^第 \d+ 页 · '), '')
+              ? withoutPagePrefix(entry(i))
               : entry(i).label,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -224,9 +231,9 @@ class _ReaderSearchPanelState extends State<ReaderSearchPanel> {
           controller: query,
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
-            labelText: '搜索当前内容',
+            labelText: tr('搜索当前内容'),
             suffixIcon: IconButton(
-              tooltip: '开始搜索',
+              tooltip: tr('开始搜索'),
               onPressed: busy ? null : search,
               icon: const Icon(Icons.search),
             ),
@@ -246,9 +253,9 @@ class _ReaderSearchPanelState extends State<ReaderSearchPanel> {
         if (error != null) Text(error!),
         Expanded(
           child: hits == null
-              ? const Center(child: Text('输入文字，搜索当前文件。'))
+              ? Center(child: Text(tr('输入文字，搜索当前文件。')))
               : hits!.isEmpty
-              ? const Center(child: Text('没有找到匹配内容。'))
+              ? Center(child: Text(tr('没有找到匹配内容。')))
               : ListView.builder(
                   itemCount: hits!.length,
                   itemBuilder: (context, i) {
@@ -344,20 +351,21 @@ class _ReaderEncodingPanelState extends State<ReaderEncodingPanel> {
       padding: const EdgeInsets.all(16),
       children: [
         Text(
-          info!['stored'] == true
-              ? '当前使用手动指定的编码；原文件字节保持不变。'
-              : '当前按自动识别读取；识别不确定时可以手动指定。',
-        ),
-        const SizedBox(height: 8),
-        Text(
-          '识别结果：${info!['label']}（质量 ${info!['quality']}/100'
-          '${info!['confident'] == true ? '' : '，可能不准'}）',
+          info!['confident'] == true
+              ? tr('识别结果：{label}（质量 {quality}/100）', {
+                  'label': coreText(info!['label']),
+                  'quality': info!['quality'],
+                })
+              : tr('识别结果：{label}（质量 {quality}/100，可能不准）', {
+                  'label': coreText(info!['label']),
+                  'quality': info!['quality'],
+                }),
           style: Theme.of(context).textTheme.titleSmall,
         ),
         const Divider(),
         ListTile(
           leading: const Icon(Icons.auto_fix_high),
-          title: const Text('自动识别'),
+          title: Text(tr('自动识别')),
           selected: info!['stored'] != true,
           onTap: busy ? null : () => choose(null),
         ),
@@ -369,7 +377,7 @@ class _ReaderEncodingPanelState extends State<ReaderEncodingPanel> {
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
             ),
-            title: Text(candidate['label'].toString()),
+            title: Text(coreText(candidate['label'])),
             subtitle: Text(
               candidate['sample'].toString(),
               maxLines: 2,
@@ -404,10 +412,10 @@ class ComicDirectionPanel extends StatefulWidget {
 }
 
 class _ComicDirectionPanelState extends State<ComicDirectionPanel> {
-  static const choices = [
-    ('LeftToRight', '从左到右', Icons.arrow_forward),
-    ('RightToLeft', '从右到左', Icons.arrow_back),
-    ('TopToBottom', '从上到下（连续滚动）', Icons.arrow_downward),
+  static List<(String, String, IconData)> get choices => [
+    ('LeftToRight', tr('从左到右'), Icons.arrow_forward),
+    ('RightToLeft', tr('从右到左'), Icons.arrow_back),
+    ('TopToBottom', tr('从上到下（连续滚动）'), Icons.arrow_downward),
   ];
   Map<String, dynamic>? effective;
   String? error;
@@ -432,7 +440,7 @@ class _ComicDirectionPanelState extends State<ComicDirectionPanel> {
               : widget.preferences.rightToLeft
               ? 'RightToLeft'
               : 'LeftToRight';
-          direction['description'] = '格式默认或本文件阅读设置';
+          direction['description'] = tr('格式默认或本文件阅读设置');
         }
         effective = direction;
         error = null;
@@ -475,10 +483,12 @@ class _ComicDirectionPanelState extends State<ComicDirectionPanel> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text('阅读方向', style: Theme.of(context).textTheme.titleSmall),
+        Text(tr('阅读方向'), style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
         Text(
-          effective?['description']?.toString() ?? '正在读取方向…',
+          effective?['description'] == null
+              ? tr('正在读取方向…')
+              : coreText(effective!['description']),
           style: TextStyle(
             fontSize: 12,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -497,8 +507,7 @@ class _ComicDirectionPanelState extends State<ComicDirectionPanel> {
         if (source != null && source == widget.book.id)
           ListTile(
             leading: const Icon(Icons.settings_backup_restore),
-            title: const Text('恢复格式默认'),
-            subtitle: const Text('使用阅读器选择中的格式默认翻页'),
+            title: Text(tr('恢复格式默认')),
             onTap: busy ? null : () => setDirection(null),
           ),
         if (busy) const LinearProgressIndicator(),

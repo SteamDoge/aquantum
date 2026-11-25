@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../data/models.dart';
 import '../data/reader_api.dart';
 import '../design/widgets.dart';
+import '../l10n/l10n.dart';
 
 class StorageCleanupScreen extends StatefulWidget {
   final ReaderApi api;
@@ -60,18 +61,21 @@ class _StorageCleanupScreenState extends State<StorageCleanupScreen> {
       final accepted = await showDialog<bool>(
         context: context,
         builder: (c) => AlertDialog(
-          title: const Text('确认手动清理？'),
+          title: Text(tr('确认手动清理？')),
           content: Text(
-            '永久删除所选 ${selected.length} 个文件，共 ${sizeLabel(bytes)}。此操作不可撤销。\n\n当前正文、历史快照、笔记、进度、配置和外部原件不在本次清理范围内。执行前会重新检查引用和文件校验值。',
+            tr('永久删除所选 {count} 个文件，共 {value}。此操作不可撤销。', {
+              'count': selected.length,
+              'value': sizeLabel(bytes),
+            }),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(c, false),
-              child: const Text('取消'),
+              child: Text(tr('取消')),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(c, true),
-              child: const Text('清理所选文件'),
+              child: Text(tr('清理所选文件')),
             ),
           ],
         ),
@@ -131,9 +135,9 @@ class _StorageCleanupScreenState extends State<StorageCleanupScreen> {
         appBar: AppBar(),
         body: Column(
           children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.fromLTRB(16, 4, 16, 4),
-              child: AqPageHeading('手动清理预览'),
+              child: AqPageHeading(tr('手动清理预览')),
             ),
             if (loading || busy)
               LinearProgressIndicator(
@@ -152,11 +156,11 @@ class _StorageCleanupScreenState extends State<StorageCleanupScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '保护 ${state?['plan']['protected_resources'] ?? 0} 项正文、历史和任务资源。只列出可清理的未引用副本与失败临时文件。',
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '已选 ${selected.length} 项 · 已完成 ${completed.length} 项 · 剩余 $remaining 项',
+                        tr('已选 {count} 项 · 已完成 {count2} 项 · 剩余 {remaining} 项', {
+                          'count': selected.length,
+                          'count2': completed.length,
+                          'remaining': remaining,
+                        }),
                       ),
                       if (error != null)
                         SelectableText(
@@ -175,9 +179,9 @@ class _StorageCleanupScreenState extends State<StorageCleanupScreen> {
                           ])
                             ChoiceChip(
                               label: Text(switch (value) {
-                                'all' => '全部',
-                                'unreferenced' => '未引用副本',
-                                _ => '失败临时文件',
+                                'all' => tr('全部'),
+                                'unreferenced' => tr('未引用副本'),
+                                _ => tr('失败临时文件'),
                               }),
                               selected: filter == value,
                               onSelected: busy
@@ -192,7 +196,7 @@ class _StorageCleanupScreenState extends State<StorageCleanupScreen> {
                                       visible.map((i) => i['key'] as String),
                                     ),
                                   ),
-                            child: const Text('选择当前类别'),
+                            child: Text(tr('选择当前类别')),
                           ),
                         ],
                       ),
@@ -203,7 +207,7 @@ class _StorageCleanupScreenState extends State<StorageCleanupScreen> {
             ),
             Expanded(
               child: items.isEmpty && !loading
-                  ? const Center(child: Text('没有符合引用保护规则的可清理文件。'))
+                  ? Center(child: Text(tr('没有可清理的文件。')))
                   : ListView.builder(
                       itemCount: visible.length,
                       itemBuilder: (context, i) {
@@ -222,11 +226,16 @@ class _StorageCleanupScreenState extends State<StorageCleanupScreen> {
                                 }),
                           title: Text(
                             item['category'] == 'incomplete'
-                                ? '失败临时文件'
-                                : '未引用资源副本',
+                                ? tr('失败临时文件')
+                                : tr('未引用资源副本'),
                           ),
                           subtitle: Text(
-                            '$key\n${sizeLabel(item['bytes'] as num)}${completed.contains(key) ? ' · 已完成' : ''}',
+                            completed.contains(key)
+                                ? tr('{key}\n{size} · 已完成', {
+                                    'key': key,
+                                    'size': sizeLabel(item['bytes'] as num),
+                                  })
+                                : '$key\n${sizeLabel(item['bytes'] as num)}',
                           ),
                           secondary: Icon(
                             completed.contains(key)
@@ -248,7 +257,7 @@ class _StorageCleanupScreenState extends State<StorageCleanupScreen> {
                     if (busy)
                       OutlinedButton(
                         onPressed: () => setState(() => pause = true),
-                        child: Text(pause ? '正在暂停' : '本项结束后暂停'),
+                        child: Text(pause ? tr('正在暂停') : tr('本项结束后暂停')),
                       ),
                     if (!busy)
                       FilledButton(
@@ -256,12 +265,12 @@ class _StorageCleanupScreenState extends State<StorageCleanupScreen> {
                             selected.isEmpty || confirmed && remaining == 0
                             ? null
                             : execute,
-                        child: Text(confirmed ? '继续已确认范围' : '确认清理所选'),
+                        child: Text(confirmed ? tr('继续已确认范围') : tr('确认清理所选')),
                       ),
                     if (!busy)
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('保留任务，返回'),
+                        child: Text(tr('保留任务，返回')),
                       ),
                   ],
                 ),

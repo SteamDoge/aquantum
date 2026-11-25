@@ -8,6 +8,7 @@ import '../formats/reader_provider.dart';
 import '../formats/reader_provider_preferences.dart';
 import '../plugins/plugin_manager.dart';
 import '../design/widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Software settings for format-wide reader selection, independent of typography.
 class ReaderDefaultsScreen extends StatefulWidget {
@@ -18,10 +19,10 @@ class ReaderDefaultsScreen extends StatefulWidget {
 }
 
 class _ReaderDefaultsScreenState extends State<ReaderDefaultsScreen> {
-  static const formats = {
+  static Map<String, (String, String)> get formats => {
     'Txt': ('TXT', 'text'),
     'Markdown': ('Markdown', 'markdown'),
-    'Comic': ('漫画', 'image_page'),
+    'Comic': (tr('漫画'), 'image_page'),
     'Pdf': ('PDF', 'fixed_page'),
     'Epub': ('EPUB', 'document'),
     'Mobi': ('MOBI', 'document'),
@@ -113,13 +114,9 @@ class _ReaderDefaultsScreenState extends State<ReaderDefaultsScreen> {
         : ListView(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
             children: [
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8),
-                child: AqPageHeading('阅读器选择'),
-              ),
-              const Padding(
-                padding: EdgeInsets.all(8),
-                child: Text('按格式选择阅读器和默认翻页方式，下次打开生效。单文件已有设置优先保留。'),
+                child: AqPageHeading(tr('阅读器选择')),
               ),
               for (final format in formats.keys)
                 Builder(
@@ -131,7 +128,7 @@ class _ReaderDefaultsScreenState extends State<ReaderDefaultsScreen> {
                         selected[format] ==
                                 ReaderProviderPreferences.foliateComic &&
                             foliate
-                        ? 'Foliate 漫画阅读'
+                        ? tr('Foliate 漫画阅读')
                         : selectedProvider(
                             sample,
                             widget.plugins,
@@ -146,7 +143,7 @@ class _ReaderDefaultsScreenState extends State<ReaderDefaultsScreen> {
                           subtitle: Text(current),
                           trailing: canChoose
                               ? const Icon(Icons.chevron_right)
-                              : const Text('内置'),
+                              : null,
                           onTap: canChoose ? () => choose(format) : null,
                         ),
                         Padding(
@@ -156,17 +153,17 @@ class _ReaderDefaultsScreenState extends State<ReaderDefaultsScreen> {
                               'reader-default-mode-$format-${paged[format]}',
                             ),
                             initialValue: paged[format],
-                            decoration: const InputDecoration(
-                              labelText: '默认翻页方式',
+                            decoration: InputDecoration(
+                              labelText: tr('默认翻页方式'),
                             ),
-                            items: const [
+                            items: [
                               DropdownMenuItem(
                                 value: true,
-                                child: Text('左右翻页'),
+                                child: Text(tr('左右翻页')),
                               ),
                               DropdownMenuItem(
                                 value: false,
-                                child: Text('上下翻页（连续滚动）'),
+                                child: Text(tr('上下翻页（连续滚动）')),
                               ),
                             ],
                             onChanged: (value) async {

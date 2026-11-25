@@ -10,6 +10,7 @@ import 'page_manager.dart';
 import 'book_history.dart';
 import 'book_details.dart';
 import 'library_content.dart' show projectColors;
+import '../l10n/l10n.dart';
 
 class LibraryActions {
   final BuildContext context;
@@ -30,20 +31,20 @@ class LibraryActions {
     context: context,
     builder: (_) => NameDialog(title: title, initial: initial),
   );
-  Future<bool> confirm(String title, String message) async =>
+  Future<bool> confirm(String title, [String? message]) async =>
       await showDialog<bool>(
         context: context,
         builder: (c) => AlertDialog(
           title: Text(title),
-          content: Text(message),
+          content: message == null ? null : Text(message),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(c, false),
-              child: const Text('取消'),
+              child: Text(tr('取消')),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(c, true),
-              child: const Text('确认'),
+              child: Text(tr('确认')),
             ),
           ],
         ),
@@ -52,7 +53,7 @@ class LibraryActions {
   Future<String?> target({String? movingProject}) => showDialog<String>(
     context: context,
     builder: (c) => AlertDialog(
-      title: const Text('选择目标项目'),
+      title: Text(tr('选择目标项目')),
       content: SizedBox(
         width: 420,
         child: ListView(
@@ -74,7 +75,7 @@ class LibraryActions {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(c), child: const Text('取消')),
+        TextButton(onPressed: () => Navigator.pop(c), child: Text(tr('取消'))),
       ],
     ),
   );
@@ -114,7 +115,7 @@ class LibraryActions {
       title: Text(title),
       content: SingleChildScrollView(child: SelectableText(body)),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(c), child: const Text('关闭')),
+        TextButton(onPressed: () => Navigator.pop(c), child: Text(tr('关闭'))),
       ],
     ),
   );
@@ -123,37 +124,49 @@ class LibraryActions {
     final ext = plugins.actions(ExtensionPoint.projectMenu, scope);
     final action = await menu(p.name, [
       [
-        ('rename', Icons.drive_file_rename_outline, '重命名'),
-        ('color', Icons.palette_outlined, '文件夹颜色'),
+        ('rename', Icons.drive_file_rename_outline, tr('重命名')),
+        ('color', Icons.palette_outlined, tr('文件夹颜色')),
         if (p.id != library.inbox)
-          ('move', Icons.drive_file_move_outlined, '移动项目'),
+          ('move', Icons.drive_file_move_outlined, tr('移动项目')),
       ],
       [
-        ('details', Icons.info_outline, '详情'),
+        ('details', Icons.info_outline, tr('详情')),
         for (final e in ext) (e.id, e.icon, e.name),
       ],
-      [if (p.id != library.inbox) ('delete', Icons.delete_outline, '删除空项目')],
+      [
+        if (p.id != library.inbox)
+          ('delete', Icons.delete_outline, tr('删除空项目')),
+      ],
     ]);
     if (!context.mounted || action == null) return;
     if (ext.any((e) => e.id == action)) {
       await perform(() async {
         final result = await plugins.invoke(action, scope);
-        if (result != null && context.mounted) await details('操作结果', result);
+        if (result != null && context.mounted) {
+          await details(tr('操作结果'), result);
+        }
       });
       return;
     }
     switch (action) {
       case 'rename':
-        final v = await name('重命名项目', p.name);
+        final v = await name(tr('重命名项目'), p.name);
         if (v != null) {
           await perform(() async {
             await api.call('rename_project', {'project': p.id, 'name': v});
           });
         }
       case 'color':
-        final v = await menu('文件夹颜色', [
+        final v = await menu(tr('文件夹颜色'), [
           [
-            for (final (i, n) in ['蓝色', '粉色', '橙色', '绿色', '紫色', '灰色'].indexed)
+            for (final (i, n) in [
+              tr('蓝色'),
+              tr('粉色'),
+              tr('橙色'),
+              tr('绿色'),
+              tr('紫色'),
+              tr('灰色'),
+            ].indexed)
               ('$i', Icons.folder, n),
           ],
         ], iconColors: projectColors);
@@ -173,7 +186,7 @@ class LibraryActions {
           });
         }
       case 'delete':
-        if (await confirm('删除空项目？', '仅可删除没有子项目和文件（含已移除文件）的空项目。外部原件不会改变。')) {
+        if (await confirm(tr('删除空项目？'))) {
           await perform(() async {
             await api.call('delete_project', {'project': p.id});
           });
@@ -181,7 +194,12 @@ class LibraryActions {
       case 'details':
         await details(
           p.name,
-          '路径：${library.ancestors(p.id).map((a) => a.name).join(' / ')}\n直接文件：${library.booksIn(p.id).length}\n子项目：${library.children(p.id).length}\nID：${p.id}',
+          tr('路径：{value}\n直接文件：{value2}\n子项目：{value3}\nID：{id}', {
+            'value': library.ancestors(p.id).map((a) => a.name).join(' / '),
+            'value2': library.booksIn(p.id).length,
+            'value3': library.children(p.id).length,
+            'id': p.id,
+          }),
         );
     }
   }
@@ -199,24 +217,24 @@ class LibraryActions {
         selectedAction ??
         await menu(b.title, [
           [
-            ('rename', Icons.drive_file_rename_outline, '重命名'),
-            ('copy', Icons.copy_outlined, '复制到项目'),
-            ('move', Icons.drive_file_move_outlined, '移动到项目'),
+            ('rename', Icons.drive_file_rename_outline, tr('重命名')),
+            ('copy', Icons.copy_outlined, tr('复制到项目')),
+            ('move', Icons.drive_file_move_outlined, tr('移动到项目')),
             if (b.project != library.inbox)
-              ('remove', Icons.folder_off_outlined, '从项目移除'),
+              ('remove', Icons.folder_off_outlined, tr('从项目移除')),
           ],
           [
-            ('details', Icons.info_outline, '详情'),
-            ('history', Icons.history, '修改记录与恢复'),
+            ('details', Icons.info_outline, tr('详情')),
+            ('history', Icons.history, tr('修改记录与恢复')),
             if (b.isComic && !b.archived)
-              ('pages', Icons.photo_library_outlined, '页面管理'),
+              ('pages', Icons.photo_library_outlined, tr('页面管理')),
             for (final e in ext) (e.id, e.icon, e.name),
           ],
           [
             (
               b.archived ? 'restore' : 'archive',
               b.archived ? Icons.restore : Icons.remove_circle_outline,
-              b.archived ? '恢复到书架' : '移出书架',
+              b.archived ? tr('恢复到书架') : tr('移出书架'),
             ),
           ],
         ]);
@@ -266,12 +284,14 @@ class LibraryActions {
     if (ext.any((e) => e.id == action)) {
       await perform(() async {
         final result = await plugins.invoke(action, scope);
-        if (result != null && context.mounted) await details('操作结果', result);
+        if (result != null && context.mounted) {
+          await details(tr('操作结果'), result);
+        }
       });
       return;
     }
     if (action == 'rename') {
-      newName = await name('重命名文件', b.title);
+      newName = await name(tr('重命名文件'), b.title);
       if (newName == null) return;
     }
     if (action == 'move' || action == 'copy') {
@@ -279,7 +299,7 @@ class LibraryActions {
       if (destination == null) return;
     }
     if (action == 'archive' &&
-        !await confirm('移出书架？', '内部副本、笔记和阅读记录会保留。可通过「我的 → 已移除文件」恢复。')) {
+        !await confirm(tr('移出书架？'), tr('内部副本、笔记和阅读记录会保留。可通过「我的 → 已移除文件」恢复。'))) {
       return;
     }
     await perform(() async {
@@ -315,7 +335,7 @@ class _NameDialogState extends State<NameDialog> {
       controller: controller,
       autofocus: true,
       maxLength: 80,
-      decoration: const InputDecoration(labelText: '名称'),
+      decoration: InputDecoration(labelText: tr('名称')),
       onSubmitted: (v) {
         if (v.trim().isNotEmpty) Navigator.pop(context, v);
       },
@@ -323,7 +343,7 @@ class _NameDialogState extends State<NameDialog> {
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('取消'),
+        child: Text(tr('取消')),
       ),
       FilledButton(
         onPressed: () {
@@ -331,7 +351,7 @@ class _NameDialogState extends State<NameDialog> {
             Navigator.pop(context, controller.text);
           }
         },
-        child: const Text('保存'),
+        child: Text(tr('保存')),
       ),
     ],
   );

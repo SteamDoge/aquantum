@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Material/Cupertino strings and text direction for the interface languages.
+  flutter_localizations:
+    sdk: flutter
   ffi: ^2.1.4
   archive: ^4.5.2
   file_picker: ^10.3.10

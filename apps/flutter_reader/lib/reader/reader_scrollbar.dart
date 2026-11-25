@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'reader_contract.dart';
+import '../l10n/l10n.dart';
 
 /// The whole-book scrollbar of top-to-bottom reading, drawn like a browser's
 /// overlay scrollbar.
@@ -179,7 +180,7 @@ class _ReaderScrollbarState extends State<ReaderScrollbar> {
           },
           child: Semantics(
             key: const ValueKey('reader-scrollbar'),
-            label: '整本书阅读进度',
+            label: tr('整本书阅读进度'),
             value: '$percent%',
             increasedValue: '${(percent + 5).clamp(0, 100)}%',
             decreasedValue: '${(percent - 5).clamp(0, 100)}%',

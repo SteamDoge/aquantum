@@ -6,6 +6,7 @@ import '../plugins/plugin_manager.dart';
 import '../data/models.dart' show sizeLabel;
 import 'plugin_details.dart';
 import '../design/widgets.dart';
+import '../l10n/l10n.dart';
 
 class PluginScreen extends StatelessWidget {
   final PluginManager manager;
@@ -40,18 +41,20 @@ class PluginScreen extends StatelessWidget {
       final approved = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('启用${record.manifest.name}'),
+          title: Text(tr('启用{name}', {'name': record.manifest.name})),
           content: Text(
-            '此插件请求以下权限：\n${permissions.map(permissionLabel).join('\n')}',
+            tr('此插件请求以下权限：\n{value}', {
+              'value': permissions.map(permissionLabel).join('\n'),
+            }),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('取消'),
+              child: Text(tr('取消')),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('授权并启用'),
+              child: Text(tr('授权并启用')),
             ),
           ],
         ),
@@ -86,16 +89,16 @@ class PluginScreen extends StatelessWidget {
           ),
           children: [
             AqPageHeading(
-              '插件',
+              tr('插件'),
               actions: [
                 if (onLink != null)
                   IconButton(
-                    tooltip: '从链接安装插件',
+                    tooltip: tr('从链接安装插件'),
                     onPressed: ready ? onLink : null,
                     icon: const Icon(Icons.link),
                   ),
                 IconButton(
-                  tooltip: 'ZIP 导入插件',
+                  tooltip: tr('ZIP 导入插件'),
                   onPressed: ready ? onImport : null,
                   icon: const Icon(Icons.add),
                 ),
@@ -106,7 +109,11 @@ class PluginScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
                 child: Text(
-                  '包副本 ${manager.packageCount} 个 · ${sizeLabel(manager.packageBytes)}\n未完成导入 ${sizeLabel(manager.incompleteBytes)}；副本和残留均保留。',
+                  tr('包副本 {packageCount} 个 · {value}\n未完成导入 {value2}', {
+                    'packageCount': manager.packageCount,
+                    'value': sizeLabel(manager.packageBytes),
+                    'value2': sizeLabel(manager.incompleteBytes),
+                  }),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
@@ -132,15 +139,9 @@ class PluginScreen extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               Text(
-                '尚未导入插件',
+                tr('尚未导入插件'),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                '安装独立 JavaScript 插件 ZIP，按需启用阅读工具、原生页面或自定义页面。',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
             for (final record in records)
@@ -166,7 +167,9 @@ class PluginScreen extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         const SizedBox(height: 4),
-                        SelectableText('来源：${record.source}'),
+                        SelectableText(
+                          tr('来源：{source}', {'source': tr(record.source)}),
+                        ),
                         TextButton(
                           onPressed: manager.busy
                               ? null
@@ -178,7 +181,7 @@ class PluginScreen extends StatelessWidget {
                                     record,
                                   ),
                                 ),
-                          child: const Text('设置、存储与日志'),
+                          child: Text(tr('设置、存储与日志')),
                         ),
                         if (onUpdate != null &&
                             record.source.startsWith('https://'))
@@ -186,17 +189,37 @@ class PluginScreen extends StatelessWidget {
                             onPressed: manager.busy
                                 ? null
                                 : () => onUpdate!(record),
-                            child: const Text('检查更新'),
+                            child: Text(tr('检查更新')),
                           ),
                         for (final action in record.actions)
                           Text(
                             '${action.name} · ${action.point.name} · ${action.id}',
                           ),
                         Text(
-                          '权限：${record.manifest.permissions.isEmpty ? '无需额外权限' : record.manifest.permissions.map(permissionLabel).join('、')}',
+                          tr('权限：{permissions}', {
+                            'permissions': permissionList(
+                              record.manifest.permissions,
+                            ),
+                          }),
                         ),
                         Text(
-                          '已注册页面 ${manager.features.all.where((p) => p.source == record.manifest.id).length} · 阅读处理器 ${record.formats.length} · 上下文能力 ${record.actions.length} · 组件 ${manager.dashboards?.all.where((d) => d.source == record.manifest.id).length ?? 0}',
+                          tr(
+                            '已注册页面 {value} · 阅读处理器 {count} · 上下文能力 {count2} · 组件 {value2}',
+                            {
+                              'value': manager.features.all
+                                  .where((p) => p.source == record.manifest.id)
+                                  .length,
+                              'count': record.formats.length,
+                              'count2': record.actions.length,
+                              'value2':
+                                  manager.dashboards?.all
+                                      .where(
+                                        (d) => d.source == record.manifest.id,
+                                      )
+                                      .length ??
+                                  0,
+                            },
+                          ),
                         ),
                         if (record.error != null)
                           Text(
@@ -219,7 +242,7 @@ class PluginScreen extends StatelessWidget {
                                         () =>
                                             manager.install(record.manifest.id),
                                       ),
-                                child: const Text('重新安装'),
+                                child: Text(tr('重新安装')),
                               )
                             else ...[
                               FilledButton(
@@ -236,8 +259,8 @@ class PluginScreen extends StatelessWidget {
                                           : enable(context, record),
                                 child: Text(
                                   record.status == PluginStatus.enabled
-                                      ? '停用'
-                                      : '启用',
+                                      ? tr('停用')
+                                      : tr('启用'),
                                 ),
                               ),
                               OutlinedButton(
@@ -248,10 +271,12 @@ class PluginScreen extends StatelessWidget {
                                           context: context,
                                           builder: (context) => AlertDialog(
                                             title: Text(
-                                              '卸载${record.manifest.name}？',
+                                              tr('卸载{name}？', {
+                                                'name': record.manifest.name,
+                                              }),
                                             ),
-                                            content: const Text(
-                                              '卸载后保留插件数据，可重新安装恢复。若需删除数据，请先在设置、存储与日志中导出备份并选择删除。',
+                                            content: Text(
+                                              tr('卸载后保留插件数据，可重新安装恢复。'),
                                             ),
                                             actions: [
                                               TextButton(
@@ -259,14 +284,14 @@ class PluginScreen extends StatelessWidget {
                                                   context,
                                                   false,
                                                 ),
-                                                child: const Text('取消'),
+                                                child: Text(tr('取消')),
                                               ),
                                               FilledButton(
                                                 onPressed: () => Navigator.pop(
                                                   context,
                                                   true,
                                                 ),
-                                                child: const Text('卸载'),
+                                                child: Text(tr('卸载')),
                                               ),
                                             ],
                                           ),
@@ -281,7 +306,7 @@ class PluginScreen extends StatelessWidget {
                                           );
                                         }
                                       },
-                                child: const Text('卸载'),
+                                child: Text(tr('卸载')),
                               ),
                             ],
                           ],
@@ -291,12 +316,6 @@ class PluginScreen extends StatelessWidget {
                   ),
                 ),
               ),
-            const SizedBox(height: 16),
-            Text(
-              '支持 ZIP 与 GitHub / HTTPS 安装 JavaScript 插件。安装后默认停用，更新需重新确认。',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
           ],
         );
       },
@@ -305,21 +324,27 @@ class PluginScreen extends StatelessWidget {
 }
 
 String permissionLabel(PluginPermission permission) => switch (permission) {
-  PluginPermission.selectedText => '读取你选中的文字',
-  PluginPermission.documentText => '读取当前阅读状态与事件',
-  PluginPermission.derivedFiles => '创建独立派生文件',
-  PluginPermission.network => '联网访问',
-  PluginPermission.libraryImport => '复制插件文件到资料库',
-  PluginPermission.libraryRead => '读取资料库文件信息',
-  PluginPermission.services => '与已声明依赖的插件交换数据',
-  PluginPermission.clipboard => '使用剪贴板',
-  PluginPermission.externalFiles => '访问用户选择的外部文件',
-  PluginPermission.secureStorage => '保存敏感凭据',
+  PluginPermission.selectedText => tr('读取你选中的文字'),
+  PluginPermission.documentText => tr('读取当前阅读状态与事件'),
+  PluginPermission.derivedFiles => tr('创建独立派生文件'),
+  PluginPermission.network => tr('联网访问'),
+  PluginPermission.libraryImport => tr('复制插件文件到资料库'),
+  PluginPermission.libraryRead => tr('读取资料库文件信息'),
+  PluginPermission.services => tr('与已声明依赖的插件交换数据'),
+  PluginPermission.clipboard => tr('使用剪贴板'),
+  PluginPermission.externalFiles => tr('访问用户选择的外部文件'),
+  PluginPermission.secureStorage => tr('保存敏感凭据'),
 };
+
+/// The permissions a plugin asks for, joined for one line of text.
+String permissionList(Iterable<PluginPermission> permissions) =>
+    permissions.isEmpty
+    ? tr('无需额外权限')
+    : permissions.map(permissionLabel).join(tr('、'));
 String statusLabel(PluginStatus status) => switch (status) {
-  PluginStatus.available => '未安装',
-  PluginStatus.disabled => '已停用',
-  PluginStatus.enabled => '已启用',
-  PluginStatus.suspended => '已暂停 · 返回前台恢复',
-  PluginStatus.failed => '启用失败 / 已撤销入口',
+  PluginStatus.available => tr('未安装'),
+  PluginStatus.disabled => tr('已停用'),
+  PluginStatus.enabled => tr('已启用'),
+  PluginStatus.suspended => tr('已暂停 · 返回前台恢复'),
+  PluginStatus.failed => tr('启用失败 / 已撤销入口'),
 };

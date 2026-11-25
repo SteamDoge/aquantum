@@ -6,6 +6,7 @@ import '../data/reader_api.dart';
 import '../design/widgets.dart';
 import '../widgets/book_cover.dart';
 import 'book_metadata_screen.dart';
+import '../l10n/l10n.dart';
 
 class BookDetailsScreen extends StatefulWidget {
   final Book book;
@@ -56,18 +57,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     }
   }
 
-  Widget entry(
-    String action,
-    IconData icon,
-    String label,
-    String description,
-  ) => ListTile(
-    leading: Icon(icon),
-    title: Text(label),
-    subtitle: Text(description),
-    trailing: const Icon(Icons.chevron_right),
-    onTap: busy ? null : () => run(() => widget.onAction(action, book)),
-  );
+  Widget entry(String action, IconData icon, String label, [String? value]) =>
+      ListTile(
+        leading: Icon(icon),
+        title: Text(label),
+        subtitle: value == null ? null : Text(value),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: busy ? null : () => run(() => widget.onAction(action, book)),
+      );
   @override
   Widget build(BuildContext context) {
     final metadata = book.metadata;
@@ -80,7 +77,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
             children: [
-              const AqPageHeading('书籍详情'),
+              AqPageHeading(tr('书籍详情')),
               const SizedBox(height: 20),
               AqPanel(
                 child: LayoutBuilder(
@@ -127,7 +124,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                     ? null
                                     : () => run(() => widget.onRead!(book)),
                                 icon: const Icon(Icons.menu_book_outlined),
-                                label: const Text('打开阅读'),
+                                label: Text(tr('打开阅读')),
                               ),
                           ],
                         ),
@@ -138,26 +135,29 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               ),
               if ((metadata['summary'] as String? ?? '').isNotEmpty) ...[
                 const SizedBox(height: 22),
-                Text('简介', style: Theme.of(context).textTheme.titleMedium),
+                Text(tr('简介'), style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 10),
                 SelectableText(metadata['summary']),
               ],
               const SizedBox(height: 22),
-              Text('文件信息', style: Theme.of(context).textTheme.titleMedium),
+              Text(tr('文件信息'), style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 10),
               AqPanel(
                 child: Column(
                   children: [
                     ListTile(
-                      title: const Text('格式与资源'),
+                      title: Text(tr('格式与资源')),
                       subtitle: Text(
-                        '${book.label} · ${book.pages.length} 个资源条目',
+                        tr('{label} · {count} 个资源条目', {
+                          'label': book.label,
+                          'count': book.pages.length,
+                        }),
                       ),
                       trailing: Text(sizeLabel(book.bytes)),
                     ),
                     if ((metadata['publisher'] as String? ?? '').isNotEmpty)
                       ListTile(
-                        title: const Text('出版社'),
+                        title: Text(tr('出版社')),
                         subtitle: Text(metadata['publisher']),
                       ),
                     if ((metadata['isbn'] as String? ?? '').isNotEmpty)
@@ -166,12 +166,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         subtitle: SelectableText(metadata['isbn']),
                       ),
                     ListTile(
-                      title: const Text('文件身份'),
+                      title: Text(tr('文件身份')),
                       subtitle: SelectableText(book.id),
                     ),
                     if ((metadata['provider'] as String? ?? '').isNotEmpty)
                       ListTile(
-                        title: const Text('信息来源'),
+                        title: Text(tr('信息来源')),
                         subtitle: SelectableText(
                           '${metadata['provider']} · ${metadata['source_id'] ?? ''}',
                         ),
@@ -180,7 +180,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 ),
               ),
               const SizedBox(height: 22),
-              Text('管理', style: Theme.of(context).textTheme.titleMedium),
+              Text(tr('管理'), style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 10),
               AqPanel(
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -188,8 +188,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.image_search_outlined),
-                      title: const Text('封面与信息匹配'),
-                      subtitle: const Text('选择候选、手动编辑并确认保存'),
+                      title: Text(tr('封面与信息匹配')),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: busy
                           ? null
@@ -206,38 +205,22 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                             }),
                     ),
                     if (book.isComic && !book.archived)
-                      entry(
-                        'pages',
-                        Icons.photo_library_outlined,
-                        '页面管理',
-                        '页序、追加与导出',
-                      ),
-                    entry('history', Icons.history, '历史版本', '查看修改与恢复'),
+                      entry('pages', Icons.photo_library_outlined, tr('页面管理')),
+                    entry('history', Icons.history, tr('历史版本')),
                     entry(
                       'move',
                       Icons.drive_file_move_outlined,
-                      '移动到项目',
+                      tr('移动到项目'),
                       path,
                     ),
-                    entry(
-                      'rename',
-                      Icons.drive_file_rename_outline,
-                      '重命名',
-                      '保留文件身份与阅读记录',
-                    ),
-                    entry(
-                      'copy',
-                      Icons.copy_outlined,
-                      '复制到项目',
-                      '新建独立书籍记录，共享原件副本',
-                    ),
+                    entry('rename', Icons.drive_file_rename_outline, tr('重命名')),
+                    entry('copy', Icons.copy_outlined, tr('复制到项目')),
                     entry(
                       book.archived ? 'restore' : 'archive',
                       book.archived
                           ? Icons.restore
                           : Icons.remove_circle_outline,
-                      book.archived ? '恢复到书架' : '移出书架',
-                      '保留副本与个人记录',
+                      book.archived ? tr('恢复到书架') : tr('移出书架'),
                     ),
                   ],
                 ),

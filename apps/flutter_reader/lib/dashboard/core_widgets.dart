@@ -10,6 +10,7 @@ import '../data/reader_api.dart';
 import '../screens/library_actions.dart' show NameDialog;
 import 'dashboard_data.dart';
 import 'widget_registry.dart';
+import '../l10n/l10n.dart';
 
 class ReadingGoal extends ChangeNotifier {
   Map<String, int> history = {};
@@ -28,11 +29,11 @@ class ReadingGoal extends ChangeNotifier {
       if (raw != null) {
         final data = jsonDecode(raw);
         if (data is! Map || data['version'] != 1 || data['history'] is! Map) {
-          throw const FormatException('阅读目标版本不支持');
+          throw FormatException(tr('阅读目标版本不支持'));
         }
         final parsed = Map<String, int>.from(data['history']);
         if (parsed.values.any((m) => m < 1 || m > 1440)) {
-          throw const FormatException('阅读目标配置无效');
+          throw FormatException(tr('阅读目标配置无效'));
         }
         history = parsed;
       }
@@ -44,13 +45,13 @@ class ReadingGoal extends ChangeNotifier {
 
   Future<void> set(int minutes) async {
     if (error != null) throw StateError(error!);
-    if (minutes < 1 || minutes > 1440) throw StateError('请输入 1–1440 分钟');
+    if (minutes < 1 || minutes > 1440) throw StateError(tr('请输入 1–1440 分钟'));
     final next = {...history, calendarDay(DateTime.now()): minutes};
     if (!await (await SharedPreferences.getInstance()).setString(
       'reading-goal.v1',
       jsonEncode({'version': 1, 'history': next}),
     )) {
-      throw StateError('阅读目标保存失败');
+      throw StateError(tr('阅读目标保存失败'));
     }
     history = next;
     notifyListeners();
@@ -96,11 +97,11 @@ List<DashboardDefinition> coreDashboardWidgets({
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          title('最近阅读'),
+          title(tr('最近阅读')),
           if (books.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 16),
-              child: Text('从资料库打开一份文件，阅读记录会显示在这里。'),
+              child: Text(tr('从资料库打开一份文件，阅读记录会显示在这里。')),
             ),
           LayoutBuilder(
             builder: (context, constraints) {
@@ -156,15 +157,24 @@ List<DashboardDefinition> coreDashboardWidgets({
       children: [
         Row(
           children: [
-            Expanded(child: title(hero ? '继续阅读' : '最近阅读')),
+            Expanded(child: title(hero ? tr('继续阅读') : tr('最近阅读'))),
             if (hero)
-              TextButton(onPressed: onStatistics, child: const Text('查看记录')),
+              Flexible(
+                child: TextButton(
+                  onPressed: onStatistics,
+                  child: Text(
+                    tr('查看记录'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
           ],
         ),
         if (books.isEmpty)
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
-            child: Text('从资料库打开一份文件，阅读记录会显示在这里。'),
+            child: Text(tr('从资料库打开一份文件，阅读记录会显示在这里。')),
           ),
         for (final book in books)
           InkWell(
@@ -217,7 +227,7 @@ List<DashboardDefinition> coreDashboardWidgets({
                     ),
                   ),
                   IconButton(
-                    tooltip: '文件操作',
+                    tooltip: tr('文件操作'),
                     onPressed: () => onMenu(book),
                     icon: const Icon(Icons.more_vert),
                   ),
@@ -227,7 +237,7 @@ List<DashboardDefinition> coreDashboardWidgets({
           ),
         if (!hero && config.style == 'detailed') ...[
           const Divider(),
-          const Text('最近会话（本地日期 · 前台时长）'),
+          Text(tr('最近会话')),
           for (final visit in data.sessions.reversed.take(config.limit))
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -236,7 +246,7 @@ List<DashboardDefinition> coreDashboardWidgets({
                         .where((b) => b.id == visit.bookId)
                         .firstOrNull
                         ?.title ??
-                    '已移除文件',
+                    tr('已移除文件'),
               ),
               subtitle: Text(
                 '${visit.day} · ${readingDuration(visit.milliseconds)}',
@@ -250,20 +260,20 @@ List<DashboardDefinition> coreDashboardWidgets({
   return [
     DashboardDefinition(
       id: 'core.widget.continue',
-      name: '继续阅读',
+      localizedName: () => tr('继续阅读'),
       icon: Icons.auto_stories_outlined,
       render: (c, d, i, _) => recent(c, d, i, true),
     ),
     DashboardDefinition(
       id: 'core.widget.recent',
       supportsLimit: true,
-      name: '最近阅读',
+      localizedName: () => tr('最近阅读'),
       icon: Icons.history,
       render: (c, d, i, _) => recent(c, d, i, false),
     ),
     DashboardDefinition(
       id: 'core.widget.goal',
-      name: '今日阅读目标',
+      localizedName: () => tr('今日阅读目标'),
       icon: Icons.timelapse,
       render: (context, data, config, _) => AnimatedBuilder(
         animation: goal,
@@ -273,7 +283,7 @@ List<DashboardDefinition> coreDashboardWidgets({
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              title('今日阅读目标'),
+              title(tr('今日阅读目标')),
               if (config.style == 'compact' &&
                   MediaQuery.textScalerOf(context).scale(16) < 24)
                 SizedBox(
@@ -292,7 +302,9 @@ List<DashboardDefinition> coreDashboardWidgets({
                             ),
                           ),
                           Text(
-                            '今日前台阅读 · 目标 $minutes 分钟',
+                            tr('今日前台阅读 · 目标 {minutes} 分钟', {
+                              'minutes': minutes,
+                            }),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -308,14 +320,19 @@ List<DashboardDefinition> coreDashboardWidgets({
                 const SizedBox(height: 12),
                 LinearProgressIndicator(value: fraction),
                 const SizedBox(height: 12),
-                Text('完成 ${(fraction * 100).round()}% · 目标 $minutes 分钟'),
+                Text(
+                  tr('完成 {value}% · 目标 {minutes} 分钟', {
+                    'value': (fraction * 100).round(),
+                    'minutes': minutes,
+                  }),
+                ),
               ],
               TextButton(
                 onPressed: () async {
                   final resultText = await showDialog<String>(
                     context: context,
                     builder: (_) => NameDialog(
-                      title: '每日阅读目标（分钟，1–1440）',
+                      title: tr('每日阅读目标（分钟，1–1440）'),
                       initial: '$minutes',
                     ),
                   );
@@ -334,7 +351,7 @@ List<DashboardDefinition> coreDashboardWidgets({
                     }
                   }
                 },
-                child: const Text('设置阅读目标'),
+                child: Text(tr('设置阅读目标')),
               ),
               if (goal.error != null) Text(goal.error!),
             ],
@@ -344,14 +361,14 @@ List<DashboardDefinition> coreDashboardWidgets({
     ),
     DashboardDefinition(
       id: 'core.widget.week',
-      name: '每周阅读与连续记录',
+      localizedName: () => tr('每周阅读与连续记录'),
       icon: Icons.date_range_outlined,
       render: (context, data, config, _) => AnimatedBuilder(
         animation: goal,
         builder: (context, _) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            title('最近七天'),
+            title(tr('最近七天')),
             LayoutBuilder(
               builder: (context, constraints) => Wrap(
                 spacing: 8,
@@ -362,7 +379,7 @@ List<DashboardDefinition> coreDashboardWidgets({
                       width: math.max(40, (constraints.maxWidth - 48) / 7),
                       child: Column(
                         children: [
-                          Text('一二三四五六日'[day.weekday - 1]),
+                          Text(tr('一二三四五六日')[day.weekday - 1]),
                           const SizedBox(height: 8),
                           Icon(
                             (data.daily[calendarDay(day)] ?? 0) >=
@@ -379,7 +396,11 @@ List<DashboardDefinition> coreDashboardWidgets({
                           ),
                           if (config.style == 'detailed')
                             Text(
-                              '${(data.daily[calendarDay(day)] ?? 0) ~/ 60000}分',
+                              tr('{value}分', {
+                                'value':
+                                    (data.daily[calendarDay(day)] ?? 0) ~/
+                                    60000,
+                              }),
                             ),
                         ],
                       ),
@@ -388,30 +409,30 @@ List<DashboardDefinition> coreDashboardWidgets({
               ),
             ),
             const SizedBox(height: 16),
-            Text('连续阅读 ${data.streak} 天'),
-            const SizedBox(height: 4),
-            Text(
-              '✓ 达成当日目标 · 时钟 有阅读 · 空圈 无记录',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            Text(tr('连续阅读 {streak} 天', {'streak': data.streak})),
           ],
         ),
       ),
     ),
     DashboardDefinition(
       id: 'core.widget.year',
-      name: '年度阅读概览',
+      localizedName: () => tr('年度阅读概览'),
       icon: Icons.insights_outlined,
       render: (context, data, config, _) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          title('${data.now.year} 年阅读概览'),
+          title(tr('{year} 年阅读概览', {'year': data.now.year})),
           Text(
             readingDuration(data.yearTime),
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 12),
-          Text('阅读 ${data.yearBooks} 份 · 到达末尾 ${data.completedBooks} 份'),
+          Text(
+            tr('阅读 {yearBooks} 份 · 到达末尾 {completedBooks} 份', {
+              'yearBooks': data.yearBooks,
+              'completedBooks': data.completedBooks,
+            }),
+          ),
           if (config.style == 'detailed') ...[
             const SizedBox(height: 16),
             for (var m = 1; m <= 12; m++)
@@ -419,7 +440,14 @@ List<DashboardDefinition> coreDashboardWidgets({
                 padding: const EdgeInsets.symmetric(vertical: 5),
                 child: Row(
                   children: [
-                    SizedBox(width: 40, child: Text('$m 月')),
+                    SizedBox(
+                      width: 40,
+                      child: Text(
+                        tr(
+                          '1 月|2 月|3 月|4 月|5 月|6 月|7 月|8 月|9 月|10 月|11 月|12 月',
+                        ).split('|')[m - 1],
+                      ),
+                    ),
                     Expanded(
                       child: LinearProgressIndicator(
                         value: data.yearTime == 0
@@ -436,27 +464,40 @@ List<DashboardDefinition> coreDashboardWidgets({
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      '${data.annual.where((s) => s.day.substring(5, 7) == m.toString().padLeft(2, '0')).fold(0, (n, s) => n + s.milliseconds) ~/ 60000} 分',
+                      tr('{value} 分', {
+                        'value':
+                            data.annual
+                                .where(
+                                  (s) =>
+                                      s.day.substring(5, 7) ==
+                                      m.toString().padLeft(2, '0'),
+                                )
+                                .fold(0, (n, s) => n + s.milliseconds) ~/
+                            60000,
+                      }),
                     ),
                   ],
                 ),
               ),
           ],
           if (config.style == 'compact')
-            TextButton(onPressed: onStatistics, child: const Text('查看详细统计')),
+            TextButton(onPressed: onStatistics, child: Text(tr('查看详细统计'))),
         ],
       ),
     ),
     DashboardDefinition(
       id: 'core.widget.files',
-      name: '项目与文件数量',
+      localizedName: () => tr('项目与文件数量'),
       icon: Icons.folder_outlined,
       render: (c, d, i, _) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          title('资料库'),
+          title(tr('资料库')),
           Text(
-            '${d.library.projects.length - 1} 个项目 · ${d.library.books.length} 份文件',
+            tr('{value} 个项目 · {count} 份文件', {
+              'value': d.library.projects.length - 1,
+              'count': d.library.books.length,
+            }),
           ),
           if (i.style == 'detailed') ...[
             for (final f in const [
@@ -474,7 +515,12 @@ List<DashboardDefinition> coreDashboardWidgets({
                   '$f · ${d.library.books.where((b) => b.format == f).length}',
                 ),
             for (final p in d.library.projects)
-              Text('${p.name} · ${d.library.booksIn(p.id).length} 份'),
+              Text(
+                tr('{name} · {value} 份', {
+                  'name': p.name,
+                  'value': d.library.booksIn(p.id).length,
+                }),
+              ),
           ],
         ],
       ),

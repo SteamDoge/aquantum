@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 AQuantum Reader contributors.
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 class NoteDialog extends StatefulWidget {
   const NoteDialog({super.key});
@@ -18,7 +19,7 @@ class _NoteDialogState extends State<NoteDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: const Text('记下这一刻'),
+    title: Text(tr('记下这一刻')),
     content: SizedBox(
       width: 480,
       child: TextField(
@@ -26,20 +27,20 @@ class _NoteDialogState extends State<NoteDialog> {
         autofocus: true,
         minLines: 4,
         maxLines: 8,
-        decoration: const InputDecoration(
-          labelText: '笔记正文',
-          hintText: '想法、书摘，或留给自己的问题',
+        decoration: InputDecoration(
+          labelText: tr('笔记正文'),
+          hintText: tr('想法、书摘，或留给自己的问题'),
         ),
       ),
     ),
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('取消'),
+        child: Text(tr('取消')),
       ),
       FilledButton(
         onPressed: () => Navigator.pop(context, controller.text),
-        child: const Text('保存笔记'),
+        child: Text(tr('保存笔记')),
       ),
     ],
   );

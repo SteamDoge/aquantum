@@ -2,6 +2,7 @@
 // Copyright (C) 2026 AQuantum Reader contributors.
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 /// The shell consumes capabilities, never file suffixes or renderer classes.
 enum ReaderSetting {
@@ -37,7 +38,7 @@ enum ReaderPanel {
 class ReaderCapabilities {
   final Set<ReaderSetting> settings;
   final bool search, bookmarks;
-  final String searchExplanation, navigationLabel;
+  final String? _searchExplanation, _navigationLabel;
 
   /// Text books can reinterpret their bytes; image books cannot.
   final bool encoding;
@@ -45,10 +46,15 @@ class ReaderCapabilities {
     this.settings = const {},
     this.search = false,
     this.bookmarks = true,
-    this.searchExplanation = '当前渲染器没有提供可检索的文字。',
-    this.navigationLabel = '内容导航',
+    String? searchExplanation,
+    String? navigationLabel,
     this.encoding = false,
-  });
+  }) : _searchExplanation = searchExplanation,
+       _navigationLabel = navigationLabel;
+
+  /// Defaults are looked up on read so they follow the interface language.
+  String get searchExplanation => _searchExplanation ?? tr('当前渲染器没有提供可检索的文字。');
+  String get navigationLabel => _navigationLabel ?? tr('内容导航');
   bool supports(ReaderSetting setting) => settings.contains(setting);
 }
 

@@ -2,6 +2,7 @@
 // Copyright (C) 2026 AQuantum Reader contributors.
 import 'package:flutter/material.dart';
 import 'plugin_api.dart';
+import '../l10n/l10n.dart';
 
 /// One native result surface for every renderer; null means no visible result.
 Future<void> showPluginResult(
@@ -18,7 +19,7 @@ Future<void> showPluginResult(
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('关闭'),
+          child: Text(tr('关闭')),
         ),
       ],
     ),

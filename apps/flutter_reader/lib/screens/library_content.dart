@@ -9,6 +9,7 @@ import '../dashboard/dashboard_data.dart';
 import '../design/theme.dart';
 import '../widgets/book_cover.dart';
 import '../design/widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Folder colors chosen in the project menu, tuned for both brightnesses.
 const projectColors = [
@@ -64,13 +65,12 @@ class _LibraryContentState extends State<LibraryContent> {
     final action = await showAqContextMenu<String>(
       context,
       menuPosition(context),
-      title: '导入时复制一份副本，原文件保持不变',
       sections: [
         [
-          const AqMenuAction('import', '导入文件', Icons.file_upload_outlined),
+          AqMenuAction('import', tr('导入文件'), Icons.file_upload_outlined),
           AqMenuAction(
             'project',
-            widget.projectId == widget.library.inbox ? '新建项目' : '新建文件夹',
+            widget.projectId == widget.library.inbox ? tr('新建项目') : tr('新建文件夹'),
             Icons.create_new_folder_outlined,
           ),
         ],
@@ -158,7 +158,7 @@ class _LibraryContentState extends State<LibraryContent> {
             shape: const CircleBorder(),
           )
         : IconButton(
-            tooltip: '文件操作',
+            tooltip: tr('文件操作'),
             onPressed: widget.busy ? null : () => widget.onBookMenu(b),
             color: colors.muted,
             iconSize: compact ? 20 : 22,
@@ -186,7 +186,7 @@ class _LibraryContentState extends State<LibraryContent> {
     // A shelf caption: format and a short progress mark.
     String shortProgress(Book b) {
       final visit = data.latest[b.id];
-      if (visit == null) return '未读';
+      if (visit == null) return tr('未读');
       final f = data.fraction(b);
       if (f != null) return '${(f * 100).round()}%';
       final day = data.lastRead(b);
@@ -269,7 +269,7 @@ class _LibraryContentState extends State<LibraryContent> {
                   Text(
                     data.latest.containsKey(b.id)
                         ? '${b.label} · ${data.progress(b)} · ${data.lastRead(b)}'
-                        : '${b.label} · 未读',
+                        : tr('{label} · 未读', {'label': b.label}),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall,
@@ -287,7 +287,7 @@ class _LibraryContentState extends State<LibraryContent> {
       final count = c.booksIn(p.id).length + c.children(p.id).length;
       return Semantics(
         customSemanticsActions: {
-          const CustomSemanticsAction(label: '项目操作'): () =>
+          CustomSemanticsAction(label: tr('项目操作')): () =>
               widget.onProjectMenu(p),
         },
         child: GestureDetector(
@@ -310,16 +310,16 @@ class _LibraryContentState extends State<LibraryContent> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         AqPageHeading(
-          current.id == c.inbox ? '资料库' : current.name,
+          current.id == c.inbox ? tr('资料库') : current.name,
           subtitle: query.isEmpty
-              ? '${books.length} 份文件'
-              : '找到 ${books.length} 份文件',
+              ? tr('{count} 份文件', {'count': books.length})
+              : tr('找到 {count} 份文件', {'count': books.length}),
           leading: parent == null
               ? null
               : Align(
                   alignment: Alignment.centerLeft,
                   child: Tooltip(
-                    message: '上级项目',
+                    message: tr('上级项目'),
                     child: TextButton.icon(
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.only(left: 2, right: 10),
@@ -327,7 +327,7 @@ class _LibraryContentState extends State<LibraryContent> {
                       onPressed: () => widget.onProject(parent.id),
                       icon: const Icon(Icons.chevron_left, size: 24),
                       label: Text(
-                        parent.id == c.inbox ? '资料库' : parent.name,
+                        parent.id == c.inbox ? tr('资料库') : parent.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -336,25 +336,25 @@ class _LibraryContentState extends State<LibraryContent> {
                 ),
           actions: [
             PopupMenuButton<String>(
-              tooltip: '显示选项',
+              tooltip: tr('显示选项'),
               onSelected: viewOption,
               icon: const Icon(Icons.more_horiz),
               itemBuilder: (_) => [
                 CheckedPopupMenuItem(
                   value: 'grid',
                   checked: widget.grid,
-                  child: const Text('网格'),
+                  child: Text(tr('网格')),
                 ),
                 CheckedPopupMenuItem(
                   value: 'list',
                   checked: !widget.grid,
-                  child: const Text('列表'),
+                  child: Text(tr('列表')),
                 ),
                 const PopupMenuDivider(),
                 for (final e in [
-                  ('name', '按名称'),
-                  ('recent', '按最近阅读'),
-                  ('format', '按文件类型'),
+                  ('name', tr('按名称')),
+                  ('recent', tr('按最近阅读')),
+                  ('format', tr('按文件类型')),
                 ])
                   CheckedPopupMenuItem(
                     value: e.$1,
@@ -362,7 +362,7 @@ class _LibraryContentState extends State<LibraryContent> {
                     child: Text(e.$2),
                   ),
                 const PopupMenuDivider(),
-                const PopupMenuItem(value: 'select', child: Text('选择文件')),
+                PopupMenuItem(value: 'select', child: Text(tr('选择文件'))),
               ],
             ),
           ],
@@ -370,7 +370,7 @@ class _LibraryContentState extends State<LibraryContent> {
         const SizedBox(height: 16),
         AqSearchField(
           controller: widget.searchController,
-          hint: '搜索项目或文件',
+          hint: tr('搜索项目或文件'),
           onChanged: widget.onSearch,
         ),
         if (selecting)
@@ -380,7 +380,7 @@ class _LibraryContentState extends State<LibraryContent> {
               children: [
                 Expanded(
                   child: Text(
-                    '已选择 ${selected.length} 份',
+                    tr('已选择 {count} 份', {'count': selected.length}),
                     style: theme.textTheme.titleSmall,
                   ),
                 ),
@@ -390,7 +390,7 @@ class _LibraryContentState extends State<LibraryContent> {
                       ..clear()
                       ..addAll(books.map((b) => b.id));
                   }),
-                  child: const Text('全选'),
+                  child: Text(tr('全选')),
                 ),
                 TextButton(
                   onPressed: selected.isEmpty || widget.busy
@@ -398,14 +398,14 @@ class _LibraryContentState extends State<LibraryContent> {
                       : () => widget.onBatch(
                           books.where((b) => selected.contains(b.id)).toList(),
                         ),
-                  child: const Text('批量移动'),
+                  child: Text(tr('批量移动')),
                 ),
                 TextButton(
                   onPressed: () => setState(() {
                     selecting = false;
                     selected.clear();
                   }),
-                  child: const Text('完成'),
+                  child: Text(tr('完成')),
                 ),
               ],
             ),
@@ -427,7 +427,7 @@ class _LibraryContentState extends State<LibraryContent> {
             padding: EdgeInsets.symmetric(horizontal: inset),
             sliver: SliverToBoxAdapter(
               child: AqSection(
-                header: '文件夹',
+                header: tr('文件夹'),
                 children: [for (final p in children) folder(p)],
               ),
             ),
@@ -437,7 +437,7 @@ class _LibraryContentState extends State<LibraryContent> {
             padding: EdgeInsets.fromLTRB(inset + 16, 0, inset, 7),
             sliver: SliverToBoxAdapter(
               child: Text(
-                '文件',
+                tr('文件'),
                 style: theme.textTheme.bodySmall?.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
@@ -500,27 +500,23 @@ class _LibraryContentState extends State<LibraryContent> {
                   const SizedBox(height: 14),
                   Text(
                     query.isEmpty
-                        ? (current.id == c.inbox ? '资料库还没有文件' : '此项目还没有文件')
-                        : '没有匹配的文件',
+                        ? (current.id == c.inbox
+                              ? tr('资料库还没有文件')
+                              : tr('此项目还没有文件'))
+                        : tr('没有匹配的文件'),
                     style: theme.textTheme.titleMedium,
                   ),
                   if (query.isEmpty) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      '导入时会复制一份副本，原文件保持不变。',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodySmall,
-                    ),
                     const SizedBox(height: 20),
                     FilledButton.icon(
                       onPressed: widget.busy ? null : widget.onImport,
                       icon: const Icon(Icons.file_upload_outlined),
-                      label: const Text('导入文件'),
+                      label: Text(tr('导入文件')),
                     ),
                     const SizedBox(height: 4),
                     TextButton(
                       onPressed: widget.busy ? null : widget.onSample,
-                      child: const Text('试读示例'),
+                      child: Text(tr('试读示例')),
                     ),
                   ],
                 ],
@@ -541,7 +537,7 @@ class _LibraryContentState extends State<LibraryContent> {
             bottom: bottomInset + 16,
             child: AqAddButton(
               key: const ValueKey('add-content'),
-              tooltip: '添加内容',
+              tooltip: tr('添加内容'),
               onPressed: widget.busy ? null : addContent,
             ),
           ),

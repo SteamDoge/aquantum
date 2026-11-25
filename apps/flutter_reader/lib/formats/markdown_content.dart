@@ -12,6 +12,7 @@ import '../reader/continuous_progress.dart';
 import '../reader/reader_contract.dart';
 import '../reader/reader_interaction.dart';
 import 'markdown_document.dart';
+import '../l10n/l10n.dart';
 
 class MarkdownContent extends StatefulWidget {
   final ReaderApi api;
@@ -185,14 +186,14 @@ class _MarkdownContentState extends State<MarkdownContent> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('未找到这个文档锚点。')));
+        ).showSnackBar(SnackBar(content: Text(tr('未找到这个文档锚点。'))));
       }
       return;
     }
     await showDialog<void>(
       context: context,
       builder: (c) => AlertDialog(
-        title: const Text('文档链接'),
+        title: Text(tr('文档链接')),
         content: SelectableText(href),
         actions: [
           TextButton(
@@ -200,12 +201,9 @@ class _MarkdownContentState extends State<MarkdownContent> {
               await Clipboard.setData(ClipboardData(text: href));
               if (c.mounted) Navigator.pop(c);
             },
-            child: const Text('复制链接'),
+            child: Text(tr('复制链接')),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(c),
-            child: const Text('关闭'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(c), child: Text(tr('关闭'))),
         ],
       ),
     );
@@ -246,7 +244,7 @@ class _MarkdownContentState extends State<MarkdownContent> {
           height: 48,
           child: ReaderInteractiveRegion(
             child: Checkbox(
-              semanticLabel: '阅读任务',
+              semanticLabel: tr('阅读任务'),
               value: states[key]?['value'] ?? baseline,
               onChanged: !ready || busy.contains(key)
                   ? null
@@ -280,7 +278,7 @@ class _MarkdownContentState extends State<MarkdownContent> {
                     ? null
                     : () => change('fold', b.node, !expanded),
                 icon: Icon(expanded ? Icons.expand_less : Icons.expand_more),
-                label: Text(details.group(1) ?? '折叠内容'),
+                label: Text(details.group(1) ?? tr('折叠内容')),
               ),
             ),
             if (expanded) markdown(details.group(2) ?? ''),
@@ -299,7 +297,7 @@ class _MarkdownContentState extends State<MarkdownContent> {
 
   Widget attachment(Uri uri, String? alt) {
     if (uri.hasScheme || uri.hasAuthority) {
-      return Text('远程图片未自动下载：${alt ?? uri.toString()}');
+      return Text(tr('远程图片未自动下载：{value}', {'value': alt ?? uri.toString()}));
     }
     final original =
         widget.book.pages.first['resource']['original_name'] as String? ??
@@ -308,7 +306,7 @@ class _MarkdownContentState extends State<MarkdownContent> {
     final matches = widget.book.pages
         .skip(1)
         .where((p) => p['resource']['original_name'] == name);
-    if (matches.isEmpty) return Text('附件尚未导入或无法读取：$name');
+    if (matches.isEmpty) return Text(tr('附件尚未导入或无法读取：{name}', {'name': name}));
     final resource = matches.first['resource']['id'] as String;
     return ManagedMarkdownImage(
       key: ValueKey(resource),
@@ -338,18 +336,20 @@ class _MarkdownContentState extends State<MarkdownContent> {
                 setState(() => error = null);
                 await load();
               },
-              child: const Text('重读交互状态'),
+              child: Text(tr('重读交互状态')),
             ),
           ],
         ),
       if (orphaned > 0)
         Padding(
           padding: const EdgeInsets.all(8),
-          child: Text('保留了 $orphaned 项旧正文交互，未自动套用到当前版本。'),
+          child: Text(
+            tr('保留了 {orphaned} 项旧正文交互，未自动套用到当前版本。', {'orphaned': orphaned}),
+          ),
         ),
       Expanded(
         child: widget.document.blocks.isEmpty
-            ? const Center(child: Text('这份文档没有可显示的正文。'))
+            ? Center(child: Text(tr('这份文档没有可显示的正文。')))
             : LayoutBuilder(
                 builder: (context, constraints) {
                   seeker.viewportExtent = constraints.maxHeight;
@@ -393,7 +393,7 @@ class _CodeBuilder extends MarkdownElementBuilder {
               onPressed: () =>
                   Clipboard.setData(ClipboardData(text: element.textContent)),
               icon: const Icon(Icons.copy_outlined),
-              label: const Text('复制代码'),
+              label: Text(tr('复制代码')),
             ),
           ),
         ),
@@ -434,7 +434,9 @@ class _ManagedMarkdownImageState extends State<ManagedMarkdownImage> {
   Widget build(BuildContext context) => FutureBuilder<Uint8List>(
     future: bytes,
     builder: (context, snapshot) {
-      if (snapshot.hasError) return Text('附件无法读取：${snapshot.error}');
+      if (snapshot.hasError) {
+        return Text(tr('附件无法读取：{error}', {'error': snapshot.error}));
+      }
       if (!snapshot.hasData) {
         return const SizedBox(
           height: 100,
@@ -446,7 +448,8 @@ class _ManagedMarkdownImageState extends State<ManagedMarkdownImage> {
         cacheWidth: 1024,
         semanticLabel: widget.alt,
         fit: BoxFit.contain,
-        errorBuilder: (_, _, _) => Text('图片无法解码：${widget.alt}。原副本保留。'),
+        errorBuilder: (_, _, _) =>
+            Text(tr('图片无法解码：{alt}。原副本保留。', {'alt': widget.alt})),
       );
     },
   );

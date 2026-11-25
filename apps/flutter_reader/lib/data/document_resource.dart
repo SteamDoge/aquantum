@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart' as crypto;
 import 'reader_api.dart';
+import '../l10n/l10n.dart';
 
 /// The managed copy of a document the reader is about to lay out.
 ///
@@ -40,11 +41,13 @@ class DocumentResource {
 
   Future<Uint8List> read() async {
     final file = File(path);
-    if (!await file.exists()) throw ReaderFailure('正文副本不存在：$path');
-    if (await file.length() != bytes) throw ReaderFailure('正文副本大小改变');
+    if (!await file.exists()) {
+      throw ReaderFailure(tr('正文副本不存在：{path}', {'path': path}));
+    }
+    if (await file.length() != bytes) throw ReaderFailure(tr('正文副本大小改变'));
     final data = await file.readAsBytes();
     if (crypto.sha256.convert(data).toString() != sha256.toLowerCase()) {
-      throw ReaderFailure('正文副本校验失败');
+      throw ReaderFailure(tr('正文副本校验失败'));
     }
     return data;
   }
@@ -53,6 +56,6 @@ class DocumentResource {
 /// Asks the core for the document's managed bytes, then reads them.
 Future<DocumentResource> loadDocument(ReaderApi api, String book) async {
   final json = await api.call('document_resource', {'book': book});
-  if (json is! Map) throw ReaderFailure('无法读取文档资源');
+  if (json is! Map) throw ReaderFailure(tr('无法读取文档资源'));
   return DocumentResource.parse(json);
 }

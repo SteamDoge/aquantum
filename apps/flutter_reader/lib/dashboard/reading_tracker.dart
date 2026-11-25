@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/reader_api.dart';
 import 'dashboard_data.dart';
+import '../l10n/l10n.dart';
 
 String sessionId() {
   final random = Random.secure();
@@ -94,7 +95,7 @@ class ReadingTracker {
         final prefs = await SharedPreferences.getInstance();
         final key = 'reading-pending.v1.${payload['id']}';
         if (!await prefs.setString(key, jsonEncode(payload))) {
-          throw StateError('阅读统计暂存失败');
+          throw StateError(tr('阅读统计暂存失败'));
         }
         await api.call('reading_checkpoint', payload);
         await prefs.remove(key);
@@ -121,7 +122,7 @@ Future<List<String>> recoverReadingCheckpoints(ReaderApi api) async {
       );
       await prefs.remove(key);
     } catch (e) {
-      errors.add('有阅读会话尚未转存，暂存已保留：$e');
+      errors.add(tr('有阅读会话尚未转存，暂存已保留：{e}', {'e': e}));
     }
   }
   return errors;

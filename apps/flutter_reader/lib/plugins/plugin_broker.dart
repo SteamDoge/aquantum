@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'plugin_instance.dart';
 import 'plugin_manifest.dart';
+import '../l10n/l10n.dart';
 
 /// Host-owned registrations; plugin IDs never come from request arguments.
 class PluginBroker {
@@ -20,7 +21,9 @@ class PluginBroker {
   final _tasks = <String, String>{};
   int _sequence = 0;
   void attach(JavaScriptPlugin plugin) {
-    if (instances.containsKey(plugin.manifest.id)) throw StateError('插件实例重复');
+    if (instances.containsKey(plugin.manifest.id)) {
+      throw StateError(tr('插件实例重复'));
+    }
     instances[plugin.manifest.id] = plugin;
   }
 
@@ -36,7 +39,7 @@ class PluginBroker {
 
   void _permission(JavaScriptPlugin plugin, PluginPermission permission) {
     if (!plugin.active || !plugin.grants.contains(permission)) {
-      throw StateError('未获 ${permission.name} 权限');
+      throw StateError(tr('未获 {name} 权限', {'name': permission.name}));
     }
   }
 
@@ -47,17 +50,17 @@ class PluginBroker {
   ) async {
     final owner = plugin.manifest.id;
     if (instances[owner] != plugin || !plugin.active) {
-      throw StateError('插件身份已撤销');
+      throw StateError(tr('插件身份已撤销'));
     }
     final name = args['name'];
     if (name != null && (name is! String || name.length > 128)) {
-      throw const FormatException('服务或事件名称过长');
+      throw FormatException(tr('服务或事件名称过长'));
     }
     if (method == 'events.emit' &&
             jsonEncode(args['data']).length > 128 * 1024 ||
         method == 'services.call' &&
             jsonEncode(args['args']).length > 512 * 1024) {
-      throw const FormatException('插件消息数据超限');
+      throw FormatException(tr('插件消息数据超限'));
     }
     switch (method) {
       case 'services.provide':
@@ -70,7 +73,7 @@ class PluginBroker {
             args['version'] is! String ||
             !RegExp(r'^\d+\.\d+\.\d+$').hasMatch(args['version']) ||
             args['handler'] is! String) {
-          throw const FormatException('服务名称、版本或回调无效');
+          throw FormatException(tr('服务名称、版本或回调无效'));
         }
         _services[name] = (
           owner: owner,
@@ -92,31 +95,31 @@ class PluginBroker {
         _permission(plugin, PluginPermission.services);
         final service = _services[name];
         if (service == null || instances[service.owner]?.active != true) {
-          throw StateError('服务不存在或已停用');
+          throw StateError(tr('服务不存在或已停用'));
         }
         if (!plugin.dependencies.containsKey(service.owner)) {
-          throw StateError('服务调用须声明对提供者的依赖');
+          throw StateError(tr('服务调用须声明对提供者的依赖'));
         }
         if (args['version'] != null &&
             args['version'].toString().split('.').first !=
                 service.version.split('.').first) {
-          throw StateError('服务接口主版本不兼容');
+          throw StateError(tr('服务接口主版本不兼容'));
         }
         var cursor = service.owner;
         final visited = <String>{owner};
         while (true) {
-          if (!visited.add(cursor)) throw StateError('拒绝循环服务调用');
+          if (!visited.add(cursor)) throw StateError(tr('拒绝循环服务调用'));
           final next = _edges[cursor];
           if (next == null) break;
           cursor = next;
         }
-        if (_edges.containsKey(owner)) throw StateError('同一插件服务调用正在执行');
+        if (_edges.containsKey(owner)) throw StateError(tr('同一插件服务调用正在执行'));
         _edges[owner] = service.owner;
         try {
           final result = await instances[service.owner]!
               .invoke(service.handler, args['args'])
               .timeout(const Duration(seconds: 10));
-          if (!plugin.active) throw StateError('调用方已停用');
+          if (!plugin.active) throw StateError(tr('调用方已停用'));
           return result;
         } finally {
           _edges.remove(owner);
@@ -130,16 +133,16 @@ class PluginBroker {
                     .where((l) => l.owner == owner)
                     .length >=
                 64) {
-          throw const FormatException('事件订阅无效');
+          throw FormatException(tr('事件订阅无效'));
         }
         _eventPermission(plugin, name);
         if (method == 'events.hook' &&
             !{'library.beforeImport', '$owner.hook'}.contains(name)) {
-          throw StateError('宿主未开放此 Hook');
+          throw StateError(tr('宿主未开放此 Hook'));
         }
         final priority = args['priority'] ?? 0;
         if (priority is! int || priority.abs() > 100) {
-          throw const FormatException('Hook优先级须在-100至100');
+          throw FormatException(tr('Hook优先级须在-100至100'));
         }
         (_events[name] ??= []).add((
           owner: owner,
@@ -150,13 +153,13 @@ class PluginBroker {
         return null;
       case 'events.emit':
         if (name is! String || !name.startsWith('$owner.')) {
-          throw StateError('只能发布自己命名空间的事件');
+          throw StateError(tr('只能发布自己命名空间的事件'));
         }
         return emit(name, args['data']);
       case 'tasks.run':
         if (_tasks.values.where((v) => v == owner).length >= 4 ||
             args['handler'] is! String) {
-          throw StateError('任务数量或回调无效');
+          throw StateError(tr('任务数量或回调无效'));
         }
         final id = '$owner.task.${++_sequence}';
         _tasks[id] = owner;
@@ -176,14 +179,14 @@ class PluginBroker {
         return id;
       case 'tasks.cancel':
         final id = args['id'];
-        if (_tasks[id] != owner) throw StateError('任务不存在');
+        if (_tasks[id] != owner) throw StateError(tr('任务不存在'));
         // Cancelling arbitrary JS requires terminating its owned runtime.
         scheduleMicrotask(
-          () => plugin.onFailure?.call(StateError('任务已取消，插件实例已撤销')),
+          () => plugin.onFailure?.call(StateError(tr('任务已取消，插件实例已撤销'))),
         );
         return null;
       default:
-        throw const FormatException('未知插件消息服务');
+        throw FormatException(tr('未知插件消息服务'));
     }
   }
 
@@ -203,12 +206,12 @@ class PluginBroker {
           'app.resume',
         }.contains(name) &&
         !name.startsWith('${plugin.manifest.id}.')) {
-      throw StateError('此事件未开放');
+      throw StateError(tr('此事件未开放'));
     }
   }
 
   Future<dynamic> emit(String name, dynamic data) async {
-    if (!_emitting.add(name)) throw StateError('递归事件已阻止');
+    if (!_emitting.add(name)) throw StateError(tr('递归事件已阻止'));
     try {
       final listeners = [...?_events[name]]
         ..sort((a, b) {

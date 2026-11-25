@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../data/reader_api.dart';
 import '../design/widgets.dart';
+import '../l10n/l10n.dart';
 
 class BookHistoryScreen extends StatefulWidget {
   final ReaderApi api;
@@ -51,16 +52,16 @@ class _BookHistoryScreenState extends State<BookHistoryScreen> {
     final accepted = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
-        title: const Text('撤销此书籍修改？'),
-        content: const Text('恢复修改前的书籍状态，保留资源并产生一条新记录。如果书籍已有后续修改，操作会被拒绝。'),
+        title: Text(tr('撤销此书籍修改？')),
+        content: Text(tr('恢复修改前的书籍状态，保留资源并产生一条新记录。如果书籍已有后续修改，操作会被拒绝。')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c, false),
-            child: const Text('取消'),
+            child: Text(tr('取消')),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(c, true),
-            child: const Text('撤销修改'),
+            child: Text(tr('撤销修改')),
           ),
         ],
       ),
@@ -90,7 +91,7 @@ class _BookHistoryScreenState extends State<BookHistoryScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-          child: AqPageHeading('修改记录', subtitle: widget.title),
+          child: AqPageHeading(tr('修改记录'), subtitle: widget.title),
         ),
         if (busy) const LinearProgressIndicator(),
         if (error != null)
@@ -118,13 +119,27 @@ class _BookHistoryScreenState extends State<BookHistoryScreen> {
                 ]) {
                   if (jsonEncode(before[key]) != jsonEncode(after[key])) {
                     differences.add(switch (key) {
-                      'title' => '名称：${before[key]} → ${after[key]}',
-                      'metadata' => '书籍信息与封面',
-                      'project' => '项目：${before[key]} → ${after[key]}',
-                      'gap' => '间隔：${before[key]} → ${after[key]}',
-                      'archived' => '移出书架：${before[key]} → ${after[key]}',
-                      _ =>
-                        '页序 / 资源：${(before['pages'] as List).length} → ${(after['pages'] as List).length} 页',
+                      'title' => tr('名称：{value} → {value2}', {
+                        'value': before[key],
+                        'value2': after[key],
+                      }),
+                      'metadata' => tr('书籍信息与封面'),
+                      'project' => tr('项目：{value} → {value2}', {
+                        'value': before[key],
+                        'value2': after[key],
+                      }),
+                      'gap' => tr('间隔：{value} → {value2}', {
+                        'value': before[key],
+                        'value2': after[key],
+                      }),
+                      'archived' => tr('移出书架：{value} → {value2}', {
+                        'value': before[key],
+                        'value2': after[key],
+                      }),
+                      _ => tr('页序 / 资源：{value} → {value2} 页', {
+                        'value': (before['pages'] as List).length,
+                        'value2': (after['pages'] as List).length,
+                      }),
                     });
                   }
                 }
@@ -132,24 +147,33 @@ class _BookHistoryScreenState extends State<BookHistoryScreen> {
               return Card(
                 child: ExpansionTile(
                   title: Text(
-                    '${switch (op['action']) {
-                      'book_metadata' => '更新信息与封面',
-                      'book_rename' => '重命名',
-                      'book_move' || 'book_remove' => '移动项目',
-                      'book_copy' => '复制书籍',
-                      'book_archive' => '移出书架',
-                      'book_restore' => '恢复到书架',
-                      'reorder_pages' => '调整页序',
-                      'reverse_pages' => '反转选中页',
-                      'set_book_gap' => '修改阅读间隔',
-                      'set_book_direction' => '修改阅读方向',
-                      'undo_book_change' => '恢复历史版本',
-                      'import_book' => '导入书籍',
-                      _ => '书籍修改',
-                    }} · 版本 ${before?['revision'] ?? '—'} → ${after?['revision'] ?? '—'}',
+                    tr('{action} · 版本 {from} → {to}', {
+                      'action': switch (op['action']) {
+                        'book_metadata' => tr('更新信息与封面'),
+                        'book_rename' => tr('重命名'),
+                        'book_move' || 'book_remove' => tr('移动项目'),
+                        'book_copy' => tr('复制书籍'),
+                        'book_archive' => tr('移出书架'),
+                        'book_restore' => tr('恢复到书架'),
+                        'reorder_pages' => tr('调整页序'),
+                        'reverse_pages' => tr('反转选中页'),
+                        'set_book_gap' => tr('修改阅读间隔'),
+                        'set_book_direction' => tr('修改阅读方向'),
+                        'undo_book_change' => tr('恢复历史版本'),
+                        'import_book' => tr('导入书籍'),
+                        _ => tr('书籍修改'),
+                      },
+                      'from': before?['revision'] ?? '—',
+                      'to': after?['revision'] ?? '—',
+                    }),
                   ),
                   subtitle: Text(
-                    '${DateTime.fromMillisecondsSinceEpoch((op['unix_seconds'] as int) * 1000)}\n操作者：${op['actor']}',
+                    tr('{value}\n操作者：{value2}', {
+                      'value': DateTime.fromMillisecondsSinceEpoch(
+                        (op['unix_seconds'] as int) * 1000,
+                      ),
+                      'value2': op['actor'],
+                    }),
                   ),
                   children: [
                     Padding(
@@ -161,10 +185,10 @@ class _BookHistoryScreenState extends State<BookHistoryScreen> {
                           if (before != null && after != null)
                             OutlinedButton(
                               onPressed: busy ? null : () => restore(op),
-                              child: const Text('撤销此修改'),
+                              child: Text(tr('撤销此修改')),
                             ),
                           ExpansionTile(
-                            title: const Text('完整前后差异'),
+                            title: Text(tr('完整前后差异')),
                             children: [
                               SelectableText(
                                 const JsonEncoder.withIndent(

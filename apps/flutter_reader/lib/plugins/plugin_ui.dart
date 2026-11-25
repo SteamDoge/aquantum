@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'plugin_instance.dart';
+import '../l10n/l10n.dart';
 
 bool pluginUiHasEvents(dynamic node) =>
     node is Map &&
@@ -58,11 +59,11 @@ void validatePluginUi(dynamic ui) {
               node[k] != null &&
               (node[k] is! String || (node[k] as String).length > 8000),
         )) {
-      throw const FormatException('Plugin UI Schema 1 无效或超出渲染限制');
+      throw FormatException(tr('Plugin UI Schema 1 无效或超出渲染限制'));
     }
     if (node['children'] != null) {
       if (node['children'] is! List) {
-        throw const FormatException('children必须是列表');
+        throw FormatException(tr('children必须是列表'));
       }
       for (final child in node['children']) {
         visit(child, depth + 1);
@@ -75,18 +76,18 @@ void validatePluginUi(dynamic ui) {
             node['min'] >= node['max'] ||
             node['value'] < node['min'] ||
             node['value'] > node['max'])) {
-      throw const FormatException('滑块数值无效');
+      throw FormatException(tr('滑块数值无效'));
     }
     if (node['type'] == 'switch' && node['value'] is! bool) {
-      throw const FormatException('开关值必须为布尔值');
+      throw FormatException(tr('开关值必须为布尔值'));
     }
     if ({'button', 'switch', 'slider', 'textField'}.contains(node['type']) &&
         (node['event'] is! String || (node['event'] as String).isEmpty)) {
-      throw const FormatException('交互组件必须有事件标识');
+      throw FormatException(tr('交互组件必须有事件标识'));
     }
   }
 
-  if (jsonEncode(ui).length > 128 * 1024) throw const FormatException('UI描述过大');
+  if (jsonEncode(ui).length > 128 * 1024) throw FormatException(tr('UI描述过大'));
   visit(ui, 0);
 }
 
@@ -226,7 +227,7 @@ class _PluginNativePageState extends State<PluginNativePage> {
                 ),
               ),
       'menu' => Wrap(spacing: 8, children: children),
-      _ => throw const FormatException('不支持的组件'),
+      _ => throw FormatException(tr('不支持的组件')),
     };
     return Padding(
       key: n['id'] is String ? ValueKey(n['id']) : null,
@@ -241,7 +242,7 @@ class _PluginNativePageState extends State<PluginNativePage> {
     builder: (context, _) {
       final slot = widget.plugin.slots[widget.slotId];
       if (slot == null || !widget.plugin.active) {
-        return const Center(child: Text('插件已停用'));
+        return Center(child: Text(tr('插件已停用')));
       }
       return ListView(
         padding: EdgeInsets.fromLTRB(

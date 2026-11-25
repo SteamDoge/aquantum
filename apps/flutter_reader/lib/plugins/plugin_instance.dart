@@ -11,6 +11,7 @@ import 'plugin_runtime.dart';
 import 'plugin_ui.dart';
 import 'web_plugin_view.dart';
 import '../dashboard/widget_registry.dart';
+import '../l10n/l10n.dart';
 
 const pluginIcons = <String, IconData>{
   'extension': Icons.extension_outlined,
@@ -123,9 +124,7 @@ class JavaScriptPlugin extends ChangeNotifier implements ReaderPlugin {
         (json['platforms'] as List).any(
           (p) => !{'windows', 'android', 'ios', 'linux'}.contains(p),
         )) {
-      throw const FormatException(
-        '插件清单无效；仅支持 javascript-v1 与编译后的 JavaScript 入口',
-      );
+      throw FormatException(tr('插件清单无效；仅支持 javascript-v1 与编译后的 JavaScript 入口'));
     }
     final dependencies = json['dependencies'] ?? {};
     if (dependencies is! Map ||
@@ -136,14 +135,14 @@ class JavaScriptPlugin extends ChangeNotifier implements ReaderPlugin {
               e.value is! String ||
               !RegExp(r'^\d+\.\d+\.\d+$').hasMatch(e.value),
         )) {
-      throw const FormatException('依赖必须指定插件ID和最低三段版本');
+      throw FormatException(tr('依赖必须指定插件ID和最低三段版本'));
     }
     if (json['pages'] != null &&
         (json['pages'] is! List ||
             (json['pages'] as List).any(
               (p) => p is! String || !(p).endsWith('.html'),
             ))) {
-      throw const FormatException('页面资源必须是 HTML 相对路径');
+      throw FormatException(tr('页面资源必须是 HTML 相对路径'));
     }
   }
 
@@ -151,7 +150,7 @@ class JavaScriptPlugin extends ChangeNotifier implements ReaderPlugin {
   Future<void> activate(PluginRegistrar registrar) async {
     if (active) return;
     final services = hostServices;
-    if (services == null) throw StateError('未配置插件宿主');
+    if (services == null) throw StateError(tr('未配置插件宿主'));
     activating = true;
     active = true;
     lifetime.start();
@@ -179,34 +178,34 @@ class JavaScriptPlugin extends ChangeNotifier implements ReaderPlugin {
   }
 
   Future<dynamic> invoke(String handler, dynamic payload) async {
-    if (!active) throw StateError('插件已停用');
+    if (!active) throw StateError(tr('插件已停用'));
     return runtime!.invoke('invoke', handler: handler, payload: payload);
   }
 
   Future<dynamic> call(String method, Map<String, dynamic> args) async {
-    if (!active) throw StateError('插件已停用');
+    if (!active) throw StateError(tr('插件已停用'));
     final now = _requestClock.elapsedMilliseconds;
     if (now - _requestWindow >= 1000) {
       _requestWindow = now;
       _requestCount = 0;
     }
     if (++_requestCount > 120) {
-      final error = StateError('插件宿主调用超过每秒120次，实例已撤销');
+      final error = StateError(tr('插件宿主调用超过每秒120次，实例已撤销'));
       onFailure?.call(error);
       throw error;
     }
     if (method.startsWith('slots.')) {
       final id = args['id'];
       if (id is! String || !RegExp(r'^[a-z][a-z0-9_-]{0,31}$').hasMatch(id)) {
-        throw const FormatException('扩展ID无效');
+        throw FormatException(tr('扩展ID无效'));
       }
       if (method == 'slots.remove') {
         slots.remove(id);
       } else if (method == 'slots.update') {
-        if (!slots.containsKey(id)) throw StateError('扩展不存在');
+        if (!slots.containsKey(id)) throw StateError(tr('扩展不存在'));
         validatePluginUi(args['ui']);
         if (pluginUiHasEvents(args['ui']) && slots[id]!['handler'] is! String) {
-          throw const FormatException('交互组件必须提供页面回调');
+          throw FormatException(tr('交互组件必须提供页面回调'));
         }
         slots[id] = {...slots[id]!, 'ui': args['ui']};
       } else if (method == 'slots.register') {
@@ -228,7 +227,7 @@ class JavaScriptPlugin extends ChangeNotifier implements ReaderPlugin {
                 (args['handler'] is! String ||
                     (args['handler'] as String).length > 128) ||
             args['navigation'] != null && args['navigation'] is! bool) {
-          throw const FormatException('未知扩展属性或属性类型无效');
+          throw FormatException(tr('未知扩展属性或属性类型无效'));
         }
         if (slots.containsKey(id) ||
             slots.length >= 64 ||
@@ -249,24 +248,24 @@ class JavaScriptPlugin extends ChangeNotifier implements ReaderPlugin {
               'dashboard',
               'format',
             }.contains(args['type'])) {
-          throw const FormatException('扩展声明无效或重复');
+          throw FormatException(tr('扩展声明无效或重复'));
         }
         if (args['type'] == 'page' ||
             args['type'] == 'settings' ||
             args['type'] == 'dashboard') {
           if (args['type'] == 'dashboard' && args['html'] != null) {
-            throw const FormatException('主页组件使用原生UI描述');
+            throw FormatException(tr('主页组件使用原生UI描述'));
           }
           if (args['html'] != null) {
             if (args['html'] is! String ||
                 !assets.containsKey(args['html']) ||
                 !(args['html'] as String).endsWith('.html')) {
-              throw const FormatException('页面不在安装包内');
+              throw FormatException(tr('页面不在安装包内'));
             }
           } else {
             validatePluginUi(args['ui']);
             if (pluginUiHasEvents(args['ui']) && args['handler'] is! String) {
-              throw const FormatException('交互组件必须提供页面回调');
+              throw FormatException(tr('交互组件必须提供页面回调'));
             }
           }
         } else if (args['type'] == 'format') {
@@ -277,18 +276,18 @@ class JavaScriptPlugin extends ChangeNotifier implements ReaderPlugin {
             'fixed_page',
             'image_page',
           }.contains(args['surface'])) {
-            throw const FormatException('格式阅读面无效');
+            throw FormatException(tr('格式阅读面无效'));
           }
         } else if (args['handler'] is! String) {
-          throw const FormatException('操作缺少回调');
+          throw FormatException(tr('操作缺少回调'));
         }
         if (args['type'] == 'textSelection' &&
             !grants.contains(PluginPermission.selectedText)) {
-          throw StateError('未授权选中文字');
+          throw StateError(tr('未授权选中文字'));
         }
         slots[id] = Map.unmodifiable(args);
       } else {
-        throw const FormatException('未知扩展方法');
+        throw FormatException(tr('未知扩展方法'));
       }
       notifyListeners();
       if (!activating) onChanged?.call();
@@ -318,7 +317,7 @@ class JavaScriptPlugin extends ChangeNotifier implements ReaderPlugin {
         if (pages is! List ||
             pages.isEmpty ||
             pages.any((p) => !{'home', 'statistics'}.contains(p))) {
-          throw const FormatException('组件页面无效');
+          throw FormatException(tr('组件页面无效'));
         }
         registrar.widget(
           DashboardDefinition(

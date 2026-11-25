@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 
 import '../reader/reader_contract.dart';
 import 'document_engine.dart';
+import '../l10n/l10n.dart';
 
 /// Platform hosts only transport messages and mount the browser. All document
 /// commands and notifications use this single protocol implementation.
@@ -32,7 +33,7 @@ abstract class ChannelDocumentEngine implements DocumentEngine {
             ReaderSetting.turnEffect,
           }),
           search: true,
-          navigationLabel: '目录',
+          navigationLabel: tr('目录'),
         );
 
   @override
@@ -71,7 +72,7 @@ abstract class ChannelDocumentEngine implements DocumentEngine {
       final id = event.detail['id']?.toString() ?? '';
       try {
         if (!allowed.contains(id)) {
-          throw const DocumentEngineFailure('图片不属于当前书籍');
+          throw DocumentEngineFailure(tr('图片不属于当前书籍'));
         }
         final data = await readImage(id);
         await channel.call('image', {'id': id, 'data': data});

@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'reader_toolbar.dart';
+import '../l10n/l10n.dart';
 
 String toolbarCoreId(ReaderToolbarAction action) => 'core.${action.name}';
 
@@ -21,7 +22,7 @@ class ToolbarLayout {
         json['version'] != 1 ||
         json['pinned'] is! List ||
         json['hidden'] is! List) {
-      throw const FormatException('工具栏配置无法读取，原记录已保留');
+      throw FormatException(tr('工具栏配置无法读取，原记录已保留'));
     }
     final pinned = json['pinned'] as List, hidden = json['hidden'] as List;
     if (pinned.length + hidden.length > 512 ||
@@ -33,7 +34,7 @@ class ToolbarLayout {
         hidden.toSet().length != hidden.length ||
         !pinned.toSet().containsAll(requiredIds) ||
         hidden.any(pinned.contains)) {
-      throw const FormatException('工具栏配置无效，原记录已保留');
+      throw FormatException(tr('工具栏配置无效，原记录已保留'));
     }
     return ToolbarLayout(List<String>.from(pinned), Set<String>.from(hidden));
   }
@@ -57,7 +58,7 @@ class ToolbarPreferences {
       key,
       layout.encode(),
     )) {
-      throw StateError('工具栏保存失败');
+      throw StateError(tr('工具栏保存失败'));
     }
   }
 }

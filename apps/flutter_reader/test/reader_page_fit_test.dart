@@ -178,7 +178,8 @@ void main() {
   });
 
   testWidgets(
-    'per-book night palette leaves light toolbar and system icons readable',
+    'per-book night palette keeps the light toolbar and runs the paper '
+    'under light system bar icons',
     (tester) async {
       SharedPreferences.setMockInitialValues({
         'reader-ui.v2.test-Txt': '{"version":1,"theme":"navy"}',
@@ -203,9 +204,22 @@ void main() {
       final overlays = tester.widgetList<AnnotatedRegion<SystemUiOverlayStyle>>(
         find.byType(AnnotatedRegion<SystemUiOverlayStyle>),
       );
+      // The navy paper fills the status bar and gesture bar strips, so the
+      // icons over it are light, and gesture navigation shows only its handle.
+      final style = overlays.last.value;
+      expect(style.statusBarIconBrightness, Brightness.light);
+      expect(style.systemNavigationBarIconBrightness, Brightness.light);
+      expect(style.statusBarColor, Colors.transparent);
+      expect(style.systemNavigationBarColor, Colors.transparent);
+      final screen = tester.view.physicalSize / tester.view.devicePixelRatio;
       expect(
-        overlays.any((o) => o.value.statusBarIconBrightness == Brightness.dark),
-        isTrue,
+        find.byWidgetPredicate(
+          (w) =>
+              w is ColoredBox &&
+              w.color.computeLuminance() < .1 &&
+              tester.getSize(find.byWidget(w)) == screen,
+        ),
+        findsWidgets,
       );
       await tester.pumpWidget(const SizedBox());
     },

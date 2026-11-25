@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import '../l10n/l10n.dart';
 
 class BookMatch {
   final String title, author, publisher, isbn, summary, sourceId;
@@ -43,7 +44,7 @@ class BookMetadataSource {
             uri.host == 'covers.openlibrary.org' ||
             uri.host == 'archive.org' ||
             uri.host.endsWith('.archive.org'))) {
-      throw const FormatException('书目源跳转到了不支持的地址');
+      throw FormatException(tr('书目源跳转到了不支持的地址'));
     }
     final request = await client
         .getUrl(uri)
@@ -54,36 +55,38 @@ class BookMetadataSource {
       final location = response.headers.value(HttpHeaders.locationHeader);
       await response.drain<void>().timeout(const Duration(seconds: 5));
       if (location == null || redirects >= 4) {
-        throw const FormatException('书目源跳转无效');
+        throw FormatException(tr('书目源跳转无效'));
       }
       return read(uri.resolve(location), limit, redirects + 1);
     }
     if (response.statusCode != 200) {
       await response.drain<void>().timeout(const Duration(seconds: 5));
-      throw HttpException('书目源返回 ${response.statusCode}，请稍后重试');
+      throw HttpException(
+        tr('书目源返回 {statusCode}，请稍后重试', {'statusCode': response.statusCode}),
+      );
     }
     if (response.contentLength > limit) {
       await response.listen(null).cancel();
-      throw const FormatException('书目源响应过大');
+      throw FormatException(tr('书目源响应过大'));
     }
     final bytes = BytesBuilder(copy: false);
     await for (final chunk in response.timeout(const Duration(seconds: 20))) {
       bytes.add(chunk);
-      if (bytes.length > limit) throw const FormatException('书目源响应过大');
+      if (bytes.length > limit) throw FormatException(tr('书目源响应过大'));
     }
     return bytes.takeBytes();
   }
 
   Future<Map<String, dynamic>> json(Uri uri) async {
     final data = jsonDecode(utf8.decode(await read(uri, 2 * 1024 * 1024)));
-    if (data is! Map<String, dynamic>) throw const FormatException('书目源数据无效');
+    if (data is! Map<String, dynamic>) throw FormatException(tr('书目源数据无效'));
     return data;
   }
 
   Future<List<BookMatch>> search(String query) async {
     final trimmed = query.trim();
     if (trimmed.isEmpty || trimmed.length > 256) {
-      throw const FormatException('请输入书名、作者或ISBN（最多256字）');
+      throw FormatException(tr('请输入书名、作者或ISBN（最多256字）'));
     }
     final result = await json(
       Uri.https('openlibrary.org', '/search.json', {
@@ -96,7 +99,7 @@ class BookMetadataSource {
       }),
     );
     final docs = result['docs'];
-    if (docs is! List) throw const FormatException('书目源未返回有效候选');
+    if (docs is! List) throw FormatException(tr('书目源未返回有效候选'));
     final matches = <BookMatch>[];
     for (final doc in docs.whereType<Map>()) {
       final editions = doc['editions'];
@@ -114,7 +117,7 @@ class BookMetadataSource {
       matches.add(
         BookMatch(
           title: title,
-          author: strings(doc['author_name']).join('、'),
+          author: strings(doc['author_name']).join(tr('、')),
           sourceId: key,
         ),
       );
@@ -124,7 +127,7 @@ class BookMetadataSource {
 
   Future<BookMatch> detail(BookMatch match) async {
     if (!RegExp(r'^/books/OL[0-9]+M$').hasMatch(match.sourceId)) {
-      throw const FormatException('书目编号无效');
+      throw FormatException(tr('书目编号无效'));
     }
     final item = await json(
       Uri.https('openlibrary.org', '${match.sourceId}.json'),
@@ -132,7 +135,7 @@ class BookMetadataSource {
     final authorNames = <String>[];
     final authors = item['authors'];
     if (authors is List) {
-      if (authors.length > 12) throw const FormatException('此版本作者过多，请手动核对信息');
+      if (authors.length > 12) throw FormatException(tr('此版本作者过多，请手动核对信息'));
       for (final author in authors.whereType<Map>()) {
         final key = author['key'];
         if (key is! String || !RegExp(r'^/authors/OL[0-9]+A$').hasMatch(key)) {
@@ -156,8 +159,8 @@ class BookMetadataSource {
         : null;
     return BookMatch(
       title: item['title'] is String ? item['title'] : match.title,
-      author: authorNames.join('、'),
-      publisher: strings(item['publishers']).join('、'),
+      author: authorNames.join(tr('、')),
+      publisher: strings(item['publishers']).join(tr('、')),
       isbn: isbn.firstOrNull ?? fallbackIsbn.firstOrNull ?? '',
       summary: summary,
       sourceId: match.sourceId,
@@ -166,7 +169,7 @@ class BookMetadataSource {
   }
 
   Future<Uint8List> cover(int id) {
-    if (id <= 0) throw const FormatException('封面编号无效');
+    if (id <= 0) throw FormatException(tr('封面编号无效'));
     return read(
       Uri.https('covers.openlibrary.org', '/b/id/$id-L.jpg', {
         'default': 'false',

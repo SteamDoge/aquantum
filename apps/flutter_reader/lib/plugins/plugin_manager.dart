@@ -11,6 +11,7 @@ import 'plugin_package.dart';
 import 'plugin_host.dart';
 import 'plugin_data.dart';
 import '../dashboard/widget_registry.dart';
+import '../l10n/l10n.dart';
 
 enum PluginStatus { available, disabled, enabled, suspended, failed }
 
@@ -29,7 +30,7 @@ class DevicePluginStore implements PluginStateStore {
       'plugins.javascript.v1',
       value,
     )) {
-      throw StateError('插件状态保存失败');
+      throw StateError(tr('插件状态保存失败'));
     }
   }
 }
@@ -40,7 +41,7 @@ class PluginRecord {
   PluginStatus status = PluginStatus.available;
   String? error;
   Set<PluginPermission> grants = {};
-  String source = '随附插件';
+  String source = '随附插件'; // l10n-keep: stored value, shown via tr
   List<PluginAction> actions = [];
   List<ReaderFormatRegistration> formats = [];
   PluginRecord(this.implementation);
@@ -78,14 +79,14 @@ class PluginManager extends ChangeNotifier {
             r'^\d+\.\d+\.\d+(?:[-+][a-zA-Z0-9.-]+)?$',
           ).hasMatch(manifest.version) ||
           _records.containsKey(manifest.id)) {
-        throw ArgumentError('插件清单或重复编号无效');
+        throw ArgumentError(tr('插件清单或重复编号无效'));
       }
       _records[manifest.id] = PluginRecord(implementation);
     }
   }
   List<PluginRecord> get records => List.unmodifiable(_records.values);
   PluginRecord record(String id) =>
-      _records[id] ?? (throw StateError('此构建未包含该插件代码'));
+      _records[id] ?? (throw StateError(tr('此构建未包含该插件代码')));
 
   final List<String> packageErrors = [];
   int packageCount = 0, packageBytes = 0, incompleteBytes = 0;
@@ -104,7 +105,7 @@ class PluginManager extends ChangeNotifier {
 
   void restorePackage(ReaderPlugin implementation) {
     if (ready || _records.containsKey(implementation.manifest.id)) {
-      throw StateError('插件目录已装配或编号重复');
+      throw StateError(tr('插件目录已装配或编号重复'));
     }
     _records[implementation.manifest.id] = PluginRecord(implementation);
   }
@@ -112,18 +113,18 @@ class PluginManager extends ChangeNotifier {
   void checkImport(JavaScriptPlugin plugin) {
     final old = _records[plugin.manifest.id];
     if (old != null && old.implementation is! JavaScriptPlugin) {
-      throw StateError('不能替换随附代码插件');
+      throw StateError(tr('不能替换随附代码插件'));
     }
     if (old != null &&
         comparePluginVersions(plugin.manifest.version, old.manifest.version) <=
             0 &&
         old.status != PluginStatus.available) {
-      throw StateError('该插件已安装；更新包版本须高于当前版本');
+      throw StateError(tr('该插件已安装；更新包版本须高于当前版本'));
     }
     if (old != null &&
         comparePluginVersions(plugin.manifest.version, old.manifest.version) <
             0) {
-      throw StateError('本版不允许插件降级，已有版本已保留');
+      throw StateError(tr('本版不允许插件降级，已有版本已保留'));
     }
   }
 
@@ -131,14 +132,14 @@ class PluginManager extends ChangeNotifier {
     JavaScriptPlugin declaration,
     PluginPackageStore packages,
     List<int> bytes, {
-    String source = '本地 ZIP',
+    String source = '本地 ZIP', // l10n-keep: stored value, shown via tr
   }) => _run(() async {
     final plugin = await inspectPluginZip(Uint8List.fromList(bytes));
     if (plugin.manifest.id != declaration.manifest.id ||
         plugin.manifest.version != declaration.manifest.version ||
         (declaration.packageDigest != null &&
             declaration.packageDigest != plugin.packageDigest)) {
-      throw const FormatException('安装预览与包内容不一致');
+      throw FormatException(tr('安装预览与包内容不一致'));
     }
     checkImport(plugin);
     final previous = _records[plugin.manifest.id]?.implementation;
@@ -172,7 +173,7 @@ class PluginManager extends ChangeNotifier {
       if (encoded != null) {
         final data = jsonDecode(encoded);
         if (data is! Map || data['version'] != 1 || data['plugins'] is! Map) {
-          throw const FormatException('无法读取插件配置，已保留原配置并停止自动启用');
+          throw FormatException(tr('无法读取插件配置，已保留原配置并停止自动启用'));
         }
         _saved = Map<String, dynamic>.from(data['plugins']);
       }
@@ -210,7 +211,7 @@ class PluginManager extends ChangeNotifier {
           if (committed == null ||
               committed.manifest.id != entry.key ||
               committed.manifest.version != config['package_version']) {
-            record.error = '已确认版本的安装包不可用，未启用未提交的新版本';
+            record.error = tr('已确认版本的安装包不可用，未启用未提交的新版本');
             record.status = PluginStatus.failed;
             continue;
           }
@@ -220,8 +221,8 @@ class PluginManager extends ChangeNotifier {
         record.source =
             config['source'] as String? ??
             (record.implementation is JavaScriptPlugin
-                ? '本地 ZIP（旧记录）'
-                : '随附插件');
+                ? '本地 ZIP（旧记录）' // l10n-keep: stored value, shown via tr
+                : '随附插件'); // l10n-keep: stored value, shown via tr
         record.status = PluginStatus.disabled;
         record.grants = PluginPermission.values
             .where((p) => (config['grants'] as List? ?? []).contains(p.name))
@@ -251,30 +252,31 @@ class PluginManager extends ChangeNotifier {
   Future<void> install(String id) => _run(() async {
     final item = record(id);
     if (item.manifest.apiVersion != pluginApiVersion) {
-      throw StateError('插件 API 版本不兼容');
+      throw StateError(tr('插件 API 版本不兼容'));
     }
-    if (item.status != PluginStatus.available) throw StateError('插件已安装');
+    if (item.status != PluginStatus.available) throw StateError(tr('插件已安装'));
     await _persist(id, installed: true, enabled: false, grants: {});
     item.status = PluginStatus.disabled;
   });
 
-  Future<void> enable(String id, Set<PluginPermission> grants) =>
-      _run(() async {
-        final item = record(id);
-        if (item.status == PluginStatus.available) throw StateError('请先安装插件');
-        if (item.status == PluginStatus.enabled) return;
-        if (!grants.containsAll(item.manifest.permissions)) {
-          throw StateError('尚未授权插件所需权限');
-        }
-        final accepted = grants.intersection(item.manifest.permissions);
-        await _persist(id, installed: true, enabled: true, grants: accepted);
-        item.grants = accepted;
-        await _activate(item);
-        if (item.status == PluginStatus.failed) {
-          await _persist(id, installed: true, enabled: false, grants: accepted);
-          throw StateError(item.error!);
-        }
-      });
+  Future<void> enable(String id, Set<PluginPermission> grants) => _run(
+    () async {
+      final item = record(id);
+      if (item.status == PluginStatus.available) throw StateError(tr('请先安装插件'));
+      if (item.status == PluginStatus.enabled) return;
+      if (!grants.containsAll(item.manifest.permissions)) {
+        throw StateError(tr('尚未授权插件所需权限'));
+      }
+      final accepted = grants.intersection(item.manifest.permissions);
+      await _persist(id, installed: true, enabled: true, grants: accepted);
+      item.grants = accepted;
+      await _activate(item);
+      if (item.status == PluginStatus.failed) {
+        await _persist(id, installed: true, enabled: false, grants: accepted);
+        throw StateError(item.error!);
+      }
+    },
+  );
 
   Future<void> disable(String id) => _run(() async {
     final item = record(id);
@@ -287,7 +289,7 @@ class PluginManager extends ChangeNotifier {
   Future<PluginData> data() async {
     final host = hostServices;
     final root = host?.storagePath ?? await host?.storageRoot?.call();
-    if (root == null) throw StateError('未配置插件数据目录');
+    if (root == null) throw StateError(tr('未配置插件数据目录'));
     return PluginData(root);
   }
 
@@ -310,7 +312,7 @@ class PluginManager extends ChangeNotifier {
         );
   Future<void> rollback(String id) => _run(() async {
     final versions = previousVersions(id);
-    if (versions.isEmpty) throw StateError('没有保留的旧版本');
+    if (versions.isEmpty) throw StateError(tr('没有保留的旧版本'));
     final previous = versions.first;
     final current = record(id);
     await _persist(
@@ -399,7 +401,7 @@ class PluginManager extends ChangeNotifier {
           }
         };
         if (!plugin.platforms.contains(Platform.operatingSystem)) {
-          throw StateError('插件不支持当前平台');
+          throw StateError(tr('插件不支持当前平台'));
         }
         for (final dependency in plugin.dependencies.entries) {
           final provider = _records[dependency.key];
@@ -412,14 +414,16 @@ class PluginManager extends ChangeNotifier {
                   0 ||
               provider.manifest.version.split('.').first !=
                   dependency.value.split('.').first) {
-            throw StateError('依赖 ${dependency.key} 缺失、未启用或版本不兼容');
+            throw StateError(
+              tr('依赖 {key} 缺失、未启用或版本不兼容', {'key': dependency.key}),
+            );
           }
         }
       }
 
       if (item.manifest.apiVersion != pluginApiVersion ||
           !item.grants.containsAll(item.manifest.permissions)) {
-        throw StateError('API 不兼容或权限不足，插件未启用');
+        throw StateError(tr('API 不兼容或权限不足，插件未启用'));
       }
       await item.implementation.activate(registrar).timeout(timeout);
       registrar.seal();
@@ -459,7 +463,7 @@ class PluginManager extends ChangeNotifier {
     try {
       await item.implementation.deactivate().timeout(timeout);
     } catch (error) {
-      item.error = '插件停止时报告错误：$error';
+      item.error = tr('插件停止时报告错误：{error}', {'error': error});
     }
   }
 
@@ -488,7 +492,7 @@ class PluginManager extends ChangeNotifier {
       final action = matches.single;
       if (!action.matches(context) ||
           !item.grants.containsAll(action.permissions)) {
-        throw StateError('当前内容不满足操作能力或权限');
+        throw StateError(tr('当前内容不满足操作能力或权限'));
       }
       try {
         // Do not disclose selection text to actions without that permission.
@@ -505,7 +509,7 @@ class PluginManager extends ChangeNotifier {
         final result = await action.invoke(scoped).timeout(timeout);
         if (item.status != PluginStatus.enabled ||
             !item.actions.contains(action)) {
-          throw StateError('操作期间插件已停用');
+          throw StateError(tr('操作期间插件已停用'));
         }
         return result;
       } catch (error) {
@@ -525,7 +529,7 @@ class PluginManager extends ChangeNotifier {
         rethrow;
       }
     }
-    throw StateError('此插件操作已撤销');
+    throw StateError(tr('此插件操作已撤销'));
   }
 
   Future<void> _persist(
@@ -555,9 +559,9 @@ class PluginManager extends ChangeNotifier {
 
   Future<void> _run(Future<void> Function() action) {
     final operation = _pending.then((_) async {
-      if (_disposed) throw StateError('插件管理器已关闭');
+      if (_disposed) throw StateError(tr('插件管理器已关闭'));
       if (!ready || loadError != null) {
-        throw StateError(loadError ?? '插件配置仍在读取');
+        throw StateError(loadError ?? tr('插件配置仍在读取'));
       }
       busy = true;
       _notify();

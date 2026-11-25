@@ -23,6 +23,7 @@ import 'reader_scrollbar.dart';
 import 'reader_motion.dart';
 import 'toolbar_preferences.dart';
 import '../screens/toolbar_editor.dart';
+import '../l10n/l10n.dart';
 
 /// Sole owner of chrome, modal presentation, hit regions and fixed actions.
 class ReaderShell extends StatefulWidget {
@@ -394,7 +395,7 @@ class _ReaderShellState extends State<ReaderShell> {
                               ),
                             ),
                             IconButton(
-                              tooltip: '关闭面板',
+                              tooltip: tr('关闭面板'),
                               onPressed: () => Navigator.pop(context),
                               icon: const Icon(Icons.close),
                             ),
@@ -462,28 +463,28 @@ class _ReaderShellState extends State<ReaderShell> {
   }
 
   String panelTitle(ReaderPanel panel) => switch (panel) {
-    ReaderPanel.format => '阅读处理器',
-    ReaderPanel.settings => '阅读设置',
+    ReaderPanel.format => tr('阅读处理器'),
+    ReaderPanel.settings => tr('阅读设置'),
     ReaderPanel.navigation => adapter.capabilities.navigationLabel,
-    ReaderPanel.view => '阅读视图与页面导航',
-    ReaderPanel.search => '搜索',
-    ReaderPanel.bookmarks => '书签',
-    ReaderPanel.more => '更多',
-    ReaderPanel.encoding => '文字编码',
-    ReaderPanel.direction => '阅读方向',
+    ReaderPanel.view => tr('阅读视图与页面导航'),
+    ReaderPanel.search => tr('搜索'),
+    ReaderPanel.bookmarks => tr('书签'),
+    ReaderPanel.more => tr('更多'),
+    ReaderPanel.encoding => tr('文字编码'),
+    ReaderPanel.direction => tr('阅读方向'),
   };
   Widget panelContent(
     ReaderPanel panel,
     BuildContext context,
     StateSetter update,
   ) => switch (panel) {
-    ReaderPanel.format => const Center(child: Text('请在软件设置中选择阅读器。')),
+    ReaderPanel.format => Center(child: Text(tr('请在软件设置中选择阅读器。'))),
     ReaderPanel.encoding =>
       widget.encodingBuilder?.call(context) ??
-          const Center(child: Text('当前内容不是可识别的文字块。')),
+          Center(child: Text(tr('当前内容不是可识别的文字块。'))),
     ReaderPanel.direction =>
       widget.directionBuilder?.call(context) ??
-          const Center(child: Text('当前内容没有可调整的页面方向。')),
+          Center(child: Text(tr('当前内容没有可调整的页面方向。'))),
     ReaderPanel.settings => widget.settingsBuilder(
       context,
       () => update(() {}),
@@ -503,7 +504,7 @@ class _ReaderShellState extends State<ReaderShell> {
         if (toolbarError != null) Text(toolbarError!),
         ListTile(
           leading: const Icon(Icons.tune),
-          title: const Text('编辑工具栏'),
+          title: Text(tr('编辑工具栏')),
           onTap: () => Navigator.pop(context, 'toolbar'),
         ),
         for (final native in readerToolbarOrder)
@@ -526,45 +527,43 @@ class _ReaderShellState extends State<ReaderShell> {
             ),
         ListTile(
           leading: const Icon(Icons.edit_note_outlined),
-          title: const Text('记笔记'),
+          title: Text(tr('记笔记')),
           onTap: adapter.count > 0
               ? () => Navigator.pop(context, 'note')
               : null,
         ),
         ListTile(
           leading: const Icon(Icons.notes_outlined),
-          title: const Text('关联笔记'),
+          title: Text(tr('关联笔记')),
           onTap: () => Navigator.pop(context, 'notes'),
         ),
         if (widget.encodingBuilder != null)
           ListTile(
             leading: const Icon(Icons.translate_outlined),
-            title: const Text('文字编码'),
-            subtitle: const Text('识别不确定时手动指定，原文件不改动'),
+            title: Text(tr('文字编码')),
             onTap: () => Navigator.pop(context, ReaderPanel.encoding),
           ),
         if (widget.directionBuilder != null)
           ListTile(
             leading: const Icon(Icons.swap_horiz_outlined),
-            title: const Text('阅读方向'),
-            subtitle: const Text('按项目默认或单本覆盖'),
+            title: Text(tr('阅读方向')),
             onTap: () => Navigator.pop(context, ReaderPanel.direction),
           ),
         ListTile(
           leading: const Icon(Icons.fullscreen),
-          title: const Text('隐藏阅读工具'),
+          title: Text(tr('隐藏阅读工具')),
           onTap: () => Navigator.pop(context, 'hide'),
         ),
-        const Padding(
+        Padding(
           padding: EdgeInsets.all(16),
-          child: Text('轻点阅读区域顶部可再次显示工具栏。'),
+          child: Text(tr('轻点阅读区域顶部可再次显示工具栏。')),
         ),
       ],
     ),
   };
   Widget bookmarkPanel(BuildContext context, StateSetter update) {
     if (!adapter.capabilities.bookmarks) {
-      return const Center(child: Text('当前渲染器未提供稳定阅读位置，暂不支持书签。'));
+      return Center(child: Text(tr('当前渲染器未提供稳定阅读位置，暂不支持书签。')));
     }
     final currentLocation = adapter.count > 0
         ? adapter.location(adapter.position).id
@@ -588,13 +587,13 @@ class _ReaderShellState extends State<ReaderShell> {
                       (b) =>
                           b.locationId == adapter.location(adapter.position).id,
                     )
-                ? '移除当前位置书签'
-                : '添加当前位置书签',
+                ? tr('移除当前位置书签')
+                : tr('添加当前位置书签'),
           ),
         ),
         Expanded(
           child: bookmarks.isEmpty
-              ? const Center(child: Text('还没有书签。'))
+              ? Center(child: Text(tr('还没有书签。')))
               : ScrollablePositionedList.builder(
                   key: ValueKey((
                     'bookmarks',
@@ -616,7 +615,7 @@ class _ReaderShellState extends State<ReaderShell> {
                       ),
                       subtitle:
                           adapter.resolveLocation(bookmark.locationId) == null
-                          ? const Text('来源位置已不可用，书签保留')
+                          ? Text(tr('来源位置已不可用，书签保留'))
                           : null,
                       onTap:
                           adapter.resolveLocation(bookmark.locationId) == null
@@ -631,7 +630,7 @@ class _ReaderShellState extends State<ReaderShell> {
                               ),
                             ),
                       trailing: IconButton(
-                        tooltip: '删除书签',
+                        tooltip: tr('删除书签'),
                         onPressed: bookmarkBusy
                             ? null
                             : () => persistBookmarks(
@@ -695,6 +694,10 @@ class _ReaderShellState extends State<ReaderShell> {
     final bottom = adapter.paged && widget.desktop && widget.dock == 'bottom';
     final paper =
         widget.paperColor ?? Theme.of(context).scaffoldBackgroundColor;
+    final paperIcons =
+        ThemeData.estimateBrightnessForColor(paper) == Brightness.dark
+        ? Brightness.light
+        : Brightness.dark;
     final topChrome = 80.0 + MediaQuery.textScalerOf(context).scale(12) * 1.5;
     final available = toolbarItems(widget.extensions.plugins);
     final buttons = ReaderToolbar(
@@ -765,7 +768,9 @@ class _ReaderShellState extends State<ReaderShell> {
               Row(
                 children: [
                   IconButton(
-                    tooltip: adapter.paged ? '上一页' : '上一${adapter.unit}',
+                    tooltip: adapter.paged
+                        ? tr('上一页')
+                        : tr('上一{unit}', {'unit': adapter.unit}),
                     onPressed: canTurn(-1) ? () => turnPage(-1) : null,
                     icon: const Icon(Icons.chevron_left),
                   ),
@@ -780,22 +785,25 @@ class _ReaderShellState extends State<ReaderShell> {
                     ),
                   ),
                   IconButton(
-                    tooltip: adapter.paged ? '下一页' : '下一${adapter.unit}',
+                    tooltip: adapter.paged
+                        ? tr('下一页')
+                        : tr('下一{unit}', {'unit': adapter.unit}),
                     onPressed: canTurn(1) ? () => turnPage(1) : null,
                     icon: const Icon(Icons.chevron_right),
                   ),
                 ],
               ),
               Text(positionText, style: Theme.of(context).textTheme.bodySmall),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Text(
-                  adapter.status,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall,
+              if (adapter.status.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    adapter.status,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ),
-              ),
             ],
           ),
         ),
@@ -817,165 +825,193 @@ class _ReaderShellState extends State<ReaderShell> {
               controlPointers.add(event.pointer);
               return true;
             },
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: SafeArea(
-                    maintainBottomViewPadding: true,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) => Listener(
-                        key: const ValueKey('reader-content-hit-region'),
-                        behavior: HitTestBehavior.translucent,
-                        onPointerDown: (event) {
-                          pointers.add(event.pointer);
-                          if (event.buttons != kPrimaryButton) {
-                            cancelled = true;
-                            return;
-                          }
-                          if (pointers.length == 1) {
-                            down = event.localPosition;
-                            downAt = event.timeStamp;
-                            cancelled = false;
-                          } else {
-                            cancelled = true;
-                          }
-                        },
-                        onPointerMove: (event) {
-                          if (down != null &&
-                              (event.localPosition - down!).distance > 8) {
-                            cancelled = true;
-                          }
-                        },
-                        onPointerCancel: (event) {
-                          pointers.remove(event.pointer);
-                          controlPointers.remove(event.pointer);
-                          cancelled = true;
-                        },
-                        onPointerUp: (event) {
-                          pointers.remove(event.pointer);
-                          if (controlPointers.remove(event.pointer) ||
-                              liveSurface) {
-                            return;
-                          }
-                          if (!cancelled &&
-                              pointers.isEmpty &&
-                              downAt != null &&
-                              event.timeStamp - downAt! <
-                                  const Duration(milliseconds: 300)) {
-                            tap(event.localPosition, constraints.biggest);
-                          }
-                        },
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                // Continuous chrome overlays the unmodified
-                                // article canvas; showing it never reflows text.
-                                top: 0,
-                                // A scaled overview owns the chrome in paged mode.
-                                // Keep its hidden native page at full canvas size;
-                                // reducing it would invalidate measured pagination.
-                                bottom:
-                                    visible && !bottom && showProgress && !grid
-                                    ? 104
-                                    : 0,
-                              ),
-                              child: Offstage(
-                                offstage: visible && grid,
-                                child: adapter.buildContent(context),
-                              ),
-                            ),
-                            // A pending grid is the page: it owns the whole
-                            // area, so no tap may reach the surface underneath.
-                            if (visible && grid)
-                              Positioned.fill(
-                                child: AbsorbPointer(
-                                  child: ColoredBox(
-                                    color: readerOverviewBackground(paper),
-                                    child: const SizedBox.expand(),
+            // The page sits inside the safe area; paper fills the status bar
+            // and gesture bar strips so they continue the page, and the bar
+            // icons follow the paper rather than the app theme. Gesture
+            // navigation shows only its handle; a button bar keeps the
+            // system's contrast scrim so the buttons stay legible.
+            child: AnnotatedRegion<SystemUiOverlayStyle>(
+              value: SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness: paperIcons,
+                statusBarBrightness: paperIcons == Brightness.dark
+                    ? Brightness.light
+                    : Brightness.dark,
+                systemNavigationBarColor: Colors.transparent,
+                systemNavigationBarDividerColor: Colors.transparent,
+                systemNavigationBarContrastEnforced:
+                    MediaQuery.systemGestureInsetsOf(context).left == 0,
+                systemNavigationBarIconBrightness: paperIcons,
+              ),
+              child: ColoredBox(
+                color: paper,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: SafeArea(
+                        maintainBottomViewPadding: true,
+                        child: LayoutBuilder(
+                          builder: (context, constraints) => Listener(
+                            key: const ValueKey('reader-content-hit-region'),
+                            behavior: HitTestBehavior.translucent,
+                            onPointerDown: (event) {
+                              pointers.add(event.pointer);
+                              if (event.buttons != kPrimaryButton) {
+                                cancelled = true;
+                                return;
+                              }
+                              if (pointers.length == 1) {
+                                down = event.localPosition;
+                                downAt = event.timeStamp;
+                                cancelled = false;
+                              } else {
+                                cancelled = true;
+                              }
+                            },
+                            onPointerMove: (event) {
+                              if (down != null &&
+                                  (event.localPosition - down!).distance > 8) {
+                                cancelled = true;
+                              }
+                            },
+                            onPointerCancel: (event) {
+                              pointers.remove(event.pointer);
+                              controlPointers.remove(event.pointer);
+                              cancelled = true;
+                            },
+                            onPointerUp: (event) {
+                              pointers.remove(event.pointer);
+                              if (controlPointers.remove(event.pointer) ||
+                                  liveSurface) {
+                                return;
+                              }
+                              if (!cancelled &&
+                                  pointers.isEmpty &&
+                                  downAt != null &&
+                                  event.timeStamp - downAt! <
+                                      const Duration(milliseconds: 300)) {
+                                tap(event.localPosition, constraints.biggest);
+                              }
+                            },
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    // Continuous chrome overlays the unmodified
+                                    // article canvas; showing it never reflows text.
+                                    top: 0,
+                                    // A scaled overview owns the chrome in paged mode.
+                                    // Keep its hidden native page at full canvas size;
+                                    // reducing it would invalidate measured pagination.
+                                    bottom:
+                                        visible &&
+                                            !bottom &&
+                                            showProgress &&
+                                            !grid
+                                        ? 104
+                                        : 0,
+                                  ),
+                                  child: Offstage(
+                                    offstage: visible && grid,
+                                    child: adapter.buildContent(context),
                                   ),
                                 ),
-                              ),
-                            if (visible && grid)
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  top: !side && !bottom ? topChrome : 12,
-                                  bottom: bottom
-                                      ? topChrome + readerProgressHeight
-                                      : (showProgress ? 104 : 16),
-                                  left: side && widget.dock == 'left' ? 88 : 0,
-                                  right: side && widget.dock == 'right'
-                                      ? 88
-                                      : 0,
-                                ),
-                                child: ReaderPageOverview(
-                                  adapter: adapter as PagedReaderAdapter,
-                                  pageSize:
-                                      adapter is MeasuredPagedReaderAdapter
-                                      ? (adapter as MeasuredPagedReaderAdapter)
-                                            .pageCanvasSize
-                                      : constraints.biggest,
-                                  paperColor: paper,
-                                  initialPage: adapter.position,
-                                  onActivate: () =>
-                                      setState(() => visible = false),
-                                ),
-                              ),
-                          ],
+                                // A pending grid is the page: it owns the whole
+                                // area, so no tap may reach the surface underneath.
+                                if (visible && grid)
+                                  Positioned.fill(
+                                    child: AbsorbPointer(
+                                      child: ColoredBox(
+                                        color: readerOverviewBackground(paper),
+                                        child: const SizedBox.expand(),
+                                      ),
+                                    ),
+                                  ),
+                                if (visible && grid)
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                      top: !side && !bottom ? topChrome : 12,
+                                      bottom: bottom
+                                          ? topChrome + readerProgressHeight
+                                          : (showProgress ? 104 : 16),
+                                      left: side && widget.dock == 'left'
+                                          ? 88
+                                          : 0,
+                                      right: side && widget.dock == 'right'
+                                          ? 88
+                                          : 0,
+                                    ),
+                                    child: ReaderPageOverview(
+                                      adapter: adapter as PagedReaderAdapter,
+                                      pageSize:
+                                          adapter is MeasuredPagedReaderAdapter
+                                          ? (adapter
+                                                    as MeasuredPagedReaderAdapter)
+                                                .pageCanvasSize
+                                          : constraints.biggest,
+                                      paperColor: paper,
+                                      initialPage: adapter.position,
+                                      onActivate: () =>
+                                          setState(() => visible = false),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-                if (side)
-                  Positioned(
-                    top: 0,
-                    bottom: 140,
-                    left: widget.dock == 'left' ? 0 : null,
-                    right: widget.dock == 'right' ? 0 : null,
-                    child: animateChrome(
-                      toolbar,
-                      Offset(widget.dock == 'left' ? -1 : 1, 0),
-                    ),
-                  )
-                else if (!bottom)
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    child: animateChrome(toolbar, const Offset(0, -1)),
-                  ),
-                // Last in the stack, so the one controller is reachable and drawn
-                // above the page grid as well as above a scrolled page. Top-to-
-                // bottom reading gets the browser-style whole-book scrollbar
-                // instead of the bottom controller.
-                // Kept inside the safe area, so the thumb never runs under the
-                // status bar, a notch or the gesture bar.
-                if (!showProgress && adapter.count > 0)
-                  Positioned(
-                    top:
-                        MediaQuery.paddingOf(context).top +
-                        (visible && !side ? 64 : 8),
-                    right: MediaQuery.paddingOf(context).right,
-                    bottom: MediaQuery.viewPaddingOf(context).bottom + 8,
-                    width: 28,
-                    child: ReaderScrollbar(source: scrollSource),
-                  ),
-                if (showProgress)
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: animateChrome(
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [if (bottom) toolbar, progress],
+                    if (side)
+                      Positioned(
+                        top: 0,
+                        bottom: 140,
+                        left: widget.dock == 'left' ? 0 : null,
+                        right: widget.dock == 'right' ? 0 : null,
+                        child: animateChrome(
+                          toolbar,
+                          Offset(widget.dock == 'left' ? -1 : 1, 0),
+                        ),
+                      )
+                    else if (!bottom)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        child: animateChrome(toolbar, const Offset(0, -1)),
                       ),
-                      const Offset(0, 1),
-                    ),
-                  ),
-              ],
+                    // Last in the stack, so the one controller is reachable and drawn
+                    // above the page grid as well as above a scrolled page. Top-to-
+                    // bottom reading gets the browser-style whole-book scrollbar
+                    // instead of the bottom controller.
+                    // Kept inside the safe area, so the thumb never runs under the
+                    // status bar, a notch or the gesture bar.
+                    if (!showProgress && adapter.count > 0)
+                      Positioned(
+                        top:
+                            MediaQuery.paddingOf(context).top +
+                            (visible && !side ? 64 : 8),
+                        right: MediaQuery.paddingOf(context).right,
+                        bottom: MediaQuery.viewPaddingOf(context).bottom + 8,
+                        width: 28,
+                        child: ReaderScrollbar(source: scrollSource),
+                      ),
+                    if (showProgress)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: animateChrome(
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [if (bottom) toolbar, progress],
+                          ),
+                          const Offset(0, 1),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),

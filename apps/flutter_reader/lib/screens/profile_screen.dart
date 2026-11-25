@@ -7,6 +7,7 @@ import '../design/theme.dart';
 import '../features/feature_registry.dart';
 import 'profile_details.dart';
 import '../design/widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Me lists every workspace page (navigation only pins them), grouped by
 /// purpose, followed by plugins and personalization.
@@ -60,30 +61,29 @@ class ProfileScreen extends StatelessWidget {
             24 + MediaQuery.paddingOf(context).bottom,
           ),
           children: [
-            const AqPageHeading('我的'),
+            AqPageHeading(tr('我的')),
             const SizedBox(height: 24),
             AqSection(
-              header: '阅读',
+              header: tr('阅读'),
               children: [for (final f in reading) _entry(f)],
             ),
             AqSection(
-              header: '管理',
+              header: tr('管理'),
               children: [for (final f in manage) _entry(f)],
             ),
             AqSection(
-              header: '扩展',
-              footer: extensions.isEmpty ? '启用插件后，其独立页面会显示在这里。' : null,
+              header: tr('扩展'),
               children: [
                 for (final f in extensions) _entry(f),
                 AqRow(
                   icon: Icons.folder_zip_outlined,
-                  title: 'ZIP 导入插件',
+                  title: tr('ZIP 导入插件'),
                   onTap: onImportPlugin,
                 ),
               ],
             ),
             AqSection(
-              header: '外观',
+              header: tr('外观'),
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8),
@@ -94,7 +94,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 AqRow(
                   icon: Icons.palette_outlined,
-                  title: '颜色主题',
+                  title: tr('颜色主题'),
                   value: palette.label,
                   onTap: () => Navigator.push<void>(
                     context,
@@ -106,28 +106,20 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                ?languageRow(context),
                 AqRow(
                   icon: Icons.space_dashboard_outlined,
-                  title: '导航栏自定义',
+                  title: tr('导航栏自定义'),
                   onTap: onCustomize,
                 ),
               ],
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: Column(
-                children: [
-                  Text(
-                    'AQuantum Reader  ${library.raw['display_version'] ?? '开发构建'}',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Text(
-                    '本机资料库 · 无需登录 · 可离线阅读',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+              child: Text(
+                'AQuantum Reader  ${library.raw['display_version'] ?? tr('开发构建')}',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
           ],

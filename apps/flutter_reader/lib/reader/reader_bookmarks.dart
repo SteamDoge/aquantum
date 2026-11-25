@@ -2,6 +2,7 @@
 // Copyright (C) 2026 AQuantum Reader contributors.
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/l10n.dart';
 
 class ReaderBookmark {
   final String locationId, label;
@@ -19,7 +20,7 @@ class ReaderBookmarkStore {
     if (encoded == null) return [];
     final data = jsonDecode(encoded);
     if (data is! Map || data['version'] != 1 || data['items'] is! List) {
-      throw const FormatException('书签数据无法读取，原记录已保留。');
+      throw FormatException(tr('书签数据无法读取，原记录已保留。'));
     }
     final items = <ReaderBookmark>[];
     final ids = <String>{};
@@ -28,7 +29,7 @@ class ReaderBookmarkStore {
           item['id'] is! String ||
           item['label'] is! String ||
           !ids.add(item['id'])) {
-        throw const FormatException('书签记录异常，原记录已保留。');
+        throw FormatException(tr('书签记录异常，原记录已保留。'));
       }
       items.add(ReaderBookmark(item['id'], item['label']));
     }
@@ -46,7 +47,7 @@ class ReaderBookmarkStore {
         ],
       }),
     )) {
-      throw StateError('书签保存失败');
+      throw StateError(tr('书签保存失败'));
     }
   }
 }

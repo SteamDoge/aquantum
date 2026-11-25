@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'backup_preferences.dart';
+import '../l10n/l10n.dart';
 
 /// Device-local selection history. Restore publishes a new verified root first;
 /// selecting it keeps every existing library and previous setting checkpoint.
@@ -56,7 +57,7 @@ class LibraryLocations {
       if (intent is! Map ||
           intent['version'] != 1 ||
           intent['selection_before'] is! String) {
-        throw const FormatException('资料库切换记录无法读取，原资料与设置快照保留。');
+        throw FormatException(tr('资料库切换记录无法读取，原资料与设置快照保留。'));
       }
       if (jsonEncode(await latest()) == intent['selection_before']) {
         final previous = await resolve(intent['previous']);
@@ -81,7 +82,7 @@ class LibraryLocations {
     if (data is! Map<String, dynamic> ||
         data['version'] != 1 ||
         data['root'] is! String) {
-      throw const FormatException('资料库选择记录无法读取，原记录已保留。');
+      throw FormatException(tr('资料库选择记录无法读取，原记录已保留。'));
     }
     return data;
   }
@@ -119,11 +120,11 @@ class LibraryLocations {
         '${normalized(await Directory(root).resolveSymbolicLinks())}/device-preference-history/';
     if (!normalized(path).startsWith(prefix) ||
         !normalized(path).endsWith('/preferences.json')) {
-      throw const FormatException('恢复回退的设置路径无效。');
+      throw FormatException(tr('恢复回退的设置路径无效。'));
     }
     final value = jsonDecode(await File(path).readAsString());
     if (value is! Map || value['version'] != 1 || value['values'] is! Map) {
-      throw const FormatException('恢复前设置快照无法读取。');
+      throw FormatException(tr('恢复前设置快照无法读取。'));
     }
     return Map<String, dynamic>.from(value['values']);
   }
@@ -145,14 +146,14 @@ class LibraryLocations {
             relative
                 .split(RegExp(r'[/\\]'))
                 .any((s) => s.isEmpty || s == '.' || s == '..'))) {
-      throw const FormatException('资料库选择路径无效。');
+      throw FormatException(tr('资料库选择路径无效。'));
     }
     final directory = Directory(relative == '.' ? base : '$base/$relative');
     final canonicalBase = await Directory(base).resolveSymbolicLinks();
     final target = await directory.resolveSymbolicLinks();
     final a = normalized(canonicalBase), b = normalized(target);
     if (b != a && !b.startsWith('$a/')) {
-      throw const FormatException('资料库超出应用保留目录。');
+      throw FormatException(tr('资料库超出应用保留目录。'));
     }
     if (relative != '.') {
       final marker = jsonDecode(
@@ -162,7 +163,7 @@ class LibraryLocations {
           marker['version'] != 1 ||
           marker['task'] is! String ||
           marker['library'] is! String) {
-        throw const FormatException('恢复副本尚未完成校验。');
+        throw FormatException(tr('恢复副本尚未完成校验。'));
       }
     }
     return target;
@@ -173,7 +174,7 @@ class LibraryLocations {
     final b = await Directory(root).resolveSymbolicLinks();
     final an = normalized(a), bn = normalized(b);
     if (an == bn) return '.';
-    if (!bn.startsWith('$an/')) throw const FormatException('恢复副本不在应用保留目录内。');
+    if (!bn.startsWith('$an/')) throw FormatException(tr('恢复副本不在应用保留目录内。'));
     return bn.substring(an.length + 1);
   }
 

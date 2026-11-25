@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'dashboard_data.dart';
+import '../l10n/l10n.dart';
 
 enum DashboardPage { home, statistics }
 
@@ -15,7 +16,9 @@ typedef DashboardRenderer =
     );
 
 class DashboardDefinition {
-  final String id, name, source;
+  final String id, source;
+  final String? _name;
+  final String Function()? _localizedName;
   final IconData icon;
   final Set<DashboardPage> pages;
   final Set<String> styles, dependencies;
@@ -24,7 +27,8 @@ class DashboardDefinition {
   final bool supportsLimit;
   const DashboardDefinition({
     required this.id,
-    required this.name,
+    String? name,
+    String Function()? localizedName,
     required this.icon,
     required this.render,
     this.source = 'core',
@@ -33,7 +37,13 @@ class DashboardDefinition {
     this.dependencies = const {},
     this.minWidth = 240,
     this.supportsLimit = false,
-  });
+  }) : assert(name != null || localizedName != null),
+       _name = name,
+       _localizedName = localizedName;
+
+  /// Core widgets pass [localizedName] so the name follows the interface
+  /// language; plugin widgets show the name they declared.
+  String get name => _localizedName?.call() ?? _name!;
 }
 
 class DashboardInstance {
@@ -54,7 +64,7 @@ class DashboardInstance {
         json['limit'] is! int ||
         json['limit'] < 1 ||
         json['limit'] > 20) {
-      throw const FormatException('组件配置损坏，原配置已保留');
+      throw FormatException(tr('组件配置损坏，原配置已保留'));
     }
     return DashboardInstance(
       json['id'],
@@ -106,7 +116,7 @@ class DashboardRegistry extends ChangeNotifier {
       if (d.source != 'core' ||
           !d.id.startsWith('core.widget.') ||
           _definitions.containsKey(d.id)) {
-        throw StateError('核心组件编号冲突');
+        throw StateError(tr('核心组件编号冲突'));
       }
       _definitions[d.id] = d;
     }
@@ -117,13 +127,13 @@ class DashboardRegistry extends ChangeNotifier {
     List<DashboardDefinition> widgets,
     List<DashboardProvider> providers,
   ) {
-    if (source == 'core') throw StateError('插件不能覆盖核心');
+    if (source == 'core') throw StateError(tr('插件不能覆盖核心'));
     final ids = <String>{};
     for (final p in providers) {
       if (p.source != source ||
           !p.id.startsWith('$source.metric.') ||
           !ids.add(p.id)) {
-        throw StateError('数据提供者编号冲突');
+        throw StateError(tr('数据提供者编号冲突'));
       }
     }
     for (final d in widgets) {
@@ -134,7 +144,7 @@ class DashboardRegistry extends ChangeNotifier {
           d.styles.isEmpty ||
           !{'compact', 'detailed'}.containsAll(d.styles) ||
           !d.dependencies.every((id) => providers.any((p) => p.id == id))) {
-        throw StateError('组件来源、展示或数据依赖无效');
+        throw StateError(tr('组件来源、展示或数据依赖无效'));
       }
     }
     _definitions.removeWhere((_, d) => d.source == source);
@@ -162,7 +172,7 @@ class DashboardRegistry extends ChangeNotifier {
     }
     final values = await Future.wait(
       definition.dependencies.map((id) async {
-        final provider = _providers[id] ?? (throw StateError('组件数据已停用'));
+        final provider = _providers[id] ?? (throw StateError(tr('组件数据已停用')));
         final value = await _cache.putIfAbsent(
           id,
           () => Future.sync(

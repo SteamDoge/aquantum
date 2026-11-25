@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'dart:async';
+import '../l10n/l10n.dart';
 
 bool publicPluginAddress(InternetAddress address) {
   final b = address.rawAddress;
@@ -37,7 +38,7 @@ class PluginHttpException implements Exception {
   final int status;
   const PluginHttpException(this.status);
   @override
-  String toString() => '插件下载失败（HTTP $status）';
+  String toString() => tr('插件下载失败（HTTP {status}）', {'status': status});
 }
 
 class PluginConnectionException implements Exception {
@@ -45,7 +46,8 @@ class PluginConnectionException implements Exception {
   final Object cause;
   const PluginConnectionException(this.host, this.cause);
   @override
-  String toString() => '无法连接 $host：连接被重置或中断，已尝试3次。请稍后重试，或在插件设置中检查站点与网络。';
+  String toString() =>
+      tr('无法连接 {host}：连接被重置或中断，已尝试3次。请稍后重试，或在插件设置中检查站点与网络。', {'host': host});
 }
 
 Future<Uint8List> fetchPublicHttps(
@@ -62,12 +64,12 @@ Future<Uint8List> fetchPublicHttps(
     Future<Uint8List> read(int attempt) async {
       var target = uri;
       for (var redirects = 0; redirects <= 5; redirects++) {
-        if (ended) throw StateError('网络请求已结束');
+        if (ended) throw StateError(tr('网络请求已结束'));
         if (target.scheme != 'https' ||
             target.port != 443 ||
             target.userInfo.isNotEmpty ||
             target.host.isEmpty) {
-          throw const FormatException('下载重定向必须保持公开 HTTPS');
+          throw FormatException(tr('下载重定向必须保持公开 HTTPS'));
         }
         var addresses = await InternetAddress.lookup(target.host);
         if (!allowFakeIpDns && target.host == 'dns.google') {
@@ -105,7 +107,7 @@ Future<Uint8List> fetchPublicHttps(
               answer['Status'] != 0 ||
               answer['TC'] == true ||
               answer['Answer'] is! List) {
-            throw const FormatException('公开HTTPS DNS解析失败');
+            throw FormatException(tr('公开HTTPS DNS解析失败'));
           }
           addresses = [
             for (final record in answer['Answer'])
@@ -116,9 +118,9 @@ Future<Uint8List> fetchPublicHttps(
           ];
         }
         if (addresses.isEmpty || !addresses.every(publicPluginAddress)) {
-          throw const FormatException('禁止下载本机或私有网络资源');
+          throw FormatException(tr('禁止下载本机或私有网络资源'));
         }
-        if (ended) throw StateError('网络请求已结束');
+        if (ended) throw StateError(tr('网络请求已结束'));
         // Pin the validated address so a second DNS lookup cannot rebind it.
         final hostname = target.host;
         client.connectionFactory = (_, _, _) async {
@@ -147,7 +149,7 @@ Future<Uint8List> fetchPublicHttps(
         final response = await request.close();
         if ({301, 302, 303, 307, 308}.contains(response.statusCode)) {
           final location = response.headers.value(HttpHeaders.locationHeader);
-          if (location == null) throw const FormatException('重定向缺少地址');
+          if (location == null) throw FormatException(tr('重定向缺少地址'));
           target = target.resolve(location);
           continue;
         }
@@ -155,18 +157,18 @@ Future<Uint8List> fetchPublicHttps(
           throw PluginHttpException(response.statusCode);
         }
         if (response.contentLength > limit) {
-          throw const FormatException('插件下载超过大小限制');
+          throw FormatException(tr('插件下载超过大小限制'));
         }
         final result = BytesBuilder(copy: false);
         await for (final chunk in response) {
           if (result.length + chunk.length > limit) {
-            throw const FormatException('插件下载超过大小限制');
+            throw FormatException(tr('插件下载超过大小限制'));
           }
           result.add(chunk);
         }
         return result.takeBytes();
       }
-      throw const FormatException('插件下载重定向过多');
+      throw FormatException(tr('插件下载重定向过多'));
     }
 
     Future<Uint8List> attempts() async {
@@ -186,12 +188,14 @@ Future<Uint8List> fetchPublicHttps(
         // size failures are never turned into a retry or a successful result.
         await Future<void>.delayed(Duration(milliseconds: 250 * (attempt + 1)));
       }
-      throw StateError('网络请求未完成');
+      throw StateError(tr('网络请求未完成'));
     }
 
     return await attempts().timeout(
       const Duration(seconds: 45),
-      onTimeout: () => throw TimeoutException('连接 ${uri.host} 超时，请检查站点与网络'),
+      onTimeout: () => throw TimeoutException(
+        tr('连接 {host} 超时，请检查站点与网络', {'host': uri.host}),
+      ),
     );
   } finally {
     ended = true;

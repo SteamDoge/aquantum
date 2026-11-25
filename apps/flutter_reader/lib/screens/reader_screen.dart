@@ -23,17 +23,18 @@ import '../plugins/plugin_api.dart';
 import '../plugins/plugin_result.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../dashboard/reading_tracker.dart';
 import '../plugins/plugin_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/models.dart';
 import '../data/reader_api.dart';
+import '../design/widgets.dart';
 import '../widgets/comic_page.dart';
 import '../widgets/note_dialog.dart';
 import '../widgets/text_reader.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import '../l10n/l10n.dart';
 
 class ReaderScreen extends StatefulWidget {
   final ReaderApi api;
@@ -358,7 +359,7 @@ class _ReaderScreenState extends State<_CoreReaderScreen>
   bool get useMarkdown => provider.surface == 'markdown';
 
   bool saving = false;
-  String saveLabel = '阅读位置自动保留';
+  String? saveLabel;
   int get count =>
       widget.book.isComic ? widget.book.pages.length : paragraphs?.length ?? 0;
   @override
@@ -490,7 +491,7 @@ class _ReaderScreenState extends State<_CoreReaderScreen>
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('阅读设置未保存：$e')));
+        ).showSnackBar(SnackBar(content: Text(tr('阅读设置未保存：{e}', {'e': e}))));
       }
     }
   }
@@ -716,14 +717,15 @@ class _ReaderScreenState extends State<_CoreReaderScreen>
       if (index == value) await saveAnchor(value, textOffset);
       if (mounted) {
         setState(() {
-          saveLabel =
-              '已保存到${widget.book.isComic ? '第 ${value + 1} 页' : '第 ${value + 1} 段'}';
+          saveLabel = widget.book.isComic
+              ? tr('已保存到第 {n} 页', {'n': value + 1})
+              : tr('已保存到第 {n} 段', {'n': value + 1});
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          saveLabel = '保存失败：$e';
+          saveLabel = tr('保存失败：{e}', {'e': e});
         });
       }
     } finally {
@@ -830,10 +832,10 @@ class _ReaderScreenState extends State<_CoreReaderScreen>
           'within': within,
         }),
       )) {
-        throw StateError('本机偏好写入失败');
+        throw StateError(tr('本机偏好写入失败'));
       }
     } catch (e) {
-      if (mounted) setState(() => saveLabel = '图内阅读位置未保存：$e');
+      if (mounted) setState(() => saveLabel = tr('图内阅读位置未保存：{e}', {'e': e}));
     }
   }
 
@@ -907,7 +909,7 @@ class _ReaderScreenState extends State<_CoreReaderScreen>
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('笔记已保存，并关联当前阅读位置')));
+        ).showSnackBar(SnackBar(content: Text(tr('笔记已保存，并关联当前阅读位置'))));
       }
     } catch (e) {
       if (mounted) {
@@ -928,14 +930,14 @@ class _ReaderScreenState extends State<_CoreReaderScreen>
       if (notes.isEmpty) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('这本书还没有关联笔记。')));
+        ).showSnackBar(SnackBar(content: Text(tr('这本书还没有关联笔记。'))));
         return;
       }
       final target = await withOverlay(
         () => showDialog<Map<String, dynamic>>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('关联笔记'),
+            title: Text(tr('关联笔记')),
             content: SizedBox(
               width: 600,
               child: ListView.separated(
@@ -948,13 +950,23 @@ class _ReaderScreenState extends State<_CoreReaderScreen>
                   final paragraph = location['Paragraph']?['index'];
                   final page = location['Page']?['page'];
                   final anchor = page != null
-                      ? '图片页 ${widget.book.pages.indexWhere((p) => p['id'] == page) + 1}'
-                      : '第 ${(paragraph as num?)?.toInt() ?? 0} 段';
+                      ? tr('图片页 {value}', {
+                          'value':
+                              widget.book.pages.indexWhere(
+                                (p) => p['id'] == page,
+                              ) +
+                              1,
+                        })
+                      : tr('第 {value} 段', {
+                          'value': (paragraph as num?)?.toInt() ?? 0,
+                        });
                   final stale = note['stale'] == true;
                   return ListTile(
                     title: Text(note['markdown']?.toString() ?? ''),
                     subtitle: Text(
-                      stale ? '$anchor · 锚点可能漂移' : anchor,
+                      stale
+                          ? tr('{anchor} · 锚点可能漂移', {'anchor': anchor})
+                          : anchor,
                       style: stale
                           ? TextStyle(
                               color: Theme.of(context).colorScheme.error,
@@ -970,7 +982,7 @@ class _ReaderScreenState extends State<_CoreReaderScreen>
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('关闭'),
+                child: Text(tr('关闭')),
               ),
             ],
           ),
@@ -1166,23 +1178,6 @@ class _ReaderScreenState extends State<_CoreReaderScreen>
           bottom: false,
           child: Column(
             children: [
-              if (widget.book.format == 'Markdown' &&
-                  (!preferences.textPaged ||
-                      textLayout == null ||
-                      textLayout!.pages.isEmpty))
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 8,
-                  ),
-                  child: Text(
-                    'Markdown · 正文只读，交互单独保存',
-                    style: TextStyle(
-                      color: articleScheme.onSurfaceVariant,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
               Expanded(
                 child: error != null
                     ? Center(
@@ -1195,7 +1190,7 @@ class _ReaderScreenState extends State<_CoreReaderScreen>
                               const SizedBox(height: 16),
                               OutlinedButton(
                                 onPressed: load,
-                                child: const Text('重新读取'),
+                                child: Text(tr('重新读取')),
                               ),
                             ],
                           ),
@@ -1207,25 +1202,31 @@ class _ReaderScreenState extends State<_CoreReaderScreen>
                             !initialized ||
                                 paragraphs == null && !widget.book.isComic
                             ? const CircularProgressIndicator()
-                            : const Text('这份内容还没有可阅读的段落。'),
+                            : Text(tr('这份内容还没有可阅读的段落。')),
                       )
                     : widget.book.isComic
                     ? comicContinuous
-                          ? ComicStrip(
-                              api: widget.api,
-                              book: widget.book,
-                              position: index,
-                              rotation: preferences.rotation,
-                              seamless: preferences.seamless,
-                              onZoomChanged: (value) => zoomed = value,
-                              controller: comicController,
-                              onPosition: save,
-                              initialWithin: comicAnchorPage == index
-                                  ? comicWithin
-                                  : 0,
-                              onAnchor: comicAnchor,
-                              onMetrics: (value) => scrollMetrics.value = value,
-                              seek: seekController,
+                          ? ColoredBox(
+                              // Gaps and the strip's surroundings share one
+                              // colour, clearly apart from the paper.
+                              color: readerGapColor(articleBackground),
+                              child: ComicStrip(
+                                api: widget.api,
+                                book: widget.book,
+                                position: index,
+                                rotation: preferences.rotation,
+                                seamless: preferences.seamless,
+                                onZoomChanged: (value) => zoomed = value,
+                                controller: comicController,
+                                onPosition: save,
+                                initialWithin: comicAnchorPage == index
+                                    ? comicWithin
+                                    : 0,
+                                onAnchor: comicAnchor,
+                                onMetrics: (value) =>
+                                    scrollMetrics.value = value,
+                                seek: seekController,
+                              ),
                             )
                           // Paging is always left/right and whole pages only;
                           // top-to-bottom reading is the strip above.
@@ -1306,7 +1307,7 @@ class _ReaderScreenState extends State<_CoreReaderScreen>
         ),
       ),
     );
-    final status = saving ? '正在保存阅读位置' : saveLabel;
+    final status = saving ? tr('正在保存阅读位置') : saveLabel ?? '';
     adapter = widget.book.isComic
         ? ComicReaderAdapter(
             book: widget.book,
@@ -1398,65 +1399,65 @@ class _ReaderScreenState extends State<_CoreReaderScreen>
             onGoToText: goToText,
             entries: outline,
           );
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: base.brightness == Brightness.dark
-          ? SystemUiOverlayStyle.light
-          : SystemUiOverlayStyle.dark,
-      child: PopScope(
-        canPop: exiting,
-        onPopInvokedWithResult: (didPop, _) async {
-          if (didPop || exiting) return;
-          await saveComicAnchor();
-          await tracker.pause();
+    return PopScope(
+      canPop: exiting,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop || exiting) return;
+        await saveComicAnchor();
+        await tracker.pause();
+        if (!mounted) return;
+        if (tracker.error != null) {
+          ScaffoldMessenger.of(this.context).showSnackBar(
+            SnackBar(
+              content: Text(tr('阅读统计未保存：{error}', {'error': tracker.error})),
+            ),
+          );
+        }
+        setState(() => exiting = true);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
-          if (tracker.error != null) {
-            ScaffoldMessenger.of(
-              this.context,
-            ).showSnackBar(SnackBar(content: Text('阅读统计未保存：${tracker.error}')));
-          }
-          setState(() => exiting = true);
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
-            Navigator.of(this.context).pop();
-          });
-        },
-        child: Scaffold(
-          // Dialogs/sheets handle the keyboard themselves. Keep this canvas at
-          // the size used to paginate; shrinking it would overflow existing pages.
-          resizeToAvoidBottomInset: false,
-          body: ReaderShell(
-            paperColor: articleBackground,
-            adapter: adaptReaderProvider(provider, adapter, widget.plugins),
-            desktop: desktop,
-            dock: preferences.dock,
-            scroll: adapter.paged ? null : scrollSource,
-            settingsBuilder: buildSettings,
-            extensions: ReaderExtensions(widget.plugins, scope()),
-            invokeExtension: (action) => invoke(action, scope()),
-            runOverlay: (show) async {
-              await withOverlay(show);
-            },
-            addNote: addNote,
-            showNotes: showNotes,
-            encodingBuilder: widget.book.isComic || widget.book.isPdf
-                ? null
-                : (context) => ReaderEncodingPanel(
-                    load: () => widget.api.call('text_encoding', {
-                      'book': widget.book.id,
-                    }),
-                    apply: (encoding) => applyEncoding(encoding),
-                  ),
-            directionBuilder: widget.book.isComic
-                ? (context) => ComicDirectionPanel(
-                    api: widget.api,
-                    book: widget.book,
-                    preferences: preferences,
-                    onChanged: () async {
-                      await reloadDirection();
-                    },
-                  )
-                : null,
-          ),
+          Navigator.of(this.context).pop();
+        });
+      },
+      child: Scaffold(
+        // Dialogs/sheets handle the keyboard themselves. Keep this canvas at
+        // the size used to paginate; shrinking it would overflow existing pages.
+        resizeToAvoidBottomInset: false,
+        body: ReaderShell(
+          // A comic strip's bar strips continue the canvas around its pages.
+          paperColor: widget.book.isComic && comicContinuous
+              ? readerGapColor(articleBackground)
+              : articleBackground,
+          adapter: adaptReaderProvider(provider, adapter, widget.plugins),
+          desktop: desktop,
+          dock: preferences.dock,
+          scroll: adapter.paged ? null : scrollSource,
+          settingsBuilder: buildSettings,
+          extensions: ReaderExtensions(widget.plugins, scope()),
+          invokeExtension: (action) => invoke(action, scope()),
+          runOverlay: (show) async {
+            await withOverlay(show);
+          },
+          addNote: addNote,
+          showNotes: showNotes,
+          encodingBuilder: widget.book.isComic || widget.book.isPdf
+              ? null
+              : (context) => ReaderEncodingPanel(
+                  load: () => widget.api.call('text_encoding', {
+                    'book': widget.book.id,
+                  }),
+                  apply: (encoding) => applyEncoding(encoding),
+                ),
+          directionBuilder: widget.book.isComic
+              ? (context) => ComicDirectionPanel(
+                  api: widget.api,
+                  book: widget.book,
+                  preferences: preferences,
+                  onChanged: () async {
+                    await reloadDirection();
+                  },
+                )
+              : null,
         ),
       ),
     );

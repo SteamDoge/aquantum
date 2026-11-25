@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'plugin_package.dart';
 import 'plugin_network.dart';
+import '../l10n/l10n.dart';
 export 'plugin_network.dart';
 
 /// No package code is executed. All hops use bounded, pinned public HTTPS.
@@ -30,7 +31,7 @@ class PluginSource {
         uri.userInfo.isNotEmpty ||
         uri.hasFragment ||
         uri.port != 443) {
-      throw const FormatException('请输入无凭据的 HTTPS 仓库、Release 或 ZIP 链接');
+      throw FormatException(tr('请输入无凭据的 HTTPS 仓库、Release 或 ZIP 链接'));
     }
     final p = uri.pathSegments.where((s) => s.isNotEmpty).toList();
     if (uri.host.toLowerCase() == 'github.com' &&
@@ -46,7 +47,7 @@ class PluginSource {
         (s) =>
             RegExp(r'^[A-Za-z0-9_.-]+$').hasMatch(s) && s != '.' && s != '..',
       )) {
-        throw const FormatException('GitHub 仓库路径无效');
+        throw FormatException(tr('GitHub 仓库路径无效'));
       }
       return PluginSource._(
         uri,
@@ -56,7 +57,7 @@ class PluginSource {
       );
     }
     if (!uri.path.toLowerCase().endsWith('.zip')) {
-      throw const FormatException('仅支持 GitHub 仓库、Release 页面或 HTTPS ZIP');
+      throw FormatException(tr('仅支持 GitHub 仓库、Release 页面或 HTTPS ZIP'));
     }
     return PluginSource._(uri, null, null, null);
   }
@@ -83,10 +84,10 @@ class PluginDownloader {
         if (e.status != 404 || source.tag != null) rethrow;
       }
       if (release == null) {
-        throw const FormatException('仓库没有已发布的插件 ZIP；请先独立构建并发布安装包。');
+        throw FormatException(tr('仓库没有已发布的插件 ZIP；请先独立构建并发布安装包。'));
       }
       if (release['draft'] != false || release['assets'] is! List) {
-        throw const FormatException('Release 信息无效');
+        throw FormatException(tr('Release 信息无效'));
       }
       final assets = (release['assets'] as List)
           .whereType<Map>()
@@ -102,8 +103,8 @@ class PluginDownloader {
       final chosen = preferred.isNotEmpty ? preferred : assets;
       if (chosen.length != 1 ||
           chosen.single['browser_download_url'] is! String) {
-        throw const FormatException(
-          '没有唯一的插件 ZIP；请提供具体 Release ZIP 资源链接（推荐 .aqplugin.zip）',
+        throw FormatException(
+          tr('没有唯一的插件 ZIP；请提供具体 Release ZIP 资源链接（推荐 .aqplugin.zip）'),
         );
       }
       uri = PluginSource.parse(chosen.single['browser_download_url']).uri;
@@ -116,7 +117,7 @@ class PluginDownloader {
     final bytes = await fetch(uri, pluginZipLimit);
     if (expectedDigest != null &&
         sha256.convert(bytes).toString() != expectedDigest) {
-      throw const FormatException('Release 安装包 SHA-256 与声明不一致');
+      throw FormatException(tr('Release 安装包 SHA-256 与声明不一致'));
     }
     return PluginDownload(
       bytes,
@@ -129,7 +130,7 @@ class PluginDownloader {
   Future<Map<String, dynamic>> jsonObject(Uri uri) async {
     final data = jsonDecode(utf8.decode(await fetch(uri, 512 * 1024)));
     if (data is! Map<String, dynamic>) {
-      throw const FormatException('远端返回无效 JSON');
+      throw FormatException(tr('远端返回无效 JSON'));
     }
     return data;
   }

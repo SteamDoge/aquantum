@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:archive/archive.dart';
+import '../l10n/l10n.dart';
 
 /// User-initiated maintenance. Package versions and private data have separate lifetimes.
 class PluginData {
@@ -11,7 +12,7 @@ class PluginData {
   PluginData(this.base);
   Future<Directory> directory(String id) async {
     if (!RegExp(r'^[a-z][a-z0-9_-]*(?:\.[a-z][a-z0-9_-]*)+$').hasMatch(id)) {
-      throw const FormatException('插件ID无效');
+      throw FormatException(tr('插件ID无效'));
     }
     final parent = await Directory(base).create(recursive: true);
     final canonical = await parent.resolveSymbolicLinks();
@@ -24,7 +25,7 @@ class PluginData {
   Future<void> _noLinks(FileSystemEntity entity) async {
     if (await FileSystemEntity.type(entity.path, followLinks: false) ==
         FileSystemEntityType.link) {
-      throw StateError('插件数据目录禁止链接');
+      throw StateError(tr('插件数据目录禁止链接'));
     }
     if (entity is Directory && await entity.exists()) {
       await for (final child in entity.list(
@@ -33,7 +34,7 @@ class PluginData {
       )) {
         if (await FileSystemEntity.type(child.path, followLinks: false) ==
             FileSystemEntityType.link) {
-          throw StateError('插件数据包含链接，维护已停止');
+          throw StateError(tr('插件数据包含链接，维护已停止'));
         }
       }
     }
@@ -86,7 +87,7 @@ class PluginData {
         continue;
       }
       total += await entity.length();
-      if (total > 64 * 1024 * 1024) throw StateError('备份超过64MiB，请分批导出文件');
+      if (total > 64 * 1024 * 1024) throw StateError(tr('备份超过64MiB，请分批导出文件'));
       final bytes = await entity.readAsBytes();
       archive.addFile(ArchiveFile(relative, bytes.length, bytes));
     }
@@ -94,13 +95,13 @@ class PluginData {
   }
 
   Future<void> restore(String id, Uint8List bytes) async {
-    if (bytes.length > 64 * 1024 * 1024) throw StateError('备份文件过大');
+    if (bytes.length > 64 * 1024 * 1024) throw StateError(tr('备份文件过大'));
     final central = ZipDirectory()..read(InputMemoryStream(bytes));
     var expanded = 0;
     if (central.fileHeaders.length > 4096 ||
         central.numberOfThisDisk != 0 ||
         central.diskWithTheStartOfTheCentralDirectory != 0) {
-      throw const FormatException('备份目录无效');
+      throw FormatException(tr('备份目录无效'));
     }
     for (final header in central.fileHeaders) {
       expanded += header.uncompressedSize;
@@ -109,7 +110,7 @@ class PluginData {
           header.generalPurposeBitFlag & 1 != 0 ||
           header.file == null ||
           header.file!.filename != header.filename) {
-        throw const FormatException('备份文件超限或加密');
+        throw FormatException(tr('备份文件超限或加密'));
       }
     }
     final root = await directory(id);
@@ -129,20 +130,20 @@ class PluginData {
               ) ||
           name != 'plugin-backup.json' &&
               !{'data', 'config', 'files'}.contains(name.split('/').first)) {
-        throw const FormatException('备份路径无效');
+        throw FormatException(tr('备份路径无效'));
       }
       total += file.size;
       if (total > 64 * 1024 * 1024 ||
           file.size > 16 * 1024 * 1024 ||
           archive.files.length > 4096) {
-        throw const FormatException('备份解压大小超限');
+        throw FormatException(tr('备份解压大小超限'));
       }
     }
     final manifest = archive.findFile('plugin-backup.json');
-    if (manifest == null) throw const FormatException('缺少插件备份清单');
+    if (manifest == null) throw FormatException(tr('缺少插件备份清单'));
     final info = jsonDecode(utf8.decode(manifest.content));
     if (info['schemaVersion'] != 1 || info['pluginId'] != id) {
-      throw const FormatException('备份插件身份不匹配');
+      throw FormatException(tr('备份插件身份不匹配'));
     }
     // Validate all entries first, stage all bytes, then preserve each overwritten file.
     final staging = await root.createTemp('restore-');

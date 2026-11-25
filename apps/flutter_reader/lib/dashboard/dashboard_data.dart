@@ -2,6 +2,7 @@
 // Copyright (C) 2026 AQuantum Reader contributors.
 import 'package:flutter/foundation.dart';
 import '../data/models.dart';
+import '../l10n/l10n.dart';
 
 String calendarDay(DateTime time) =>
     '${time.year.toString().padLeft(4, '0')}-${time.month.toString().padLeft(2, '0')}-${time.day.toString().padLeft(2, '0')}';
@@ -88,16 +89,22 @@ class DashboardData {
       .length;
   String progress(Book book) {
     final visit = latest[book.id];
-    if (visit == null || visit.total == 0) return '尚无阅读记录';
+    if (visit == null || visit.total == 0) return tr('尚无阅读记录');
     // A document has no page count before it is laid out, so it reports how
     // far through the text the saved anchor sits instead of a page ratio.
     final percent = library.documentPercent(book);
-    if (percent != null) return '读到 $percent%';
+    if (percent != null) return tr('读到 {percent}%', {'percent': percent});
     final measured = library.contentFraction(book);
-    if (measured != null) return '读到 ${(measured * 100).round()}%';
+    if (measured != null) {
+      return tr('读到 {value}%', {'value': (measured * 100).round()});
+    }
     final pos = library.position(book) + 1;
-    if (!book.isComic && !book.isPdf) return '读到第 $pos 段';
-    return '$pos/${visit.total} 页 · ${(pos / visit.total * 100).clamp(0, 100).round()}%';
+    if (!book.isComic && !book.isPdf) return tr('读到第 {pos} 段', {'pos': pos});
+    return tr('{pos}/{total} 页 · {value}%', {
+      'pos': pos,
+      'total': visit.total,
+      'value': (pos / visit.total * 100).clamp(0, 100).round(),
+    });
   }
 
   double? fraction(Book book) =>
@@ -111,8 +118,8 @@ class DashboardData {
 
   String lastRead(Book book) {
     final visit = latest[book.id];
-    if (visit == null) return '未读';
-    if (visit.day == calendarDay(now)) return '今天';
+    if (visit == null) return tr('未读');
+    if (visit.day == calendarDay(now)) return tr('今天');
     return visit.day;
   }
 }

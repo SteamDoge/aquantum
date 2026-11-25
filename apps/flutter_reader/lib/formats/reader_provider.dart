@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import '../data/models.dart';
 import '../plugins/plugin_api.dart';
 import '../plugins/plugin_manager.dart';
+import '../l10n/l10n.dart';
 
 List<ReaderFormatRegistration> readerProviders(
   Book book,
@@ -25,11 +26,11 @@ List<ReaderFormatRegistration> readerProviders(
       ReaderFormatRegistration(
         id: 'core.$surface',
         name: switch (surface) {
-          'document' => '文档阅读',
-          'markdown' => 'Markdown 阅读',
-          'text' => '纯文字阅读',
-          'fixed_page' => 'PDF 阅读',
-          _ => '图片阅读',
+          'document' => tr('文档阅读'),
+          'markdown' => tr('Markdown 阅读'),
+          'text' => tr('纯文字阅读'),
+          'fixed_page' => tr('PDF 阅读'),
+          _ => tr('图片阅读'),
         },
         surface: surface,
       ),
@@ -79,8 +80,7 @@ class _ReaderProviderPanelState extends State<ReaderProviderPanel> {
       children: [
         if (widget.openFoliate != null || widget.foliateSelected)
           ListTile(
-            title: const Text('Foliate 漫画阅读'),
-            subtitle: const Text('使用当前页序；图片旋转在图片阅读器中调整'),
+            title: Text(tr('Foliate 漫画阅读')),
             trailing: widget.foliateSelected ? const Icon(Icons.check) : null,
             onTap: widget.openFoliate == null
                 ? null
@@ -115,7 +115,9 @@ class _ReaderProviderPanelState extends State<ReaderProviderPanel> {
       await select();
     } catch (e) {
       if (messenger?.mounted == true) {
-        messenger!.showSnackBar(SnackBar(content: Text('阅读器切换失败：$e')));
+        messenger!.showSnackBar(
+          SnackBar(content: Text(tr('阅读器切换失败：{e}', {'e': e}))),
+        );
       }
     }
   }
@@ -136,9 +138,9 @@ ReaderAdapter adaptReaderProvider(
           scheduleMicrotask(() async {
             try {
               await plugins.disable(item.manifest.id);
-              item.error = '阅读处理器已停用：$e';
+              item.error = tr('阅读处理器已停用：{e}', {'e': e});
             } catch (_) {
-              item.error = '阅读处理器失败：$e';
+              item.error = tr('阅读处理器失败：{e}', {'e': e});
             }
           });
           break;

@@ -11,6 +11,7 @@ import 'package:webview_windows/webview_windows.dart';
 
 import 'document_engine.dart';
 import 'document_engine_channel.dart';
+import '../l10n/l10n.dart';
 
 /// Runs the vendored foliate-js page inside WebView2.
 ///
@@ -71,7 +72,7 @@ class WindowsDocumentEngine extends ChannelDocumentEngine {
   /// Creates the browser environment once per process: a second environment is
   /// the documented way to leak a browser process per book.
   static Future<void> ensureEnvironment() async {
-    if (!Platform.isWindows) throw const DocumentEngineFailure('当前平台没有文档引擎');
+    if (!Platform.isWindows) throw DocumentEngineFailure(tr('当前平台没有文档引擎'));
     if (_environmentReady) return;
     final support = await getApplicationSupportDirectory();
     final profile = Directory('${support.path}/document-browser');

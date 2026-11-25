@@ -10,6 +10,8 @@ import '../data/document_io.dart';
 import 'import_dialog.dart';
 import 'book_history.dart';
 import '../design/widgets.dart';
+import '../l10n/l10n.dart';
+import '../data/core_messages.dart';
 
 class PageManagerScreen extends StatefulWidget {
   final ReaderApi api;
@@ -55,7 +57,8 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
     }
 
     final text =
-        height('页面\n名称', theme.titleMedium) + height('当前阅读页', theme.bodyMedium);
+        height(tr('页面\n名称'), theme.titleMedium) +
+        height(tr('当前阅读页'), theme.bodyMedium);
     return (text > 64 ? text : 64) + 32;
   }
 
@@ -103,7 +106,7 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
     final target = await showDialog<String>(
       context: context,
       builder: (c) => AlertDialog(
-        title: const Text('移动到目标页之前'),
+        title: Text(tr('移动到目标页之前')),
         content: SizedBox(
           width: 420,
           child: ListView.builder(
@@ -112,7 +115,9 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
             itemBuilder: (_, i) {
               final p = candidates[i];
               return ListTile(
-                title: Text('第 ${book.pages.indexOf(p) + 1} 页'),
+                title: Text(
+                  tr('第 {value} 页', {'value': book.pages.indexOf(p) + 1}),
+                ),
                 subtitle: Text(p['resource']['original_name']),
                 onTap: () => Navigator.pop(c, p['id']),
               );
@@ -120,10 +125,7 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(c),
-            child: const Text('取消'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(c), child: Text(tr('取消'))),
         ],
       ),
     );
@@ -134,46 +136,41 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
     final accepted = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
-        title: Text(cut ? '剪切导出所选页？' : '导出所选页'),
-        content: Text(
-          cut
-              ? '先写入并校验新文件，成功后再剪切。包含笔记或当前阅读位置的页面会保留，并说明原因。剪切可从操作记录撤销。'
-              : '导出 ${selected.length} 页，保持当前页序。源页和笔记保留；同名文件不会覆盖。',
-        ),
+        title: Text(cut ? tr('剪切导出所选页？') : tr('导出所选页')),
+        content: cut ? Text(tr('剪切可从操作记录撤销。')) : null,
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c, false),
-            child: const Text('取消'),
+            child: Text(tr('取消')),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(c, true),
-            child: const Text('选择保存目录'),
+            child: Text(tr('选择保存目录')),
           ),
         ],
       ),
     );
     if (accepted != true) return;
-    final directory = await pickDocumentOutput('选择导出目录');
+    final directory = await pickDocumentOutput(tr('选择导出目录'));
     if (directory == null || !mounted) return;
     final controller = TextEditingController(
-      text: '页面-${DateTime.now().millisecondsSinceEpoch}.cbz',
+      text: tr('页面-{value}.cbz', {
+        'value': DateTime.now().millisecondsSinceEpoch,
+      }),
     );
     final name = await showDialog<String>(
       context: context,
       builder: (c) => AlertDialog(
-        title: const Text('导出文件名'),
+        title: Text(tr('导出文件名')),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(labelText: '文件名（.cbz 或 .zip）'),
+          decoration: InputDecoration(labelText: tr('文件名（.cbz 或 .zip）')),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(c),
-            child: const Text('取消'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(c), child: Text(tr('取消'))),
           FilledButton(
             onPressed: () => Navigator.pop(c, controller.text.trim()),
-            child: const Text('导出'),
+            child: Text(tr('导出')),
           ),
         ],
       ),
@@ -185,7 +182,7 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
         name.contains(RegExp(r'[/\\:]')) ||
         name == '.' ||
         name == '..') {
-      if (mounted) setState(() => error = '请输入不含路径的文件名。');
+      if (mounted) setState(() => error = tr('请输入不含路径的文件名。'));
       return;
     }
     await run(() async {
@@ -195,9 +192,9 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
         'cut': cut,
       });
       final published = await directory.publish(name);
-      message = '已导出 $published';
+      message = tr('已导出 {published}', {'published': published});
       if (cut && result['cut']['applied'] != true) {
-        message = '$message\n${result['cut']['reason']}';
+        message = '$message\n${coreText(result['cut']['reason'])}';
       }
     });
   }
@@ -220,7 +217,7 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
     appBar: AppBar(
       actions: [
         IconButton(
-          tooltip: '修改记录与恢复',
+          tooltip: tr('修改记录与恢复'),
           onPressed: busy
               ? null
               : () async {
@@ -239,7 +236,7 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
           icon: const Icon(Icons.history),
         ),
         IconButton(
-          tooltip: '刷新页面',
+          tooltip: tr('刷新页面'),
           onPressed: busy ? null : () => run(() async {}),
           icon: const Icon(Icons.refresh),
         ),
@@ -249,7 +246,7 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-          child: AqPageHeading('页面管理', subtitle: book.title),
+          child: AqPageHeading(tr('页面管理'), subtitle: book.title),
         ),
         if (busy) const LinearProgressIndicator(),
         ConstrainedBox(
@@ -264,7 +261,12 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
                 runSpacing: 8,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Text('已选 ${selected.length} / ${book.pages.length} 页'),
+                  Text(
+                    tr('已选 {count} / {count2} 页', {
+                      'count': selected.length,
+                      'count2': book.pages.length,
+                    }),
+                  ),
                   TextButton(
                     onPressed: busy
                         ? null
@@ -277,15 +279,15 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
                               );
                             }
                           }),
-                    child: const Text('全选 / 取消'),
+                    child: Text(tr('全选 / 取消')),
                   ),
                   OutlinedButton(
                     onPressed: busy ? null : () => append(atStart: false),
-                    child: const Text('追加到末尾'),
+                    child: Text(tr('追加到末尾')),
                   ),
                   OutlinedButton(
                     onPressed: busy ? null : () => append(atStart: true),
-                    child: const Text('插入开头'),
+                    child: Text(tr('插入开头')),
                   ),
                   OutlinedButton(
                     onPressed: busy || selected.isEmpty
@@ -293,11 +295,11 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
                         : () => run(() async {
                             await widget.api.call('reverse_pages', selection);
                           }),
-                    child: const Text('反转选中页'),
+                    child: Text(tr('反转选中页')),
                   ),
                   OutlinedButton(
                     onPressed: busy || selected.isEmpty ? null : chooseTarget,
-                    child: const Text('移至指定页前'),
+                    child: Text(tr('移至指定页前')),
                   ),
                   OutlinedButton(
                     onPressed: busy || selected.isEmpty
@@ -308,26 +310,26 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
                               orElse: () => {'id': null},
                             )['id'],
                           ),
-                    child: const Text('移至开头'),
+                    child: Text(tr('移至开头')),
                   ),
                   OutlinedButton(
                     onPressed: busy || selected.isEmpty
                         ? null
                         : () => move(null),
-                    child: const Text('移至末尾'),
+                    child: Text(tr('移至末尾')),
                   ),
                   OutlinedButton(
                     onPressed: busy || selected.isEmpty
                         ? null
                         : () => export(false),
-                    child: const Text('复制导出 CBZ / ZIP'),
+                    child: Text(tr('复制导出 CBZ / ZIP')),
                   ),
                   if (!Platform.isAndroid)
                     OutlinedButton(
                       onPressed: busy || selected.isEmpty
                           ? null
                           : () => export(true),
-                      child: const Text('剪切导出'),
+                      child: Text(tr('剪切导出')),
                     ),
                 ],
               ),
@@ -408,12 +410,21 @@ class _PageManagerScreenState extends State<PageManagerScreen> {
                       ),
                     ),
                     title: Text(
-                      '第 ${i + 1} 页 · ${page['resource']['original_name']}',
+                      tr('第 {value} 页 · {value2}', {
+                        'value': i + 1,
+                        'value2': page['resource']['original_name'],
+                      }),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(
-                      '${id == currentPage ? '当前阅读页 · ' : ''}${sizeLabel(page['resource']['bytes'] as num)}',
+                      id == currentPage
+                          ? tr('当前阅读页 · {size}', {
+                              'size': sizeLabel(
+                                page['resource']['bytes'] as num,
+                              ),
+                            })
+                          : sizeLabel(page['resource']['bytes'] as num),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

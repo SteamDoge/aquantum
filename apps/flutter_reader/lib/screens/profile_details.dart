@@ -8,11 +8,12 @@ import 'toolbar_editor.dart';
 import '../design/appearance.dart';
 import '../design/theme.dart';
 import '../design/widgets.dart';
+import '../l10n/l10n.dart';
 
 String themeModeLabel(ThemeMode mode) => switch (mode) {
-  ThemeMode.system => '跟随系统',
-  ThemeMode.light => '浅色',
-  ThemeMode.dark => '深色',
+  ThemeMode.system => tr('跟随系统'),
+  ThemeMode.light => tr('浅色'),
+  ThemeMode.dark => tr('深色'),
 };
 
 /// The light/dark choice as one full-width segmented control.
@@ -57,7 +58,7 @@ class AppearanceSettings extends StatelessWidget {
       Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 7),
         child: Text(
-          '明暗',
+          tr('明暗'),
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
@@ -95,7 +96,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
           children: [
-            const AqPageHeading('外观'),
+            AqPageHeading(tr('外观')),
             const SizedBox(height: 24),
             AppearanceSettings(
               mode: mode,
@@ -107,6 +108,43 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
           ],
         ),
       ),
+    ),
+  );
+}
+
+/// The interface language on its own page, reached from Me and Settings.
+class LanguageScreen extends StatelessWidget {
+  const LanguageScreen({super.key});
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(),
+    body: Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 640),
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
+          children: [
+            AqPageHeading(tr('语言')),
+            const SizedBox(height: 24),
+            const LanguageSettings(),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+/// The row that opens [LanguageScreen]; hidden when no app owns the choice.
+Widget? languageRow(BuildContext context) {
+  final appearance = AqAppearance.maybeOf(context);
+  if (appearance?.onLanguageChanged == null) return null;
+  return AqRow(
+    icon: Icons.language,
+    title: tr('语言'),
+    value: languageLabel(appearance!.language),
+    onTap: () => Navigator.push<void>(
+      context,
+      MaterialPageRoute(builder: (_) => const LanguageScreen()),
     ),
   );
 }
@@ -151,18 +189,18 @@ class ProfileDetails extends StatelessWidget {
           ),
           children: [
             AqPageHeading(switch (section) {
-              ProfileDetail.settings => '设置',
-              ProfileDetail.storage => '存储管理',
-              ProfileDetail.history => '操作记录',
+              ProfileDetail.settings => tr('设置'),
+              ProfileDetail.storage => tr('存储管理'),
+              ProfileDetail.history => tr('操作记录'),
             }),
             const SizedBox(height: 24),
             if (section == ProfileDetail.settings) ...[
               AqSection(
-                header: '界面',
+                header: tr('界面'),
                 children: [
                   AqRow(
                     icon: Icons.palette_outlined,
-                    title: '外观',
+                    title: tr('外观'),
                     value: '${palette.label} · ${themeModeLabel(mode)}',
                     onTap: () => Navigator.push<void>(
                       context,
@@ -174,9 +212,10 @@ class ProfileDetails extends StatelessWidget {
                       ),
                     ),
                   ),
+                  ?languageRow(context),
                   AqRow(
                     icon: Icons.tune,
-                    title: '编辑工具栏',
+                    title: tr('编辑工具栏'),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<bool>(
                         builder: (_) => ToolbarEditor(plugins: plugins),
@@ -186,12 +225,11 @@ class ProfileDetails extends StatelessWidget {
                 ],
               ),
               AqSection(
-                header: '阅读',
+                header: tr('阅读'),
                 children: [
                   AqRow(
                     icon: Icons.auto_stories_outlined,
-                    title: '阅读器选择',
-                    subtitle: '按文件格式选择默认阅读器',
+                    title: tr('阅读器选择'),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
                         builder: (_) => ReaderDefaultsScreen(plugins: plugins),
@@ -200,8 +238,8 @@ class ProfileDetails extends StatelessWidget {
                   ),
                   AqRow(
                     icon: Icons.dashboard_customize_outlined,
-                    title: '统计与自定义卡片',
-                    subtitle: '接口说明',
+                    title: tr('统计与自定义卡片'),
+                    subtitle: tr('接口说明'),
                     onTap: onStatisticsHelp,
                   ),
                 ],
@@ -209,19 +247,19 @@ class ProfileDetails extends StatelessWidget {
             ],
             if (section == ProfileDetail.storage) ...[
               AqSection(
-                header: '占用空间',
+                header: tr('占用空间'),
                 dividerIndent: 16,
                 children: [
                   AqRow(
-                    title: '已导入原件副本',
+                    title: tr('已导入原件副本'),
                     value: sizeLabel(storage['original_bytes'] as num),
                   ),
                   AqRow(
-                    title: '资料库与阅读记录',
+                    title: tr('资料库与阅读记录'),
                     value: sizeLabel(storage['database_bytes'] as num),
                   ),
                   AqRow(
-                    title: '待处理导入与残留',
+                    title: tr('待处理导入与残留'),
                     value: sizeLabel(
                       (storage['retained_unreferenced_bytes'] as num) +
                           (storage['incomplete_bytes'] as num) +
@@ -231,11 +269,10 @@ class ProfileDetails extends StatelessWidget {
                 ],
               ),
               AqSection(
-                footer: '清理只在你确认后执行，原件与历史默认保留。',
                 children: [
                   AqRow(
                     icon: Icons.storage_outlined,
-                    title: '手动清理、任务与备份恢复',
+                    title: tr('手动清理、任务与备份恢复'),
                     onTap: onStorageMaintenance,
                   ),
                 ],
@@ -246,7 +283,7 @@ class ProfileDetails extends StatelessWidget {
                   ? Padding(
                       padding: const EdgeInsets.symmetric(vertical: 48),
                       child: Text(
-                        '还没有操作记录',
+                        tr('还没有操作记录'),
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AqColors.of(context).muted,
@@ -254,17 +291,17 @@ class ProfileDetails extends StatelessWidget {
                       ),
                     )
                   : AqSection(
-                      header: '最近 ${operations.length} 项',
+                      header: tr('最近 {count} 项', {'count': operations.length}),
                       dividerIndent: 16,
                       children: [
                         for (final op in operations)
                           AqRow(
                             title: switch (op['action']) {
-                              'import_book' => '导入内容',
-                              'create_project' => '创建项目',
-                              'add_note' => '保存笔记',
-                              'set_book_gap' => '修改阅读间隔',
-                              _ => '更新资料',
+                              'import_book' => tr('导入内容'),
+                              'create_project' => tr('创建项目'),
+                              'add_note' => tr('保存笔记'),
+                              'set_book_gap' => tr('修改阅读间隔'),
+                              _ => tr('更新资料'),
                             },
                             value: DateTime.fromMillisecondsSinceEpoch(
                               (op['unix_seconds'] as int) * 1000,

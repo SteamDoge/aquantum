@@ -7,6 +7,7 @@ import '../features/feature_registry.dart';
 import 'navigation_controller.dart';
 import 'navigation_preferences.dart';
 import 'liquid_navigation_dock.dart';
+import '../l10n/l10n.dart';
 
 /// Adapters own placement only. No layout widget registers or orders features.
 class NavigationShell extends StatelessWidget {
@@ -224,7 +225,7 @@ class _DesktopRail extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      tooltip: expanded ? '收起导航' : '展开导航',
+                      tooltip: expanded ? tr('收起导航') : tr('展开导航'),
                       onPressed: onToggleExpanded,
                       color: scheme.onSurfaceVariant,
                       icon: Icon(

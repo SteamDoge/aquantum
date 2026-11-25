@@ -6,9 +6,13 @@ import '../plugins/plugin_manager.dart';
 import '../reader/reader_toolbar.dart';
 import '../reader/toolbar_preferences.dart';
 import '../design/widgets.dart';
+import '../l10n/l10n.dart';
 
 class ToolbarItem {
-  final String id, name, source;
+  final String id, name;
+
+  /// The plugin name; null for the reader's own buttons.
+  final String? source;
   final Widget icon;
   const ToolbarItem(this.id, this.name, this.source, this.icon);
 }
@@ -18,7 +22,7 @@ List<ToolbarItem> toolbarItems(PluginManager? plugins) => [
     ToolbarItem(
       toolbarCoreId(action),
       ReaderToolbar.label(action),
-      'AQuantum Reader',
+      null,
       ReaderToolbar.glyph(action),
     ),
   for (final record in plugins?.records ?? <PluginRecord>[])
@@ -114,13 +118,12 @@ class _ToolbarEditorState extends State<ToolbarEditor> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
             children: [
-              const AqPageHeading('编辑工具栏'),
+              AqPageHeading(tr('编辑工具栏')),
               const SizedBox(height: 20),
-              const Text(
-                '当前工具栏',
+              Text(
+                tr('当前工具栏'),
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
               ),
-              const Text('拖动调整顺序；返回与更多保留。所有格式共用配置，上下滚动不显示底部工具栏。'),
               ReorderableListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -149,13 +152,13 @@ class _ToolbarEditorState extends State<ToolbarEditor> {
                     key: ValueKey(item.id),
                     leading: item.icon,
                     title: Text(item.name),
-                    subtitle: Text(item.source),
+                    subtitle: item.source == null ? null : Text(item.source!),
                     trailing: ToolbarLayout.requiredIds.contains(item.id)
                         ? const Icon(Icons.lock_outline)
                         : Padding(
                             padding: const EdgeInsets.only(right: 32),
                             child: IconButton(
-                              tooltip: '移入更多${item.name}',
+                              tooltip: tr('移入更多{name}', {'name': item.name}),
                               onPressed: busy
                                   ? null
                                   : () => place(item.id, 'more'),
@@ -166,8 +169,8 @@ class _ToolbarEditorState extends State<ToolbarEditor> {
                 },
               ),
               const SizedBox(height: 24),
-              const Text(
-                '更多功能',
+              Text(
+                tr('更多功能'),
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
               ),
               for (final item in items.where(
@@ -176,17 +179,23 @@ class _ToolbarEditorState extends State<ToolbarEditor> {
                 ListTile(
                   leading: item.icon,
                   title: Text(item.name),
-                  subtitle: Text(
-                    '${item.source}${current.hidden.contains(item.id) ? ' · 已隐藏' : ''}',
-                  ),
+                  subtitle:
+                      item.source == null && !current.hidden.contains(item.id)
+                      ? null
+                      : Text(
+                          [
+                            ?item.source,
+                            if (current.hidden.contains(item.id)) tr('已隐藏'),
+                          ].join(' · '),
+                        ),
                   trailing: PopupMenuButton<String>(
-                    tooltip: '配置${item.name}',
+                    tooltip: tr('配置{name}', {'name': item.name}),
                     enabled: !busy,
                     onSelected: (value) => place(item.id, value),
                     itemBuilder: (_) => [
-                      const PopupMenuItem(value: 'pin', child: Text('固定到工具栏')),
-                      const PopupMenuItem(value: 'more', child: Text('保留在更多')),
-                      const PopupMenuItem(value: 'hide', child: Text('隐藏')),
+                      PopupMenuItem(value: 'pin', child: Text(tr('固定到工具栏'))),
+                      PopupMenuItem(value: 'more', child: Text(tr('保留在更多'))),
+                      PopupMenuItem(value: 'hide', child: Text(tr('隐藏'))),
                     ],
                   ),
                 ),
@@ -204,11 +213,11 @@ class _ToolbarEditorState extends State<ToolbarEditor> {
                   onPressed: busy
                       ? null
                       : () => setState(() => layout = ToolbarLayout.defaults()),
-                  child: const Text('恢复默认'),
+                  child: Text(tr('恢复默认')),
                 ),
                 FilledButton(
                   onPressed: busy ? null : save,
-                  child: Text(busy ? '保存中…' : '保存并应用'),
+                  child: Text(busy ? tr('保存中…') : tr('保存并应用')),
                 ),
               ],
             ),

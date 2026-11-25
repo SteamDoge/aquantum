@@ -8,6 +8,7 @@ import '../data/models.dart';
 import '../data/reader_api.dart';
 import 'cropped_page.dart';
 import '../reader/reader_image_viewport.dart';
+import '../l10n/l10n.dart';
 
 /// One comic page image with its optional non-destructive trim.
 ///
@@ -178,7 +179,11 @@ class _ComicPageState extends State<ComicPage> {
     future: bytes,
     initialData: ComicPage.peek(widget.book, widget.page),
     builder: (context, result) {
-      if (result.hasError) return Center(child: Text('图片读取失败：${result.error}'));
+      if (result.hasError) {
+        return Center(
+          child: Text(tr('图片读取失败：{error}', {'error': result.error})),
+        );
+      }
       if (!result.hasData) {
         return SizedBox(
           height: widget.fitWidth ? MediaQuery.sizeOf(context).height : null,
@@ -190,9 +195,9 @@ class _ComicPageState extends State<ComicPage> {
         image: _decodeSize(context, result.data!),
         fit: widget.fitWidth ? BoxFit.fitWidth : BoxFit.contain,
         width: widget.fitWidth ? MediaQuery.sizeOf(context).width : null,
-        semanticLabel: '${widget.book.title} 漫画页面',
+        semanticLabel: tr('{title} 漫画页面', {'title': widget.book.title}),
         errorBuilder: (_, _, _) =>
-            const Center(child: Text('图片损坏或格式无法解码。原始副本已保留。')),
+            Center(child: Text(tr('图片损坏或格式无法解码。原始副本已保留。'))),
       );
       final content = Center(
         child: CroppedPage(

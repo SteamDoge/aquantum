@@ -2,6 +2,7 @@
 // Copyright (C) 2026 AQuantum Reader contributors.
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/models.dart';
+import '../l10n/l10n.dart';
 
 /// Global format choices override legacy per-book choices without deleting them.
 class ReaderProviderPreferences {
@@ -22,7 +23,7 @@ class ReaderProviderPreferences {
       'reader-mode.v1.$format',
       paged,
     )) {
-      throw StateError('默认翻页方式保存失败');
+      throw StateError(tr('默认翻页方式保存失败'));
     }
   }
 
@@ -37,7 +38,7 @@ class ReaderProviderPreferences {
       key(format),
       id,
     )) {
-      throw StateError('阅读器选择保存失败');
+      throw StateError(tr('阅读器选择保存失败'));
     }
   }
 }

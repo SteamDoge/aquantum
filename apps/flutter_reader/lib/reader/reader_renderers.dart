@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../data/models.dart';
 import 'reader_contract.dart';
 import 'text_pagination.dart';
+import '../l10n/l10n.dart';
 
 abstract class SessionReaderAdapter implements ReaderAdapter {
   final Book book;
@@ -85,7 +86,7 @@ class TextReaderAdapter extends SessionReaderAdapter
   @override
   int get count => paragraphs.length;
   @override
-  String get unit => '段';
+  String get unit => tr('段');
   @override
   bool get paged => false;
   @override
@@ -94,7 +95,7 @@ class TextReaderAdapter extends SessionReaderAdapter
   ReaderCapabilities get capabilities => ReaderCapabilities(
     search: true,
     encoding: true,
-    navigationLabel: outline.isEmpty ? '内容导航（段落）' : '目录',
+    navigationLabel: outline.isEmpty ? tr('内容导航（段落）') : tr('目录'),
     settings: {
       ReaderSetting.fontSize,
       ReaderSetting.fontFamily,
@@ -203,13 +204,13 @@ class ComicReaderAdapter extends SessionReaderAdapter
   @override
   int get count => book.pages.length;
   @override
-  String get unit => '页';
+  String get unit => tr('页');
   @override
   bool get paged => !continuous;
   @override
   ReaderCapabilities get capabilities => ReaderCapabilities(
-    navigationLabel: '页面导航',
-    searchExplanation: '当前图片阅读器尚未接入 OCR 文字检索插件。',
+    navigationLabel: tr('页面导航'),
+    searchExplanation: tr('当前图片阅读器尚未接入 OCR 文字检索插件。'),
     settings: {
       ReaderSetting.theme,
       if (!continuous) ReaderSetting.animation,
@@ -223,7 +224,7 @@ class ComicReaderAdapter extends SessionReaderAdapter
   @override
   ReaderLocation location(int index) => ReaderLocation(
     'page:${book.pages[index]['id']}',
-    '第 ${index + 1} 页',
+    tr('第 {value} 页', {'value': index + 1}),
     index,
   );
   @override
@@ -296,17 +297,17 @@ class PagedTextReaderAdapter extends SessionReaderAdapter
         current = entry;
       }
     }
-    return current?.title ?? (entries.isEmpty ? '未识别章节标题' : '正文');
+    return current?.title ?? (entries.isEmpty ? tr('未识别章节标题') : tr('正文'));
   }
 
   @override
-  String get unit => layout.complete ? '页' : '附近页（全书分页中）';
+  String get unit => layout.complete ? tr('页') : tr('附近页（全书分页中）');
   @override
   bool get paged => true;
   @override
-  ReaderCapabilities get capabilities => const ReaderCapabilities(
+  ReaderCapabilities get capabilities => ReaderCapabilities(
     search: true,
-    navigationLabel: '内容导航（分页）',
+    navigationLabel: tr('内容导航（分页）'),
     settings: {
       ReaderSetting.fontSize,
       ReaderSetting.fontFamily,
@@ -326,7 +327,10 @@ class PagedTextReaderAdapter extends SessionReaderAdapter
     final anchor = layout.pages[index].anchor;
     return ReaderLocation(
       'text:$textSource:${anchor.paragraph}:${anchor.start}',
-      '第 ${index + 1} 页 · ${chapterAt(anchor.paragraph, anchor.start)}',
+      tr('第 {value} 页 · {value2}', {
+        'value': index + 1,
+        'value2': chapterAt(anchor.paragraph, anchor.start),
+      }),
       index,
     );
   }

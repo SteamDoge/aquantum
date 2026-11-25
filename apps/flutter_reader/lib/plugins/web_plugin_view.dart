@@ -15,6 +15,7 @@ import 'package:webview_windows/webview_windows.dart' as windows;
 import '../formats/document_engine_windows.dart';
 import 'plugin_api.dart';
 import 'plugin_host.dart';
+import '../l10n/l10n.dart';
 
 class WebPluginLifetime extends ChangeNotifier {
   bool active = false;
@@ -101,7 +102,7 @@ class _WebPluginViewState extends State<WebPluginView> {
       if (mounted) {
         setState(() {
           ready = false;
-          error = '插件已停用';
+          error = tr('插件已停用');
         });
       }
     }
@@ -110,7 +111,7 @@ class _WebPluginViewState extends State<WebPluginView> {
   Future<void> open() async {
     try {
       final services = widget.services;
-      if (services == null) throw StateError('当前运行入口未配置插件服务');
+      if (services == null) throw StateError(tr('当前运行入口未配置插件服务'));
       if (closed) {
         return;
       }
@@ -179,20 +180,22 @@ class _WebPluginViewState extends State<WebPluginView> {
         );
         await control.loadHtmlString(html);
       } else {
-        throw UnsupportedError('当前平台没有插件加载器');
+        throw UnsupportedError(tr('当前平台没有插件加载器'));
       }
       if (mounted && !closed) setState(() => ready = true);
       if (!pluginReady && !closed) {
         readinessTimer = Timer(const Duration(seconds: 20), () {
           if (mounted && !closed && !pluginReady) {
-            setState(() => error = '插件页面未响应，请检查运行包入口与构建资源。');
+            setState(() => error = tr('插件页面未响应，请检查运行包入口与构建资源。'));
             unawaited(close());
           }
         });
       }
     } catch (e) {
       debugPrint('PLUGIN_RUNTIME: startup failed $e');
-      if (mounted && !closed) setState(() => error = '插件启动失败：$e');
+      if (mounted && !closed) {
+        setState(() => error = tr('插件启动失败：{e}', {'e': e}));
+      }
     }
   }
 
@@ -207,7 +210,7 @@ class _WebPluginViewState extends State<WebPluginView> {
       if (id is! int ||
           message['method'] is! String ||
           message['args'] is! Map) {
-        throw const FormatException('插件请求格式错误');
+        throw FormatException(tr('插件请求格式错误'));
       }
       if (message['method'] == 'runtime.ready') {
         readinessTimer?.cancel();
@@ -219,8 +222,11 @@ class _WebPluginViewState extends State<WebPluginView> {
         debugPrint('PLUGIN_RUNTIME: page error $detail');
         if (mounted) {
           setState(
-            () => error =
-                '插件页面执行失败：${detail.length > 2000 ? detail.substring(0, 2000) : detail}',
+            () => error = tr('插件页面执行失败：{value}', {
+              'value': detail.length > 2000
+                  ? detail.substring(0, 2000)
+                  : detail,
+            }),
           );
         }
         await close();

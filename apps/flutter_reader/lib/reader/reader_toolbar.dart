@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 AQuantum Reader contributors.
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 enum ReaderToolbarAction {
   back,
@@ -33,13 +34,13 @@ class ReaderToolbar extends StatelessWidget {
     this.customButtons,
   });
   static String label(ReaderToolbarAction action) => switch (action) {
-    ReaderToolbarAction.back => '返回',
-    ReaderToolbarAction.settings => '阅读设置',
-    ReaderToolbarAction.navigation => '目录与内容导航',
-    ReaderToolbarAction.view => '阅读视图与页面导航',
-    ReaderToolbarAction.bookmarks => '书签',
-    ReaderToolbarAction.search => '搜索',
-    ReaderToolbarAction.more => '更多',
+    ReaderToolbarAction.back => tr('返回'),
+    ReaderToolbarAction.settings => tr('阅读设置'),
+    ReaderToolbarAction.navigation => tr('目录与内容导航'),
+    ReaderToolbarAction.view => tr('阅读视图与页面导航'),
+    ReaderToolbarAction.bookmarks => tr('书签'),
+    ReaderToolbarAction.search => tr('搜索'),
+    ReaderToolbarAction.more => tr('更多'),
   };
   static Widget glyph(ReaderToolbarAction action) => switch (action) {
     ReaderToolbarAction.back => const Icon(Icons.arrow_back),
@@ -154,7 +155,7 @@ class ReaderToolbar extends StatelessWidget {
               width: 48,
               height: 48,
               child: PopupMenuButton<int>(
-                tooltip: '溢出操作',
+                tooltip: tr('溢出操作'),
                 icon: const Icon(Icons.unfold_more),
                 onSelected: (index) => overflow[index].onPressed?.call(),
                 itemBuilder: (_) => [

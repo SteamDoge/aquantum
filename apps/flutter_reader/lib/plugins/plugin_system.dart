@@ -8,6 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'plugin_manifest.dart';
 import 'plugin_export.dart';
+import '../l10n/l10n.dart';
 
 /// Explicit OS capabilities; every call rechecks the session grant.
 class PluginSystemAccess {
@@ -52,7 +53,7 @@ class PluginSystemAccess {
         final key = args['key'];
         if (key is! String ||
             !RegExp(r'^[a-zA-Z0-9_.-]{1,80}$').hasMatch(key)) {
-          throw const FormatException('凭据键无效');
+          throw FormatException(tr('凭据键无效'));
         }
         final scoped = '${credentialPrefix(pluginId)}$key';
         const secure = _secure;
@@ -67,7 +68,7 @@ class PluginSystemAccess {
         }
         final value = args['value'];
         if (value is! String || value.length > 8192) {
-          throw const FormatException('凭据值过大');
+          throw FormatException(tr('凭据值过大'));
         }
         await secure.write(key: scoped, value: value);
         check(PluginPermission.secureStorage);
@@ -81,7 +82,7 @@ class PluginSystemAccess {
         check(PluginPermission.clipboard);
         final text = args['text'];
         if (text is! String || text.length > 64 * 1024) {
-          throw const FormatException('剪贴板文本过大');
+          throw FormatException(tr('剪贴板文本过大'));
         }
         await Clipboard.setData(ClipboardData(text: text));
         check();
@@ -97,13 +98,13 @@ class PluginSystemAccess {
         if (picked == null || picked.files.isEmpty) return null;
         final file = picked.files.single;
         if (file.size > 16 * 1024 * 1024 || file.readStream == null) {
-          throw StateError('所选文件超过16MiB或不可读取');
+          throw StateError(tr('所选文件超过16MiB或不可读取'));
         }
         final bytes = BytesBuilder(copy: false);
         await for (final chunk in file.readStream!) {
           check(PluginPermission.externalFiles);
           if (bytes.length + chunk.length > 16 * 1024 * 1024) {
-            throw StateError('所选文件过大');
+            throw StateError(tr('所选文件过大'));
           }
           bytes.add(chunk);
         }
@@ -112,7 +113,7 @@ class PluginSystemAccess {
         check(PluginPermission.externalFiles);
         final file = await resolveFile(args['name']);
         if (!await file.exists() || await file.length() > 16 * 1024 * 1024) {
-          throw StateError('导出文件不存在或过大');
+          throw StateError(tr('导出文件不存在或过大'));
         }
         final result = await exportPluginBytes(
           file.uri.pathSegments.last,
@@ -121,7 +122,7 @@ class PluginSystemAccess {
         check();
         return {'saved': result};
       default:
-        throw const FormatException('未知系统能力');
+        throw FormatException(tr('未知系统能力'));
     }
   }
 }

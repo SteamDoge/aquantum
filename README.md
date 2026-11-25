@@ -26,7 +26,7 @@ Books tend to end up in different apps: novels in one, comics in another, PDFs a
 - **No account, works offline**: your library, progress and notes stay on your device.
 - **Add what you need**: install JavaScript plugins for extra pages and tools.
 
-It's for you if you read local files in several formats and want them in one place. If you depend on a store's cloud library or need sync between devices, it doesn't do that yet. Runs on Android 7.0+ and Windows 10/11 x64.
+It's for you if you read local files in several formats and want them in one place. If you depend on a store's cloud library or need sync between devices, it doesn't do that yet. The interface is in Simplified Chinese, English and Traditional Chinese. Runs on Android 7.0+ and Windows 10/11 x64.
 
 ## Features
 
@@ -34,6 +34,8 @@ It's for you if you read local files in several formats and want them in one pla
 - **Many formats**: text, images/comics, PDF, Markdown, EPUB, MOBI, AZW3, FB2 and more, each laid out according to what the format supports.
 - **Pick up where you left off**: reading position, bookmarks and notes are saved; manage the library and local backups.
 - **One reading experience**: continuous scrolling or page-by-page, four color schemes with light and dark themes, layouts for phones and desktops.
+- **Comfortable PDF scrolling**: in continuous reading you can pinch out to see several pages at once; a pinch that ends close to the screen width snaps to fit it.
+- **Three interface languages**: Simplified Chinese, English and Traditional Chinese; it follows your system language unless you pick one.
 - **Plugins**: install JavaScript modules through the `javascript-v1` plugin interface, with optional HTML pages; network access depends on the plugin and the permissions it declares.
 - **Open source**: original code under **AGPL-3.0-only**; third-party licenses and notices are kept intact.
 
@@ -41,16 +43,15 @@ Having a plugin interface does not mean OCR, AI or cloud sync are built in; they
 
 ## Download
 
-Current version: [**RC015 · rc.0.0.15**](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.15). See [all releases](https://github.com/SteamDoge/aquantum/releases) for changes and packages.
+Current version: [**RC017 · rc.0.0.17**](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.17). See [all releases](https://github.com/SteamDoge/aquantum/releases) for changes and packages.
 
 | Platform | Download | Which one |
 | --- | --- | --- |
-| Android 7.0+ (API 24+) | [![APK ARM64](https://img.shields.io/badge/APK-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-android-arm64.apk) | Most phones |
-| Android x86_64 | [![APK x64](https://img.shields.io/badge/APK-x64-168039?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-android-x64.apk) | x86_64 devices and emulators |
-| Windows 10/11 x64 | [![Portable x64](https://img.shields.io/badge/Portable-x64-00AEEF)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-windows-x64.zip) | Extract the whole folder and run `AQuantumReader.exe` |
-| Plugin development | [SDK source and examples](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-plugin-sdk.zip) | A developer tool, not an installed feature module |
+| Android 7.0+ (API 24+) | [![APK ARM64](https://img.shields.io/badge/APK-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.17/AQuantumReader-rc.0.0.17-android-arm64.apk) | Most phones |
+| Android x86_64 | [![APK x64](https://img.shields.io/badge/APK-x64-168039?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.17/AQuantumReader-rc.0.0.17-android-x64.apk) | x86_64 devices and emulators |
+| Plugin development | [SDK source and examples](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.17/AQuantumReader-rc.0.0.17-plugin-sdk.zip) | A developer tool, not an installed feature module |
 
-<sub>Reading EPUB and similar documents on Windows requires the Microsoft Edge WebView2 Runtime. There are no Linux, macOS, iOS or Windows ARM64 packages yet. ARM64 physical devices and the full GUI, device and format matrix have not been fully verified.</sub>
+<sub>This version has Android packages only; the latest Windows portable package is in [RC015](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.15) (extract the whole folder; reading EPUB and similar documents needs the Microsoft Edge WebView2 Runtime). There are no Linux, macOS, iOS or Windows ARM64 packages yet. ARM64 physical devices and the full GUI, device and format matrix have not been fully verified.</sub>
 
 ## Getting started
 
@@ -58,7 +59,7 @@ Current version: [**RC015 · rc.0.0.15**](https://github.com/SteamDoge/aquantum/
 
 **2 · Import.** Choose files, a folder or an archive, preview them, then import them into the library.
 
-**3 · Read.** Open a book, then adjust the color scheme and reading preferences in settings.
+**3 · Read.** Open a book, then adjust the color scheme, language and reading preferences in settings.
 
 Back up the library before upgrading or changing it by hand. Upgrading an existing Android install needs a matching signature; if your own build is signed differently, export a backup first. Don't uninstall in place of making a backup.
 

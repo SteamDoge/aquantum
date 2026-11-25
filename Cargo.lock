@@ -75,7 +75,7 @@ dependencies = [
 
 [[package]]
 name = "aq-application"
-version = "0.0.16-rc.0"
+version = "0.0.17-rc.0"
 dependencies = [
  "aq-domain",
  "encoding_rs",
@@ -86,7 +86,7 @@ dependencies = [
 
 [[package]]
 name = "aq-bridge"
-version = "0.0.16-rc.0"
+version = "0.0.17-rc.0"
 dependencies = [
  "aq-application",
  "aq-domain",
@@ -100,7 +100,7 @@ dependencies = [
 
 [[package]]
 name = "aq-cli"
-version = "0.0.16-rc.0"
+version = "0.0.17-rc.0"
 dependencies = [
  "aq-application",
  "aq-domain",
@@ -112,7 +112,7 @@ dependencies = [
 
 [[package]]
 name = "aq-domain"
-version = "0.0.16-rc.0"
+version = "0.0.17-rc.0"
 dependencies = [
  "serde",
  "thiserror",
@@ -121,7 +121,7 @@ dependencies = [
 
 [[package]]
 name = "aq-local"
-version = "0.0.16-rc.0"
+version = "0.0.17-rc.0"
 dependencies = [
  "aq-application",
  "aq-domain",

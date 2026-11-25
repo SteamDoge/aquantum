@@ -3,7 +3,7 @@ members = ["crates/domain", "crates/application", "crates/local", "crates/bridge
 resolver = "2"
 
 [workspace.package]
-version = "0.0.16-rc.0"
+version = "0.0.17-rc.0"
 edition = "2024"
 publish = false
 license = "AGPL-3.0-only"

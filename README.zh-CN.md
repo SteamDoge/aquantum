@@ -26,7 +26,7 @@
 - **免登录，可离线**：资料库、进度和笔记都留在你的设备上。
 - **按需扩展**：安装 JavaScript 插件，增加页面和工具。
 
-如果你读的多是本地文件、格式又多，想集中在一处，它适合你。如果你依赖书城的云端书架，或需要多设备同步，目前还做不到。支持 Android 7.0+ 和 Windows 10／11 x64。
+如果你读的多是本地文件、格式又多，想集中在一处，它适合你。如果你依赖书城的云端书架，或需要多设备同步，目前还做不到。界面有简体中文、English 和繁體中文。支持 Android 7.0+ 和 Windows 10／11 x64。
 
 ## 功能
 
@@ -34,6 +34,8 @@
 - **多种内容**：文本、图片／漫画、PDF、Markdown、EPUB、MOBI、AZW3、FB2 等；各格式按自身能力排版。
 - **持续阅读**：保存阅读位置、书签与笔记，管理资料库和本地备份。
 - **统一体验**：连续滚动与横向分页，四套配色及浅深主题，适配手机和桌面布局。
+- **PDF 上下滑动更顺手**：连续阅读时可以双指缩小，一屏看几页；缩放松手时接近屏宽会自动贴合屏宽。
+- **三种界面语言**：简体中文、English、繁體中文，默认跟随系统语言，也可以手动指定。
 - **独立扩展**：通过 `javascript-v1` 插件接口安装 JavaScript 模块，可选 HTML 页面；联网能力由模块及其声明的权限决定。
 - **开放源码**：原创代码采用 **AGPL-3.0-only**，第三方许可与版权声明完整保留。
 
@@ -41,16 +43,15 @@
 
 ## 下载
 
-当前版本：[**RC015 · rc.0.0.15**](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.15)。在 [所有版本](https://github.com/SteamDoge/aquantum/releases) 查看更新与安装包。
+当前版本：[**RC017 · rc.0.0.17**](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.17)。在 [所有版本](https://github.com/SteamDoge/aquantum/releases) 查看更新与安装包。
 
 | 平台 | 下载 | 选择说明 |
 | --- | --- | --- |
-| Android 7.0+（API 24+） | [![APK ARM64](https://img.shields.io/badge/APK-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-android-arm64.apk) | 大多数手机选择此版本 |
-| Android x86_64 | [![APK x64](https://img.shields.io/badge/APK-x64-168039?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-android-x64.apk) | x86_64 设备／模拟器 |
-| Windows 10／11 x64 | [![Portable x64](https://img.shields.io/badge/Portable-x64-00AEEF)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-windows-x64.zip) | 解压完整目录，运行 `AQuantumReader.exe` |
-| 插件开发 | [SDK 源码与示例](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.15/AQuantumReader-rc.0.0.15-plugin-sdk.zip) | 开发工具，不是已安装的功能模块 |
+| Android 7.0+（API 24+） | [![APK ARM64](https://img.shields.io/badge/APK-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.17/AQuantumReader-rc.0.0.17-android-arm64.apk) | 大多数手机选择此版本 |
+| Android x86_64 | [![APK x64](https://img.shields.io/badge/APK-x64-168039?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.17/AQuantumReader-rc.0.0.17-android-x64.apk) | x86_64 设备／模拟器 |
+| 插件开发 | [SDK 源码与示例](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.17/AQuantumReader-rc.0.0.17-plugin-sdk.zip) | 开发工具，不是已安装的功能模块 |
 
-<sub>Windows 阅读 EPUB 等文档需安装 Microsoft Edge WebView2 Runtime。当前没有 Linux、macOS、iOS 或 Windows ARM64 安装包。ARM64 实体机及完整 GUI／设备／格式矩阵仍有验证缺口。</sub>
+<sub>本版只有 Android 安装包；最新的 Windows 便携包在 [RC015](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.15)（须完整解压；阅读 EPUB 等文档需安装 Microsoft Edge WebView2 Runtime）。当前没有 Linux、macOS、iOS 或 Windows ARM64 安装包。ARM64 实体机及完整 GUI／设备／格式矩阵仍有验证缺口。</sub>
 
 ## 使用
 
@@ -58,7 +59,7 @@
 
 **2 · 导入。** 选择文件、目录或压缩包，预览后导入资料库。
 
-**3 · 阅读。** 打开内容阅读，在设置中调整配色和阅读偏好。
+**3 · 阅读。** 打开内容阅读，在设置中调整配色、语言和阅读偏好。
 
 升级或手动操作资料库前先备份。Android 覆盖升级需要兼容签名；自行构建的签名与发布包不同时，先导出备份再处理安装，不要用卸载代替备份。
 

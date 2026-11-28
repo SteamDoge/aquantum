@@ -43,13 +43,13 @@ Having a plugin interface does not mean OCR, AI or cloud sync are built in; they
 
 ## Download
 
-Current version: [**RC017 · rc.0.0.17**](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.17). See [all releases](https://github.com/SteamDoge/aquantum/releases) for changes and packages.
+Current version: [**RC018 · rc.0.0.18**](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.18). See [all releases](https://github.com/SteamDoge/aquantum/releases) for changes and packages.
 
 | Platform | Download | Which one |
 | --- | --- | --- |
-| Android 7.0+ (API 24+) | [![APK ARM64](https://img.shields.io/badge/APK-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.17/AQuantumReader-rc.0.0.17-android-arm64.apk) | Most phones |
-| Android x86_64 | [![APK x64](https://img.shields.io/badge/APK-x64-168039?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.17/AQuantumReader-rc.0.0.17-android-x64.apk) | x86_64 devices and emulators |
-| Plugin development | [SDK source and examples](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.17/AQuantumReader-rc.0.0.17-plugin-sdk.zip) | A developer tool, not an installed feature module |
+| Android 7.0+ (API 24+) | [![APK ARM64](https://img.shields.io/badge/APK-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.18/AQuantumReader-rc.0.0.18-android-arm64.apk) | Most phones |
+| Android x86_64 | [![APK x64](https://img.shields.io/badge/APK-x64-168039?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.18/AQuantumReader-rc.0.0.18-android-x64.apk) | x86_64 devices and emulators |
+| Plugin development | [SDK source and examples](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.18/AQuantumReader-rc.0.0.18-plugin-sdk.zip) | A developer tool, not an installed feature module |
 
 <sub>This version has Android packages only; the latest Windows portable package is in [RC015](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.15) (extract the whole folder; reading EPUB and similar documents needs the Microsoft Edge WebView2 Runtime). There are no Linux, macOS, iOS or Windows ARM64 packages yet. ARM64 physical devices and the full GUI, device and format matrix have not been fully verified.</sub>
 

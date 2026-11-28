@@ -43,13 +43,13 @@
 
 ## 下载
 
-当前版本：[**RC017 · rc.0.0.17**](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.17)。在 [所有版本](https://github.com/SteamDoge/aquantum/releases) 查看更新与安装包。
+当前版本：[**RC018 · rc.0.0.18**](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.18)。在 [所有版本](https://github.com/SteamDoge/aquantum/releases) 查看更新与安装包。
 
 | 平台 | 下载 | 选择说明 |
 | --- | --- | --- |
-| Android 7.0+（API 24+） | [![APK ARM64](https://img.shields.io/badge/APK-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.17/AQuantumReader-rc.0.0.17-android-arm64.apk) | 大多数手机选择此版本 |
-| Android x86_64 | [![APK x64](https://img.shields.io/badge/APK-x64-168039?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.17/AQuantumReader-rc.0.0.17-android-x64.apk) | x86_64 设备／模拟器 |
-| 插件开发 | [SDK 源码与示例](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.17/AQuantumReader-rc.0.0.17-plugin-sdk.zip) | 开发工具，不是已安装的功能模块 |
+| Android 7.0+（API 24+） | [![APK ARM64](https://img.shields.io/badge/APK-ARM64-3DDC84?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.18/AQuantumReader-rc.0.0.18-android-arm64.apk) | 大多数手机选择此版本 |
+| Android x86_64 | [![APK x64](https://img.shields.io/badge/APK-x64-168039?logo=android&logoColor=white)](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.18/AQuantumReader-rc.0.0.18-android-x64.apk) | x86_64 设备／模拟器 |
+| 插件开发 | [SDK 源码与示例](https://github.com/SteamDoge/aquantum/releases/download/rc.0.0.18/AQuantumReader-rc.0.0.18-plugin-sdk.zip) | 开发工具，不是已安装的功能模块 |
 
 <sub>本版只有 Android 安装包；最新的 Windows 便携包在 [RC015](https://github.com/SteamDoge/aquantum/releases/tag/rc.0.0.15)（须完整解压；阅读 EPUB 等文档需安装 Microsoft Edge WebView2 Runtime）。当前没有 Linux、macOS、iOS 或 Windows ARM64 安装包。ARM64 实体机及完整 GUI／设备／格式矩阵仍有验证缺口。</sub>
 

@@ -373,7 +373,14 @@ ThemeData readerTheme(
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: SegmentedButton.styleFrom(
         backgroundColor: tokens.backgroundEnd,
-        selectedBackgroundColor: tokens.panel,
+        // The selected segment is lifted above the track: white in light,
+        // a lighter grey in dark (the dark panel is darker than the track).
+        selectedBackgroundColor: dark
+            ? Color.alphaBlend(
+                text.withValues(alpha: .16),
+                tokens.backgroundEnd,
+              )
+            : tokens.panel,
         selectedForegroundColor: text,
         foregroundColor: text,
         side: BorderSide(color: tokens.backgroundEnd, width: 2),

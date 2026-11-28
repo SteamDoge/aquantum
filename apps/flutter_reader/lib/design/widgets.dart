@@ -25,6 +25,7 @@ class AqPageHeading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = AqColors.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -38,9 +39,23 @@ class AqPageHeading extends StatelessWidget {
                 child: Text(title, style: theme.textTheme.headlineLarge),
               ),
             ),
-            IconTheme.merge(
-              data: IconThemeData(color: theme.colorScheme.primary),
-              child: Row(mainAxisSize: MainAxisSize.min, children: actions),
+            // Icon actions sit on small round panels; the tap target stays 48.
+            IconButtonTheme(
+              data: IconButtonThemeData(
+                style: IconButton.styleFrom(
+                  foregroundColor: theme.colorScheme.primary,
+                  backgroundColor: colors.panel,
+                  side: BorderSide(color: colors.line, width: .5),
+                  fixedSize: const Size.square(40),
+                  minimumSize: const Size.square(40),
+                  tapTargetSize: MaterialTapTargetSize.padded,
+                  iconSize: 22,
+                ),
+              ),
+              child: IconTheme.merge(
+                data: IconThemeData(color: theme.colorScheme.primary),
+                child: Row(mainAxisSize: MainAxisSize.min, children: actions),
+              ),
             ),
           ],
         ),
@@ -250,9 +265,7 @@ class AqSearchField extends StatelessWidget {
         label: hint,
         child: Material(
           color: colors.backgroundEnd,
-          shape: RoundedSuperellipseBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+          shape: const StadiumBorder(),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: onTap,
@@ -285,6 +298,11 @@ class AqSearchField extends StatelessWidget {
         ),
       );
     }
+    // Search fields are fully rounded; other text fields keep the theme shape.
+    const pill = OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(999)),
+      borderSide: BorderSide.none,
+    );
     return TextField(
       controller: controller,
       autofocus: autofocus,
@@ -296,6 +314,14 @@ class AqSearchField extends StatelessWidget {
       ],
       style: const TextStyle(fontSize: 15),
       decoration: InputDecoration(
+        border: pill,
+        enabledBorder: pill,
+        focusedBorder: pill.copyWith(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.primary,
+            width: 1.5,
+          ),
+        ),
         hintText: hint,
         isDense: true,
         prefixIcon: const Icon(Icons.search, size: 20),

@@ -127,89 +127,79 @@ class _ArticleSettingsPanelState extends State<ArticleSettingsPanel> {
     );
   }
 
-  Widget mode(bool paged, String label) => Semantics(
-    checked: this.paged == paged,
-    inMutuallyExclusiveGroup: true,
-    child: InkWell(
-      onTap: () => change(() {
-        p.textPaged = paged;
-        p.continuous = !paged;
-      }),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        child: Row(
-          children: [
-            Icon(
-              this.paged == paged
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_unchecked,
-              size: 20,
-            ),
-            const SizedBox(width: 8),
-            Flexible(child: Text(label)),
-          ],
-        ),
-      ),
-    ),
+  /// One row of equal-width options: font, reading mode and turn effect.
+  Widget segments(
+    String value,
+    List<(String, String)> options,
+    ValueChanged<String> apply,
+  ) => SegmentedButton<String>(
+    expandedInsets: EdgeInsets.zero,
+    showSelectedIcon: false,
+    segments: [
+      for (final (id, label) in options)
+        ButtonSegment(value: id, label: Text(label)),
+    ],
+    selected: {value},
+    onSelectionChanged: (v) => change(() => apply(v.single)),
   );
 
+  /// Day and night choices are saved separately, but only the background
+  /// actually showing is marked, so the sheet never shows two checks.
   Widget palette(
     String label,
     bool dark,
     List<String> keys,
     List<String> names,
-  ) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(label),
-      const SizedBox(height: 8),
-      Row(
-        children: [
-          for (var i = 0; i < keys.length; i++)
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(right: i == keys.length - 1 ? 0 : 8),
-                child: Semantics(
-                  button: true,
-                  selected:
-                      (dark ? p.nightBackground : p.dayBackground) == keys[i],
-                  label: names[i],
-                  child: InkWell(
-                    onTap: () =>
-                        change(() => p.selectBackground(keys[i], dark: dark)),
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: (dark
-                            ? ReaderPreferences.nightColors
-                            : ReaderPreferences.dayColors)[keys[i]],
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color:
-                              (dark ? p.nightBackground : p.dayBackground) ==
-                                  keys[i]
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.outlineVariant,
+  ) {
+    final active = p.activeBackground(Theme.of(context).brightness);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            for (var i = 0; i < keys.length; i++)
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: i == keys.length - 1 ? 0 : 8),
+                  child: Semantics(
+                    button: true,
+                    selected: active == keys[i],
+                    label: names[i],
+                    child: InkWell(
+                      onTap: () =>
+                          change(() => p.selectBackground(keys[i], dark: dark)),
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: (dark
+                              ? ReaderPreferences.nightColors
+                              : ReaderPreferences.dayColors)[keys[i]],
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: active == keys[i]
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.outlineVariant,
+                          ),
                         ),
+                        child: active == keys[i]
+                            ? Icon(
+                                Icons.check,
+                                color: dark ? Colors.white : Colors.black,
+                              )
+                            : null,
                       ),
-                      child:
-                          (dark ? p.nightBackground : p.dayBackground) ==
-                              keys[i]
-                          ? Icon(
-                              Icons.check,
-                              color: dark ? Colors.white : Colors.black,
-                            )
-                          : null,
                     ),
                   ),
                 ),
               ),
-            ),
-        ],
-      ),
-    ],
-  );
+          ],
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -319,20 +309,10 @@ class _ArticleSettingsPanelState extends State<ArticleSettingsPanel> {
           const Divider(height: 32),
           Text(tr('字体'), style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            initialValue: p.font,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              isDense: true,
-            ),
-            items: [
-              DropdownMenuItem(value: 'system', child: Text(tr('系统字体'))),
-              DropdownMenuItem(value: 'serif', child: Text(tr('衬线字体'))),
-            ],
-            onChanged: (v) {
-              if (v != null) change(() => p.font = v);
-            },
-          ),
+          segments(p.font, [
+            ('system', tr('系统字体')),
+            ('serif', tr('衬线字体')),
+          ], (v) => p.font = v),
           const Divider(height: 32),
           Text(tr('阅读背景'), style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
@@ -351,45 +331,23 @@ class _ArticleSettingsPanelState extends State<ArticleSettingsPanel> {
           ),
           const Divider(height: 32),
           Text(tr('阅读方式'), style: TextStyle(fontWeight: FontWeight.bold)),
-          mode(true, tr('左右翻页')),
-          if (paged && widget.showEffects)
-            LayoutBuilder(
-              builder: (context, c) => Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final effect in [
-                    ('slide', tr('平移翻页'), Icons.view_carousel_outlined),
-                    ('cover', tr('覆盖翻页'), Icons.layers_outlined),
-                    ('curl', tr('仿真翻页'), Icons.auto_stories_outlined),
-                  ])
-                    SizedBox(
-                      width: c.maxWidth >= 320
-                          ? (c.maxWidth - 16) / 3
-                          : (c.maxWidth - 8) / 2,
-                      child: OutlinedButton(
-                        onPressed: () => change(() => p.turnEffect = effect.$1),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          side: BorderSide(
-                            color: p.turnEffect == effect.$1
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.outlineVariant,
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(effect.$3),
-                            const SizedBox(height: 8),
-                            Text(effect.$2),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          mode(false, tr('上下滚动')),
+          const SizedBox(height: 8),
+          segments(
+            paged ? 'paged' : 'scroll',
+            [('paged', tr('左右翻页')), ('scroll', tr('上下滚动'))],
+            (v) {
+              p.textPaged = v == 'paged';
+              p.continuous = v != 'paged';
+            },
+          ),
+          if (paged && widget.showEffects) ...[
+            const SizedBox(height: 8),
+            segments(p.turnEffect, [
+              ('slide', tr('平移翻页')),
+              ('cover', tr('覆盖翻页')),
+              ('curl', tr('仿真翻页')),
+            ], (v) => p.turnEffect = v),
+          ],
           const Divider(height: 32),
           Row(
             children: [
